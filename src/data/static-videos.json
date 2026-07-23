@@ -1,0 +1,13 @@
+[
+  {
+    "id": "v1",
+    "slug": "donate-quran-campaign",
+    "title": "Donate Quran Campaign",
+    "description": "Learn how your gift places the Qur'an in hands worldwide.",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop",
+    "videoType": "youtube",
+    "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "duration": "3:42",
+    "sortOrder": 1
+  }
+]

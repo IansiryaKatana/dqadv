@@ -1,0 +1,18 @@
+[
+  {
+    "id": "qe1",
+    "slug": "english",
+    "language": "English",
+    "featuredImageUrl": "https://images.unsplash.com/photo-1609599006353-e6a9e0c121ff?w=600&h=400&fit=crop",
+    "pdfUrl": "https://quranproject.org/downloads/quran-en.pdf",
+    "sortOrder": 1
+  },
+  {
+    "id": "qe2",
+    "slug": "urdu",
+    "language": "Urdu",
+    "featuredImageUrl": "https://images.unsplash.com/photo-1589998059171-988d887df646?w=600&h=400&fit=crop",
+    "pdfUrl": null,
+    "sortOrder": 2
+  }
+]

@@ -1,0 +1,56 @@
+import { Link } from '@tanstack/react-router'
+import type { DonationProduct } from '#/lib/cms/types'
+import { useGiftCart } from '#/contexts/GiftCartContext'
+import { Button } from '#/components/ui/button'
+import { cn } from '#/lib/utils'
+
+type AddToGiftButtonProps = {
+  product: DonationProduct
+  quantity?: number
+  variant?: 'gold' | 'black' | 'outline'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+  showViewLink?: boolean
+}
+
+export function AddToGiftButton({
+  product,
+  quantity = 1,
+  variant = 'gold',
+  size = 'sm',
+  className,
+  showViewLink = false,
+}: AddToGiftButtonProps) {
+  const { addItem } = useGiftCart()
+
+  if (showViewLink) {
+    return (
+      <div className={cn('flex flex-col gap-2 sm:flex-row', className)}>
+        <Button
+          type="button"
+          variant={variant}
+          size={size}
+          className="flex-1"
+          onClick={() => addItem(product, quantity)}
+        >
+          ADD TO YOUR GIFT
+        </Button>
+        <Button asChild variant="outline" size={size} className="flex-1">
+          <Link to={`/donate/${product.slug}`}>VIEW DETAILS</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <Button
+      type="button"
+      variant={variant}
+      size={size}
+      className={cn('w-full', className)}
+      onClick={() => addItem(product, quantity)}
+    >
+      ADD TO YOUR GIFT
+    </Button>
+  )
+}

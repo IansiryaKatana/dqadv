@@ -1,0 +1,158 @@
+import type { GiftCartItem } from '#/lib/commerce/types'
+import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
+import { getResendClient } from './resendClient'
+import { adminNewDonationHtml, donationReceiptHtml } from './templates'
+
+type DonationRow = {
+  id: string
+  reference: string
+  donor_name: string
+  donor_email: string
+  dedication?: string | null
+  total: number
+  currency: string
+  cart_snapshot: unknown
+}
+
+function parseItems(snapshot: unknown): GiftCartItem[] {
+  if (!Array.isArray(snapshot)) return []
+  return snapshot as GiftCartItem[]
+}
+
+async function logEmail(
+  donationId: string,
+  template: string,
+  recipient: string,
+  status: 'sent' | 'failed',
+  resendId?: string,
+  error?: string,
+) {
+  const admin = getSupabaseAdmin()
+  if (!admin) return
+  await admin.from('dq_email_log').insert({
+    donation_id: donationId,
+    template,
+    recipient,
+    resend_id: resendId ?? null,
+    status,
+    error: error ?? null,
+  })
+}
+
+export async function sendDonationEmails(donation: DonationRow) {
+  const resend = await getResendClient()
+  if (!resend) return
+
+  const { client, config } = resend
+  const from = config.emailFromName
+    ? `${config.emailFromName} <${config.emailFromAddress}>`
+    : config.emailFromAddress
+
+  if (!from || !config.emailFromAddress) return
+
+  const items = parseItems(donation.cart_snapshot)
+  const payload = {
+    reference: donation.reference,
+    donorName: donation.donor_name,
+    donorEmail: donation.donor_email,
+    total: Number(donation.total),
+    currency: donation.currency,
+    dedication: donation.dedication,
+    items,
+  }
+
+  let receiptSent = false
+
+  try {
+    const { data, error } = await client.emails.send({
+      from,
+      to: donation.donor_email,
+      subject: `Your gift is complete — ${donation.reference}`,
+      html: donationReceiptHtml(payload),
+    })
+    await logEmail(
+      donation.id,
+      'donation_receipt',
+      donation.donor_email,
+      error ? 'failed' : 'sent',
+      data?.id,
+      error?.message,
+    )
+    receiptSent = !error
+  } catch (e) {
+    await logEmail(
+      donation.id,
+      'donation_receipt',
+      donation.donor_email,
+      'failed',
+      undefined,
+      e instanceof Error ? e.message : 'Send failed',
+    )
+  }
+
+  if (config.emailAdminNotify) {
+    try {
+      const { data, error } = await client.emails.send({
+        from,
+        to: config.emailAdminNotify,
+        subject: `New gift: ${donation.reference}`,
+        html: adminNewDonationHtml(payload),
+      })
+      await logEmail(
+        donation.id,
+        'admin_new_donation',
+        config.emailAdminNotify,
+        error ? 'failed' : 'sent',
+        data?.id,
+        error?.message,
+      )
+    } catch (e) {
+      await logEmail(
+        donation.id,
+        'admin_new_donation',
+        config.emailAdminNotify,
+        'failed',
+        undefined,
+        e instanceof Error ? e.message : 'Send failed',
+      )
+    }
+  }
+
+  if (receiptSent) {
+    const admin = getSupabaseAdmin()
+    if (admin) {
+      await admin
+        .from('dq_donations')
+        .update({ email_receipt_sent_at: new Date().toISOString() })
+        .eq('id', donation.id)
+    }
+  }
+}
+
+export async function resendDonationReceipt(donationId: string) {
+  const admin = getSupabaseAdmin()
+  if (!admin) throw new Error('Server database configuration is missing.')
+
+  const { data, error } = await admin.from('dq_donations').select('*').eq('id', donationId).single()
+  if (error || !data) throw new Error('Donation not found.')
+  if (data.payment_status !== 'paid') throw new Error('Receipts are only sent for completed gifts.')
+
+  await sendDonationEmails(data as DonationRow)
+}
+
+export async function sendTestEmail(to: string) {
+  const resend = await getResendClient()
+  if (!resend) throw new Error('Email is not configured yet.')
+
+  const { client, config } = resend
+  const from = `${config.emailFromName || 'Donate Quran'} <${config.emailFromAddress}>`
+
+  const { error } = await client.emails.send({
+    from,
+    to,
+    subject: 'Donate Quran — test email',
+    html: '<p>Your email integration is working correctly.</p>',
+  })
+
+  if (error) throw new Error(error.message)
+}

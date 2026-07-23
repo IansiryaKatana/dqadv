@@ -1,0 +1,214 @@
+@import url("https://fonts.googleapis.com/css2?family=Pliant:wght@100;200;300;400&display=swap");
+@import "tailwindcss";
+
+/* shadcn semantic tokens — mapped to Donate Quran brand */
+:root {
+  --radius: 0.625rem;
+  --background: #ffffff;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #f4b000;
+  --primary-foreground: #050505;
+  --secondary: #f7f7f5;
+  --secondary-foreground: #171717;
+  --muted: #f7f7f5;
+  --muted-foreground: #737373;
+  --accent: #f8f3ea;
+  --accent-foreground: #171717;
+  --destructive: #dc2626;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #f4b000;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-4xl: 1.5rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@theme {
+  --color-dq-black: #050505;
+  --color-dq-soft-black: #111111;
+  --color-dq-gold: #f4b000;
+  --color-dq-cream: #f8f3ea;
+  --color-dq-muted: #6f6f6f;
+  --color-dq-border: #e8e2d6;
+  --color-paypal-blue: #0070ba;
+  --font-sans: "Pliant", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Pliant", ui-sans-serif, system-ui, sans-serif;
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 400;
+  --font-weight-bold: 400;
+  --font-weight-extrabold: 400;
+  --font-weight-black: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 200;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #333;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display — oversized, hairline weight */
+.type-display {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-size: clamp(2.75rem, 9vw, 5.75rem);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+/* Section headlines */
+.type-headline {
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Card & overlay titles */
+.type-title {
+  font-weight: 300;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 768px) {
+  .type-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Small uppercase labels — nav, eyebrows, badges */
+.type-eyebrow {
+  font-weight: 200;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Body copy */
+.type-body {
+  font-weight: 200;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .type-body {
+    font-size: 1rem;
+  }
+}
+
+/* UI controls — readable at small sizes */
+.type-label {
+  font-weight: 400;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Header navigation */
+.type-nav-link {
+  font-weight: 400;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.header-nav-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.header-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+:focus-visible {
+  outline: 3px solid #f4b000;
+  outline-offset: 3px;
+}
+
+/* Form controls use their own border focus — avoid a second outer ring. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  outline-offset: 0;
+}
+
+.prose-dq ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.prose-dq li + li {
+  margin-top: 0.5rem;
+}
+
+.prose-dq p {
+  font-weight: 200;
+  line-height: 1.7;
+}

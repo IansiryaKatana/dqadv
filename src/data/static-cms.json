@@ -1,0 +1,209 @@
+{
+  "navigation": [
+    { "id": "1", "label": "Home", "href": "/", "sortOrder": 1, "showInHeader": true, "showInFooter": true, "footerGroup": "quick_links" },
+    { "id": "2", "label": "About us", "href": "/about", "sortOrder": 2, "showInHeader": true, "showInFooter": true, "footerGroup": "quick_links" },
+    { "id": "6", "label": "Quran", "href": "/quran", "sortOrder": 3, "showInHeader": true, "showInFooter": true, "footerGroup": "resources" },
+    { "id": "7", "label": "Books", "href": "/books", "sortOrder": 4, "showInHeader": true, "showInFooter": true, "footerGroup": "resources" },
+    { "id": "8", "label": "Articles", "href": "/articles", "sortOrder": 5, "showInHeader": false, "showInFooter": true, "footerGroup": "resources" },
+    { "id": "9", "label": "Videos", "href": "/videos", "sortOrder": 6, "showInHeader": true, "showInFooter": true, "footerGroup": "resources" },
+    { "id": "3", "label": "Donate", "href": "/donate", "sortOrder": 7, "showInHeader": true, "showInFooter": true, "footerGroup": "quick_links" },
+    { "id": "10", "label": "Contact Us", "href": "/contact", "sortOrder": 8, "showInHeader": true, "showInFooter": true, "footerGroup": "quick_links" },
+    { "id": "5", "label": "Distribute", "href": "/distribute", "sortOrder": 9, "showInHeader": true, "showInFooter": true, "footerGroup": "quick_links" }
+  ],
+  "hero": {
+    "id": "hero-1",
+    "titleLine1": "Faith.",
+    "titleLine2": "Knowledge.",
+    "titleLine3": "Impact.",
+    "highlightWord": "Impact.",
+    "description": "Join us in spreading the light of the Qur'an worldwide. Every donation helps deliver sacred knowledge to hearts that seek guidance, hope, and connection with Allah.",
+    "imageUrl": "/images/hero-quran.jpg",
+    "primaryCtaLabel": "DONATE NOW",
+    "primaryCtaUrl": "/donate",
+    "secondaryCtaLabel": "ORDER FREE COPY",
+    "secondaryCtaUrl": "/donate/quran-free-copy"
+  },
+  "whatsInside": {
+    "id": "inside-1",
+    "heading": "What's",
+    "highlightWord": "Inside?",
+    "introHtml": "<p>Each Qur'an package we distribute is thoughtfully prepared to help recipients read, understand, and reflect. Premium print quality meets practical learning tools.</p>",
+    "bullets": [
+      "English translation with clear, readable typography",
+      "Transliteration guide for new learners",
+      "Bookmark and reading guide included",
+      "Durable cover designed for daily use",
+      "QR code linking to audio recitation resources"
+    ],
+    "imageUrl": "/images/quran-product.jpg",
+    "backgroundColor": "#FAF7F1"
+  },
+  "ventureSection": {
+    "id": "venture-1",
+    "heading": "Our",
+    "highlightWord": "Greatest",
+    "subtitle": "Venture",
+    "description": "From remote villages to bustling cities, your generosity places the Qur'an in hands eager to learn. These are real moments of distribution made possible by donors like you."
+  },
+  "ventureImages": [
+    { "id": "v1", "imageUrl": "https://images.unsplash.com/photo-1564769662533-4f00a747b231?w=400&h=500&fit=crop", "alt": "Child receiving a Qur'an", "sortOrder": 1 },
+    { "id": "v2", "imageUrl": "https://images.unsplash.com/photo-1591604466376-0621a4a3f404?w=400&h=500&fit=crop", "alt": "Community Qur'an distribution", "sortOrder": 2 },
+    { "id": "v3", "imageUrl": "https://images.unsplash.com/photo-1542816417-0983c9c9ad14?w=400&h=500&fit=crop", "alt": "Students with Qur'an copies", "sortOrder": 3 },
+    { "id": "v4", "imageUrl": "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=400&h=500&fit=crop", "alt": "Family reading together", "sortOrder": 4 },
+    { "id": "v5", "imageUrl": "https://images.unsplash.com/photo-1585036156171-3841649478f7?w=400&h=500&fit=crop", "alt": "Global distribution outreach", "sortOrder": 5 }
+  ],
+  "donationProducts": [
+    {
+      "id": "p1", "slug": "single-quran-request", "title": "Single Qur'an Request",
+      "description": "Request one copy for yourself or someone in need.",
+      "imageUrl": "https://images.unsplash.com/photo-1609599006353-e6a9e0c121ff?w=600&h=400&fit=crop",
+      "price": 15, "currency": "GBP", "category": "Request", "stockStatus": "Available",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/single-quran-request", "kind": "product", "sortOrder": 1,
+      "requiresShipping": true, "impactStatement": "Provides 1 Qur'an to a family in need"
+    },
+    {
+      "id": "p2", "slug": "quran-english-translation", "title": "The Qur'an: English Translation",
+      "description": "Premium English translation edition for daily reading.",
+      "imageUrl": "https://images.unsplash.com/photo-1589998059171-988d887df646?w=600&h=400&fit=crop",
+      "price": 25, "currency": "GBP", "category": "Product", "stockStatus": "In Stock",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/quran-english-translation", "kind": "product", "sortOrder": 2,
+      "requiresShipping": true, "impactStatement": "Delivers a premium English translation Mushaf"
+    },
+    {
+      "id": "p3", "slug": "quran-project-app", "title": "The Qur'an Project App",
+      "description": "Support our digital platform for learning and reflection.",
+      "imageUrl": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
+      "price": null, "currency": "GBP", "category": "Digital", "stockStatus": "Free Access",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/quran-project-app", "kind": "product", "sortOrder": 3,
+      "requiresShipping": false, "impactStatement": "Supports our digital Qur'an learning platform"
+    },
+    {
+      "id": "p4", "slug": "bulk-pallet-order", "title": "Bulk Pallet Order",
+      "description": "Sponsor a full pallet of Qur'ans for mass distribution.",
+      "imageUrl": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop",
+      "price": 2500, "currency": "GBP", "category": "Bulk", "stockStatus": "By Request",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/bulk-pallet-order", "kind": "product", "sortOrder": 4,
+      "requiresShipping": false, "impactStatement": "Sponsors a full pallet — approximately 500 Qur'ans distributed"
+    }
+  ],
+  "quickDonations": [
+    {
+      "id": "q1", "slug": "flagship-sponsorship", "title": "Flagship Sponsorship",
+      "description": "Become a flagship partner and fund large-scale Qur'an distribution campaigns across multiple regions.",
+      "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=500&fit=crop",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/flagship-sponsorship", "kind": "quick", "sortOrder": 1,
+      "impactStatement": "Funds large-scale distribution campaigns across multiple regions"
+    },
+    {
+      "id": "q2", "slug": "mushaf-print", "title": "Mushaf Print",
+      "description": "Fund the printing of new Mushaf editions for communities waiting for accessible copies.",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=500&fit=crop",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/mushaf-print", "kind": "quick", "sortOrder": 2,
+      "impactStatement": "Funds printing of new Mushaf editions for waiting communities"
+    },
+    {
+      "id": "q3", "slug": "marketing-outreach", "title": "Marketing & Outreach",
+      "description": "Help us reach more people through campaigns, events, and educational content.",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=500&fit=crop",
+      "ctaLabel": "DONATE NOW", "ctaUrl": "/donate/marketing-outreach", "kind": "quick", "sortOrder": 3,
+      "impactStatement": "Expands our reach through campaigns and educational content"
+    }
+  ],
+  "stories": [
+    { "id": "s1", "title": "Open a Qur'an. Open a Heart.", "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=700&fit=crop", "linkUrl": "/stories/open-a-heart", "sortOrder": 1 },
+    { "id": "s2", "title": "A Gift That Lasts Forever", "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=700&fit=crop", "linkUrl": "/stories/gift-forever", "sortOrder": 2 },
+    { "id": "s3", "title": "From Donor to Reader", "imageUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=700&fit=crop", "linkUrl": "/stories/donor-to-reader", "sortOrder": 3 },
+    { "id": "s4", "title": "Light in Every Home", "imageUrl": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=700&fit=crop", "linkUrl": "/stories/light-every-home", "sortOrder": 4 },
+    { "id": "s5", "title": "Stories of Hope", "imageUrl": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=700&fit=crop", "linkUrl": "/stories/hope", "sortOrder": 5 }
+  ],
+  "blogPosts": [
+    {
+      "id": "b1", "slug": "importance-reading-quran-daily", "title": "The Importance of Reading the Qur'an Daily",
+      "excerpt": "Discover how a few minutes of daily recitation can transform your spiritual routine and deepen your connection with Allah.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1609599006353-e6a9e0c121ff?w=800&h=500&fit=crop",
+      "category": "NEW", "authorName": "Amina Hassan",
+      "authorAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop",
+      "publishedAt": "2026-05-28T10:00:00Z", "readTime": "5 min read"
+    },
+    {
+      "id": "b2", "slug": "how-your-donation-reaches-communities", "title": "How Your Donation Reaches Communities Worldwide",
+      "excerpt": "Follow the journey from your generous gift to a Qur'an placed in the hands of someone ready to learn.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1488523785076-6ef0109c1b44?w=800&h=500&fit=crop",
+      "category": "Impact", "authorName": "Omar Farouk",
+      "authorAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop",
+      "publishedAt": "2026-05-15T10:00:00Z", "readTime": "7 min read"
+    }
+  ],
+  "promoTiles": [
+    { "id": "t1", "title": "Ramadan Guide", "imageUrl": "https://images.unsplash.com/photo-1519682577862-22b962b24b2b?w=600&h=400&fit=crop", "linkUrl": "/guides/ramadan", "sortOrder": 1 },
+    { "id": "t2", "title": "Qur'anic Reflections", "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop", "linkUrl": "/reflections", "sortOrder": 2 },
+    { "id": "t3", "title": "Donate Qur'an Project", "imageUrl": "https://images.unsplash.com/photo-1609599006353-e6a9e0c121ff?w=600&h=400&fit=crop", "linkUrl": "/donate", "sortOrder": 3 }
+  ],
+  "quranWiki": {
+    "id": "wiki-1",
+    "title": "Qur'an Wiki",
+    "subtitle": "LEARN, STUDY AND REFLECT",
+    "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&h=400&fit=crop",
+    "linkUrl": "https://www.quran-wiki.com/"
+  },
+  "quranWikiArticles": [
+    {
+      "id": "w1",
+      "slug": "ramadan-guide",
+      "title": "Ramadan Guide",
+      "excerpt": "Practical guidance for worship, fasting, and Qur'an reading throughout the blessed month of Ramadan.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1519682577862-22b962b24b2b?w=600&h=400&fit=crop",
+      "category": "Ramadan",
+      "authorName": "Amina Hassan",
+      "publishedAt": "2026-06-10T10:00:00Z",
+      "readTime": "7 min read"
+    },
+    {
+      "id": "w2",
+      "slug": "quranic-reflections",
+      "title": "Qur'anic Reflections",
+      "excerpt": "Short reflections on ayat that inspire mindfulness, gratitude, and deeper connection with Allah.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
+      "category": "Reflection",
+      "authorName": "Omar Farouk",
+      "publishedAt": "2026-06-09T10:00:00Z",
+      "readTime": "5 min read"
+    },
+    {
+      "id": "w3",
+      "slug": "donate-quran-project",
+      "title": "Donate Qur'an Project",
+      "excerpt": "Learn how your donation places Mushaf copies in the hands of people seeking guidance worldwide.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1609599006353-e6a9e0c121ff?w=600&h=400&fit=crop",
+      "category": "Giving",
+      "authorName": "Amina Hassan",
+      "publishedAt": "2026-06-08T10:00:00Z",
+      "readTime": "4 min read"
+    }
+  ],
+  "footer": {
+    "id": "footer-1",
+    "aboutText": "Donate Quran is a faith-based charity dedicated to placing the Qur'an in the hands of people worldwide through donation, distribution, and education.",
+    "email": "info@donatequran.org",
+    "phone": "",
+    "address": "",
+    "copyright": "© 2026 Donate Qur'an. All rights reserved.",
+    "developerCredit": "Developed with care for the Ummah",
+    "socialLinks": [
+      { "label": "Facebook", "href": "https://www.facebook.com/DonateQuran" },
+      { "label": "Instagram", "href": "https://www.instagram.com/donatequran/" },
+      { "label": "X", "href": "https://x.com/DonateQuran" },
+      { "label": "YouTube", "href": "https://www.youtube.com/channel/UCupzcEvI3cDAsyZV7uuNLvQ" }
+    ]
+  },
+  "siteSettings": {
+    "site_name": "Donate Quran",
+    "primary_color": "#F4B000",
+    "donate_url": "/donate",
+    "app_store_url": "https://apps.apple.com/us/app/donate-quran/id1080811194",
+    "play_store_url": "https://play.google.com/store/apps/details?id=com.donatequran",
+    "logo_light_url": "/images/logo-light.png",
+    "logo_dark_url": "/images/logo-dark.png",
+    "favicon_url": "/favicon.png"
+  }
+}

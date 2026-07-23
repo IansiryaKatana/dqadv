@@ -1,0 +1,967 @@
+DQ Website UI/UX Concept Breakdown
+
+Reference: Donate Quran / “dq” charity website homepage
+Format: Long-scroll donation, distribution, storytelling, and content hub landing page
+
+1. Project Manager Perspective
+Page Purpose
+
+This homepage is designed as a faith-based donation and awareness platform for Qur’an distribution. The primary objective is to move users from emotional understanding into clear action:
+
+Understand the mission.
+See what is inside the Qur’an package/project.
+Trust the organization through real-world distribution proof.
+Choose a donation/product route.
+Watch educational/social content.
+Read blog/knowledge content.
+Navigate to related Islamic learning resources.
+
+The page is not only a donation page. It works as a complete campaign landing page for:
+
+Qur’an donation
+Qur’an distribution
+bulk sponsorship
+app awareness
+marketing/content awareness
+blog and Islamic learning ecosystem
+2. Content Hierarchy & User Journey
+Main Flow
+Order	Section	Purpose
+1	Header Navigation	Gives quick access to core pages and donation CTA
+2	Hero Section	Immediate emotional hook: “Faith. Knowledge. Impact.”
+3	What’s Inside	Explains what the user/donor is supporting
+4	Greatest Venture	Builds credibility through real delivery/distribution images
+5	Donation/Product Cards	Converts users into specific donation actions
+6	Story Carousel	Social proof and awareness content
+7	Quick Donation	Larger campaign sponsorship options
+8	Blog Posts	Adds authority, education, SEO value
+9	Qur’an Wiki Banner	Connects the brand to wider learning/reflection ecosystem
+10	Resource/Promo Tiles	Promotes related Qur’an content/products
+11	Footer	Trust, contact, legal/navigation closure
+3. Key User Actions
+
+The homepage should prioritize these actions:
+
+Donate Now
+Learn more about the Qur’an project
+Request a single Qur’an
+Request bulk pallets
+Sponsor a flagship project
+Open the Qur’an app
+View stories/social proof
+Read blog content
+Explore Qur’an Wiki
+
+The strongest CTA is the yellow “Donate Now” button in the header and supporting CTA buttons throughout the page.
+
+4. UI/UX Engineer Perspective
+Global Layout Structure
+Canvas
+
+The page is a desktop-first vertical landing page with a narrow central content width and full-width background sections.
+
+Approximate structure:
+
+<body>
+  <Header />
+  <Hero />
+  <WhatsInside />
+  <GreatestVenture />
+  <DonationCards />
+  <StoryCarousel />
+  <QuickDonation />
+  <BlogPreview />
+  <QuranWikiBanner />
+  <PromoTiles />
+  <Footer />
+</body>
+Suggested Max Widths
+Area	Width Behavior
+Header inner	1180–1240px max-width
+Hero content	Full width background, inner max 1180–1240px
+Standard sections	1120–1180px max-width
+Card grids	4 columns desktop
+Blog grid	2 columns desktop
+Footer	Full width black, inner max 1180px
+5. Header Breakdown
+Visual Structure
+
+The header is clean, white, and minimal.
+
+----------------------------------------------------
+| dq logo | Home | About us | Donation | Distribute | Contact | DONATE NOW |
+----------------------------------------------------
+Header Details
+Element	Specification
+Height	Approx. 68–76px
+Background	White
+Logo	Left aligned, black/yellow “dq”
+Nav	Center-aligned horizontal links
+Active State	“Home” has a small underline/accent
+CTA	Yellow rectangular button, top-right
+Font	Small, bold, clean sans-serif
+Spacing	Wide horizontal breathing space
+Header UX
+Header should remain sticky on scroll.
+On scroll, add subtle shadow or blur.
+“Donate Now” must remain visually dominant.
+Mobile should collapse into a hamburger menu.
+Mobile Header
+--------------------------------
+| dq logo              ☰       |
+--------------------------------
+
+On click:
+
+Slide-down or side-drawer menu
+Nav links stacked vertically
+Full-width yellow Donate Now button
+6. Hero Section Breakdown
+Purpose
+
+The hero section is the strongest emotional entry point. It uses a large image of a child receiving/holding the Qur’an, paired with bold impact-driven copy.
+
+Layout
+---------------------------------------------------------
+| Left text block                 | Right hero image     |
+| Faith.                          | Boy holding Qur’an   |
+| Knowledge.                      | with adult figure    |
+| Impact.                         | mosque background    |
+| paragraph                       |                      |
+| [Donate Now] [See Our Programs] |                      |
+---------------------------------------------------------
+Composition
+Area	Description
+Left side	Text-heavy, positioned around 12–15% from left
+Right side	Large lifestyle image occupying 55–60% width
+Background	Warm white/beige, soft mosque interior
+Image treatment	Bright, clean, high-key lighting
+CTA row	Black primary button + yellow secondary link/button
+Typography
+
+The hero headline is the most important typography moment.
+
+Faith.
+Knowledge.
+Impact.
+Word	Style
+Faith.	Black, very bold
+Knowledge.	Black, very bold
+Impact.	Yellow/gold, very bold
+Approximate Type Scale
+Element	Desktop
+Hero headline	56–72px
+Line height	0.95–1.05
+Paragraph	14–16px
+CTA text	12–13px uppercase/small-bold
+Color Notes
+Color Role	Approximate Value
+Primary black	#050505
+Donation yellow	#F5B400 / #F6B500
+Warm background	#F7F2E9 / #FAF7F1
+Body text	#333333
+Hero CTA Behavior
+
+Primary button:
+
+Donate Now
+Black pill/button
+White text
+Rounded radius around 20–30px
+Slight shadow
+Hover: black deepens, button lifts 2px
+
+Secondary action:
+
+See Our Programs
+Yellow text/icon
+Minimal style
+Hover: underline or arrow shift
+Implementation Notes
+
+Use a two-column CSS grid:
+
+<section className="hero">
+  <div className="hero__content">
+    <h1>
+      Faith.<br />
+      Knowledge.<br />
+      <span>Impact.</span>
+    </h1>
+    <p>...</p>
+    <div className="hero__actions">...</div>
+  </div>
+
+  <div className="hero__media">
+    <img src="/hero-quran-donation.jpg" />
+  </div>
+</section>
+Responsive Behavior
+Breakpoint	Behavior
+Desktop	2-column hero
+Tablet	Text left, image right but tighter
+Mobile	Image becomes background or appears below text
+Small mobile	Headline 42–48px, CTA stacked
+7. “What’s Inside?” Section
+Purpose
+
+This section explains the product/project contents and gives the user confidence that the donation has real value.
+
+Layout
+---------------------------------------------------------
+| Heading + paragraph + bullet list     | Qur’an product image |
+| What's Inside?                        | Closed Qur’an        |
+| body text                             | Open Qur’an spread   |
+| bullet list                           | marble background    |
+---------------------------------------------------------
+Visual Style
+White/light marble background
+Left text block
+Right product photography
+Yellow highlight on the word Inside?
+Light, refined educational feel
+Content Hierarchy
+What's Inside?
+Intro paragraph
+Bullet list
+
+The heading uses black text with yellow emphasis:
+
+What's Inside?
+
+“Inside?” is yellow.
+
+Layout Rules
+Item	Specification
+Section padding	90–120px top/bottom
+Grid	45% text / 55% image
+Image	Product mockup on marble
+Bullets	Small black body text
+Background	Subtle white stone texture
+UX Requirement
+
+This section should be scannable. The bullet list must not become too dense on mobile.
+
+Mobile Behavior
+Heading first
+Image second or image above text depending on content strategy
+Bullet list full width
+Product image cropped neatly
+8. “Our Greatest Venture” Section
+Purpose
+
+This is the credibility and proof section. It shows real people receiving Qur’ans, establishing that donations are being distributed.
+
+Layout
+---------------------------------------------------------
+Dark background with faint world map
+Our Greatest Venture
+Mission paragraph
+
+[image card] [image card] [image card] [image card] [image card]
+---------------------------------------------------------
+Visual Style
+Element	Description
+Background	Near-black with faint map/world texture
+Heading	White with yellow emphasis
+Cards	Rounded rectangles with yellow borders
+Image style	Real-world candid photography
+Mood	Human, global, impactful
+Card Design
+
+Each image card:
+
+Rounded corners: 14–18px
+Border: 2–3px yellow
+Overflow hidden
+Image fills entire card
+Slight drop shadow
+Horizontal carousel-style layout
+UX Logic
+
+This section should feel like evidence, not decoration.
+
+Recommended behavior:
+
+Desktop: horizontal row of 5 cards
+Tablet: scrollable row
+Mobile: horizontal swipe carousel
+Animation Opportunity
+Cards enter one after another from bottom.
+On hover: slight scale up, border brightens.
+Use Motion for card reveal and hover.
+Use GSAP only if turning this into a scroll-driven horizontal gallery.
+9. Donation/Product Cards Section
+Purpose
+
+This is the first major conversion section. It presents specific actions/products users can choose.
+
+Layout
+---------------------------------------------------------
+[Card 1] [Card 2] [Card 3] [Card 4]
+Single Quran Request
+Single Quran Request
+The Quran Project App
+Bulk Pallet Order
+---------------------------------------------------------
+Card Structure
+
+Each card contains:
+
+Image
+Small category/date label
+Title
+Short description
+Price
+CTA button
+Stock/status text
+Visual Style
+Detail	Specification
+Background	White / very light grey
+Card bg	White
+Border	Thin yellow border
+Radius	12–18px
+Image height	220–260px
+CTA	Small yellow pill button
+Text	Compact, black
+Price	Bold or semi-bold
+Layout
+
+Desktop:
+
+grid-template-columns: repeat(4, 1fr);
+gap: 24px;
+
+Tablet:
+
+grid-template-columns: repeat(2, 1fr);
+
+Mobile:
+
+grid-template-columns: 1fr;
+Card UX
+
+Each card should be clickable, but the CTA must also be explicit.
+
+Hover state:
+
+Card rises 4px
+Border becomes stronger yellow
+Image slightly zooms
+CTA gains shadow
+Component Model
+type DonationCard = {
+  id: string
+  title: string
+  description: string
+  image: string
+  price?: string
+  ctaLabel: string
+  href: string
+  stockStatus?: string
+  category?: string
+}
+10. Stories Carousel Section
+Purpose
+
+This section promotes emotional/social media content with vertical story-style thumbnails.
+
+Layout
+Watch Stories, Learn, and Be Inspired
+
+[Story] [Story] [Story] [Story] [Story]
+Visual Characteristics
+Vertical poster cards
+Instagram/TikTok/story-style dimensions
+Strong typography baked into graphics
+Partial off-screen cards on left/right
+Center cards visible
+Horizontal scrolling carousel
+Design Requirements
+Item	Specification
+Card aspect ratio	9:16
+Width	250–300px desktop
+Gap	12–18px
+Carousel	Horizontal overflow
+Control	Small circular next/previous arrow
+Alignment	Cards centered within section
+UX Behavior
+Desktop: draggable carousel
+Mobile: swipe-native horizontal scroll
+Arrows optional on mobile
+Use scroll snapping
+.story-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.story-card {
+  scroll-snap-align: center;
+}
+Motion
+
+Use Motion for:
+
+Card hover lift
+Drag interaction
+Arrow movement
+Fade-in on section entry
+
+Use GSAP only if creating an advanced cinematic horizontal scroll section.
+
+11. Quick Donation Section
+Purpose
+
+This section offers larger, more structured donation options.
+
+Layout
+Quick Donation
+
+[Large Card 1] [Large Card 2] [Large Card 3]
+Flagship Sponsorship
+Mushaf Print
+Marketing
+Card Structure
+
+Each card:
+
+Large image
+Title
+Description
+CTA button
+Visual Style
+
+Compared to the earlier product cards, these cards are larger and more editorial.
+
+Element	Style
+Card width	3-column
+Image	Large rectangular image
+Background	White
+Border	Minimal/no border
+CTA	Yellow rectangular/pill
+Typography	Bold title, compact body
+UX Priority
+
+This is a secondary conversion zone. It should feel serious and campaign-focused.
+
+Responsive Behavior
+
+| Desktop | 3 cards |
+| Tablet | 2 cards + 1 below |
+| Mobile | 1 card per row |
+
+12. Blog Preview Section
+Purpose
+
+This adds educational depth and SEO value to the homepage.
+
+Layout
+small label
+Check latest Blog Post
+
+[Blog Card 1] [Blog Card 2]
+Blog Card Structure
+Image
+Category badge
+Title
+Excerpt
+Author avatar/name
+Date
+Read time/comment count
+Visual Style
+Element	Description
+Section background	White
+Heading	Centered
+Cards	2-column
+Images	Wide landscape format
+Category badge	Yellow pill
+Metadata	Small, muted grey
+Author	Avatar + text
+Blog Card UX
+Entire card clickable
+Category badge clickable
+Hover image zoom
+Title underline or color shift on hover
+Full-Stack Data Model
+type BlogPost = {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  coverImage: string
+  category: string
+  authorName: string
+  authorAvatar?: string
+  publishedAt: string
+  readTime?: string
+}
+13. Qur’an Wiki Banner Section
+Purpose
+
+This functions as a cross-promotion banner for a connected learning platform.
+
+Layout
+---------------------------------------------------------
+Cloud/sky banner
+Quran Wiki logo
+LEARN, STUDY AND REFLECT
+---------------------------------------------------------
+Visual Style
+Wide horizontal banner
+Sky/cloud imagery
+Soft spiritual atmosphere
+Centered logo and headline
+Light beige/white palette
+UI Behavior
+Banner should be clickable.
+Hover: slight brightness increase or subtle zoom.
+Mobile: preserve logo readability by cropping the background carefully.
+14. Promo Tiles Section
+Purpose
+
+Small promotional links to additional content/resources.
+
+Layout
+[Ramadan Guide] [Quranic...] [Donate Qur’an Project]
+Design Notes
+Three-column visual tiles
+Mostly image-based
+Minimal text overlay or baked-in graphic text
+Good for linking to campaigns, downloads, guides, or product pages
+Responsive
+Desktop: 3 columns
+Mobile: stacked or swipe carousel
+15. Footer Breakdown
+Purpose
+
+The footer completes the trust cycle with contact details, links, and brand identity.
+
+Layout
+---------------------------------------------------------
+BLACK FOOTER
+
+[Logo + short text + contact] [Quick Links] [Resources] [Contact Info]
+
+Copyright text                         Developed by...
+---------------------------------------------------------
+Visual Style
+Element	Description
+Background	Near black #080808
+Text	White and muted grey
+Accent	Yellow
+Logo	dq logo in yellow/white
+Layout	4-column grid
+Bottom row	Copyright + developer credit
+UX Requirements
+
+Footer links should include:
+
+Home
+About us
+Donate
+Distribute
+Contact
+Privacy Policy
+Terms
+FAQs
+Blog
+
+Contact area should include:
+
+Email
+Phone
+Address
+Social links
+16. Graphic Designer Perspective
+Brand Personality
+
+The design communicates:
+
+Faith
+Trust
+Giving
+Knowledge
+Warmth
+Simplicity
+Real-world impact
+
+It avoids looking overly corporate. It feels like a modern Islamic charity/campaign platform with product-quality visuals.
+
+Color Palette
+Primary Palette
+Role	Color
+Black	#050505
+Soft black	#111111
+Yellow/gold	#F4B000
+Warm cream	#F8F3EA
+White	#FFFFFF
+Muted grey	#6F6F6F
+Light border	#E8E2D6
+Usage Rules
+Yellow should only be used for:
+CTA buttons
+word highlights
+card borders
+small badges
+brand accents
+Black should be used for:
+Primary headings
+Footer
+CTA contrast
+Dark proof section
+Cream/white should be used for:
+Spacious backgrounds
+Product-focused areas
+Blog/card readability
+Typography
+
+The typography is bold, clean, and slightly playful in the headline.
+
+Suggested Fonts
+Use	Font Suggestion
+Headings	Montserrat, Poppins, Plus Jakarta Sans, or Inter Tight
+Body	Inter, Nunito Sans, or DM Sans
+Buttons	Same as heading, semi-bold
+Blog/meta	Inter or DM Sans
+Typography Scale
+Element	Desktop
+Hero H1	64–72px
+Section title	32–42px
+Card title	18–22px
+Body text	14–16px
+Meta text	11–13px
+Button text	11–13px
+Design Rule
+
+Use bold contrast between oversized headings and compact supporting body copy.
+
+Image Treatment
+
+Images are essential to this concept.
+
+Required Image Styles
+Section	Image Treatment
+Hero	Warm lifestyle photo, soft mosque background
+What’s Inside	Premium product photography on marble
+Greatest Venture	Real distribution photos, human proof
+Product Cards	Clean eCommerce-style product images
+Stories	Graphic/social media poster images
+Blog	Editorial lifestyle/Qur’an images
+Footer	Minimal, no heavy imagery
+Product Photography Direction
+Marble surfaces
+Soft shadows
+Warm natural light
+Black Qur’an cover with gold detail
+Clean white/cream negative space
+Premium but humble presentation
+17. Motion Graphics Developer Perspective
+Motion Principle
+
+Motion should feel:
+
+Soft
+Spiritual
+Calm
+Premium
+Not flashy
+
+The website should not behave like a tech SaaS product. It should feel like a calm charitable experience.
+
+Recommended Motion Map
+Section	Animation
+Header	Sticky reveal, subtle shadow on scroll
+Hero	Text fade/slide from left, image slow fade/scale
+CTA buttons	Hover lift and arrow shift
+What’s Inside	Product image soft parallax
+Greatest Venture	Cards stagger upward
+Product Cards	Scroll reveal + hover zoom
+Stories	Horizontal drag/swipe
+Blog Cards	Image zoom on hover
+Footer	Fade-in columns
+Animation Timing
+Animation	Duration
+Hero text reveal	0.7–0.9s
+Hero image reveal	1.0–1.2s
+Card stagger	0.08–0.12s delay per item
+Hover lift	180–240ms
+Button transition	180ms
+Scroll reveal	0.6–0.8s
+Easing
+
+Use smooth, premium easing:
+
+ease: [0.22, 1, 0.36, 1]
+Library Choice
+Use Motion For
+Page entry animations
+Button hover states
+Card hover
+Scroll reveals
+Carousel micro-interactions
+Use GSAP For
+
+Only use GSAP if implementing:
+
+Scroll-driven horizontal stories section
+Advanced parallax in hero
+Timeline-based hero sequence
+Complex pinned sections
+
+For this layout, Motion is enough for 85–90% of the animation work.
+
+18. Full-Stack Developer Perspective
+Recommended Stack
+
+For your preferred stack, this homepage can be built cleanly with:
+
+npm install motion
+npm install @tanstack/react-query
+npm install lucide-react
+npm install date-fns
+npm install react-hook-form zod @hookform/resolvers
+npm install sonner
+
+Only add these when needed:
+
+npm install gsap
+npm install @tanstack/react-table
+npm install @tiptap/react @tiptap/starter-kit
+Suggested Component Architecture
+src/
+  components/
+    layout/
+      Header.tsx
+      Footer.tsx
+
+    sections/
+      HeroSection.tsx
+      WhatsInsideSection.tsx
+      GreatestVentureSection.tsx
+      DonationProductsSection.tsx
+      StoriesSection.tsx
+      QuickDonationSection.tsx
+      BlogPreviewSection.tsx
+      QuranWikiBanner.tsx
+      PromoTilesSection.tsx
+
+    cards/
+      DonationCard.tsx
+      QuickDonationCard.tsx
+      BlogCard.tsx
+      StoryCard.tsx
+
+    ui/
+      Button.tsx
+      Container.tsx
+      SectionHeading.tsx
+      Badge.tsx
+CMS/Admin Data Requirements
+
+This homepage should be CMS-driven so the client can update content without developer help.
+
+Homepage Settings
+type HomepageSettings = {
+  heroTitleLine1: string
+  heroTitleLine2: string
+  heroTitleLine3: string
+  heroHighlightWord: string
+  heroDescription: string
+  heroImage: string
+  primaryCtaLabel: string
+  primaryCtaUrl: string
+  secondaryCtaLabel: string
+  secondaryCtaUrl: string
+}
+Donation/Product Cards
+type DonationProduct = {
+  id: string
+  title: string
+  slug: string
+  description: string
+  image: string
+  price?: number
+  currency?: string
+  ctaLabel: string
+  isActive: boolean
+  sortOrder: number
+}
+Venture Gallery
+type VentureImage = {
+  id: string
+  image: string
+  alt: string
+  caption?: string
+  sortOrder: number
+}
+Story Posters
+type StoryPoster = {
+  id: string
+  title: string
+  image: string
+  videoUrl?: string
+  linkUrl?: string
+  sortOrder: number
+}
+Blog Posts
+type BlogPost = {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  coverImage: string
+  category: string
+  authorId: string
+  publishedAt: string
+  status: "draft" | "published"
+}
+19. Suggested Page Data Fetching
+
+Use TanStack Query for public homepage data.
+
+const { data, isLoading } = useQuery({
+  queryKey: ["homepage"],
+  queryFn: getHomepageData,
+})
+
+Recommended backend endpoint:
+
+GET /api/homepage
+
+Response should include:
+
+{
+  hero: HomepageSettings
+  whatsInside: SectionContent
+  ventureImages: VentureImage[]
+  donationProducts: DonationProduct[]
+  stories: StoryPoster[]
+  quickDonations: DonationProduct[]
+  blogPosts: BlogPost[]
+  promoTiles: PromoTile[]
+}
+20. Suggested CSS / Tailwind Layout Tokens
+Container
+<div className="mx-auto w-full max-w-[1180px] px-5 md:px-8">
+Section Spacing
+<section className="py-16 md:py-24 lg:py-28">
+Card Grid
+<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+Quick Donation Grid
+<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+Blog Grid
+<div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+21. Responsive Design Specification
+Desktop
+Full header nav visible
+Hero uses 2-column layout
+Product grid uses 4 cards
+Quick donation uses 3 cards
+Blog uses 2 cards
+Footer uses 4 columns
+Tablet
+Header may still show nav if enough width
+Hero image reduces
+Product cards become 2 columns
+Quick donation becomes 2 columns
+Story carousel remains horizontal
+Footer becomes 2 columns
+Mobile
+Header collapses to hamburger
+Hero stacks vertically
+Hero headline remains large but not oversized
+CTAs stack or wrap
+All product/donation cards become 1 column
+Stories use horizontal swipe
+Blog cards stack
+Footer becomes one column
+22. Accessibility Requirements
+
+The current visual reference is strong, but implementation must improve accessibility.
+
+Required
+All images need descriptive alt text.
+Yellow buttons must have enough contrast.
+CTA text should be at least 13–14px.
+Keyboard focus states must be visible.
+Carousel should support keyboard navigation.
+Blog cards should use semantic <article>.
+Header navigation should use <nav>.
+Buttons linking to pages should be <a> elements, not button tags.
+Suggested Focus Style
+:focus-visible {
+  outline: 3px solid #f4b000;
+  outline-offset: 3px;
+}
+23. Exact Reproduction Notes
+
+To reproduce the reference accurately, preserve these details:
+
+Yellow and black brand contrast
+The yellow is the emotional/action color. Do not overuse it.
+Hero text must remain oversized and stacked
+The layout depends on the three-line headline.
+Use real human distribution photos
+The “Greatest Venture” section must not use stock-only imagery.
+The product photography must feel premium
+Marble, soft light, black Qur’an cover, gold accents.
+Story posters should remain vertical
+They should feel like social campaign cards, not normal website cards.
+The footer must be dark and calm
+It anchors the page and reinforces trust.
+24. Developer Build Priority
+Phase 1 — Static UI
+
+Build:
+
+Header
+Hero
+What’s Inside
+Venture gallery
+Product cards
+Quick donation
+Blog preview
+Footer
+Phase 2 — CMS/Data Integration
+
+Add:
+
+Dynamic homepage API
+Dynamic cards
+Blog posts
+Gallery management
+Donation/product management
+Phase 3 — Donation Flow
+
+Add:
+
+Donation checkout
+Product/request forms
+Sponsor forms
+Bulk order inquiry
+Confirmation emails
+Admin notification
+Phase 4 — Motion & Polish
+
+Add:
+
+Scroll reveals
+Story carousel
+Product hover effects
+Sticky header
+Micro-interactions
+25. Final Production Interpretation
+
+This layout should be treated as a modern Islamic charity ecommerce/editorial hybrid homepage.
+
+It combines:
+
+Donation platform
+Product showcase
+Impact storytelling
+Social media campaign hub
+Blog/education portal
+Learning ecosystem gateway
+
+The most important production goal is to keep the page feeling warm, trustworthy, premium, and action-oriented without making it feel too commercial.

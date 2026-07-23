@@ -1,0 +1,40 @@
+import * as Dialog from '@radix-ui/react-dialog'
+import { X } from 'lucide-react'
+import { cn } from '#/lib/utils'
+
+type AdminModalProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+  wide?: boolean
+}
+
+export function AdminModal({ open, onOpenChange, title, children, footer, wide }: AdminModalProps) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Content
+          aria-describedby={undefined}
+          className={cn(
+            'admin-panel admin-modal admin-sheet fixed z-50 flex flex-col overflow-hidden shadow-2xl outline-none',
+            'inset-x-0 bottom-0 max-h-[92vh] w-full rounded-t-2xl',
+            'md:inset-x-auto md:inset-y-0 md:right-0 md:max-h-none md:w-full md:rounded-none md:rounded-l-2xl',
+            wide ? 'md:max-w-3xl' : 'md:max-w-xl',
+          )}
+        >
+          <div className="flex items-center justify-between border-b border-[#e5e5e5] px-4 py-3 md:px-6">
+            <Dialog.Title className="text-lg font-bold text-dq-black">{title}</Dialog.Title>
+            <Dialog.Close className="rounded-full p-2 text-dq-black hover:bg-black/5" aria-label="Close dialog">
+              <X className="h-4 w-4" />
+            </Dialog.Close>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6">{children}</div>
+          {footer ? <div className="flex items-center justify-end gap-2 border-t border-[#e5e5e5] px-4 py-3 md:px-6">{footer}</div> : null}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}

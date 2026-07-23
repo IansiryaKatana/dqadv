@@ -1,0 +1,117 @@
+{
+  "blocks": [
+    {
+      "id": "t1",
+      "key": "hundred_percent_promise",
+      "title": "We are a 100% donation charity",
+      "bodyHtml": "<p>When we started Donate Quran, we made a bold promise to the general public that <strong>100% of their donations</strong> would go directly to printing copies of the Quran in English. As a charity, we would find other means to cover our operating costs.</p><p>We depend on private donors, foundations and sponsors to cover everything from staff salaries to office systems, office rent and supplies. These donors are very dedicated; their investment fuels our long-term mission, which is growing in size. Our mission is to continue using 100% of public donations for printing copies of the Quran.</p><p>Every donation can make a difference when giving towards this project. Please take into consideration that we have not compromised on the quality and standard in producing this publication.</p>",
+      "extra": {},
+      "sortOrder": 1
+    },
+    {
+      "id": "t2",
+      "key": "quality_standards",
+      "title": "Quality you can trust",
+      "bodyHtml": "<p>These Qurans are made up of a bind hardcopy book consisting of <strong>50g of Shamua coloured paper</strong>, making it easy to read by the human eye.</p><p>We have chosen the translation of Saheeh International and our surah appendices have made it simpler to understand.</p>",
+      "extra": {},
+      "sortOrder": 2
+    },
+    {
+      "id": "t3",
+      "key": "postage_packaging",
+      "title": "Postage & packaging",
+      "bodyHtml": "<p>Postage and packaging charges apply for physical Qur'an copies.</p>",
+      "extra": {},
+      "sortOrder": 3
+    },
+    {
+      "id": "t4",
+      "key": "sadaqah_intro",
+      "title": "Sadaqatul Jariyah",
+      "bodyHtml": "<p>Sadaqatul Jariyah is ongoing charity (continuous rewards) received by us for good actions and deeds, that will not only benefit us in this life, but will continue to benefit us after our death, Inshallah.</p>",
+      "extra": {},
+      "sortOrder": 10
+    },
+    {
+      "id": "t5",
+      "key": "why_donate",
+      "title": "Why Donate?",
+      "bodyHtml": "<p>Abu Huraira (RadhiAllahu 'anhu) reported: Allah's messenger ﷺ said:</p><blockquote>When a man dies, his acts come to an end, but three, recurring charity or knowledge (by which people) benefit, or a pious son, who prays for him (for the deceased) <cite>Sahih Muslim – Book 13-Hadith 4005</cite></blockquote><p>Allah SWT says: \"…and spending something (in charity) out of the provision which we have bestowed you, before death should come to any of you…\" (Qur'an, 63:10)</p>",
+      "extra": {},
+      "sortOrder": 11
+    },
+    {
+      "id": "t6",
+      "key": "ongoing_charity",
+      "title": "Good deeds that outlive you",
+      "bodyHtml": "<p>Below are examples of good actions and deeds which will outlive you, Insha Allah:</p>",
+      "extra": {
+        "bullets": [
+          "If you teach someone to recite Quran, you receive hasanat every time they recite — even after your death.",
+          "Give copies of the Holy Quran and each time they read from it, you will receive hasanat.",
+          "Give away Islamic reading materials.",
+          "Teach someone Dua and/or Dhikr — each time it is recited you will gain hasanat.",
+          "Share Dua or Quran resources online or on CD.",
+          "Building or donating to build a dispensary or hospital."
+        ]
+      },
+      "sortOrder": 12
+    },
+    {
+      "id": "t7",
+      "key": "bank_payment",
+      "title": "Direct bank payment",
+      "bodyHtml": "<p>Prefer to pay by bank transfer? Use the details below.</p>",
+      "extra": {
+        "bankName": "Starling Bank",
+        "bankAddress": "Starling Bank Limited (No. 09092149), 3rd Floor, 2 Finsbury Avenue, London, EC2M 2PP",
+        "accountNumber": "34939137",
+        "iban": "GB21SRLG60837134939137",
+        "swift": "SRLGGB2L",
+        "referenceNote": "For all international transfers please mention (01312601) as the reference.",
+        "orderNote": "If you have ordered a Quran, please also provide a Sales Order Reference Number."
+      },
+      "sortOrder": 20
+    },
+    {
+      "id": "t8",
+      "key": "mercy_foundation",
+      "title": "Mercy 4 All Foundation",
+      "bodyHtml": "<p>Donate Quran is part of a non-profitable organisation which is part of <strong>Mercy 4 All Foundation</strong>, a registered charity in the United Kingdom. 100 percent of funds donated to us are used on printing a copy of the Quran.</p><p>The core activities of Mercy 4 All Foundation are charitable activities in Dawah and humanitarian projects — to convey the message of Islam to Muslims and Non-Muslims.</p>",
+      "extra": {},
+      "sortOrder": 30
+    },
+    {
+      "id": "t9",
+      "key": "mission_dawah",
+      "title": "Our Dawah mission",
+      "bodyHtml": "<p>As Allah has Commanded in The Holy Qur'an: \"And let there be [arising] from you a nation inviting to [all that is] good, enjoining what is right and forbidding what is wrong, and those will be the successful.\" (Al Quran 3:104)</p><p>We aim to promote the teachings of the Quran and the Sunnah and tolerance in order to achieve peace and co-existence among all races.</p><p>We provide free copies of the Quran translation in English to Mosques, Community Centres, Dawah Centres, Hospitals, Schools, Hotels, Prisons, Libraries and Homes.</p><p>Our target is to distribute millions of copies worldwide, Inshallah.</p>",
+      "extra": {},
+      "sortOrder": 31
+    },
+    {
+      "id": "t10",
+      "key": "origin_story",
+      "title": "How it started",
+      "bodyHtml": "<p>In 2013, we initially distributed 20 Qurans to friends and families and now, Alhumdullilah, we have distributed thousands of copies by the grace of Allah.</p><p>It all started by word of mouth and by the grace of Allah we are contacted by people from around the world for many copies.</p><p>You too can get involved — we are looking for individuals and institutions who would like to become registered distributors.</p>",
+      "extra": {},
+      "sortOrder": 32
+    },
+    {
+      "id": "t11",
+      "key": "impact_testimony",
+      "title": "Impact worldwide",
+      "bodyHtml": "<p>Alhumdulillah, Donate Quran has had many positive responses from both Muslims and Non-Muslims who are now able to understand the Quran better. As a result, some Non-Muslims have taken the Shahada — they are very blessed, MashaAllah.</p>",
+      "extra": {},
+      "sortOrder": 33
+    },
+    {
+      "id": "t12",
+      "key": "other_projects",
+      "title": "Other projects",
+      "bodyHtml": "<p><strong>Pure Health Hospital – Humanity Project</strong></p><p>Modern state of the art hospital in India (Gujarat), providing free medical treatment to disadvantaged individuals. There are around 2 million people living in this area. We are also working towards various social activities such as Free Medical Camps.</p>",
+      "extra": {},
+      "sortOrder": 40
+    }
+  ]
+}

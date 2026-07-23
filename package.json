@@ -17,6 +17,7 @@
     "preview": "npm run build:cloudflare && wrangler dev",
     "deploy": "npm run build:cloudflare && wrangler deploy",
     "cf-typegen": "wrangler types",
+    "postinstall": "node ./scripts/cf-postinstall.mjs",
     "test": "vitest run"
   },
   "dependencies": {

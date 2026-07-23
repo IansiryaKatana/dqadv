@@ -7,6 +7,8 @@ import { nitro } from 'nitro/vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 const deployTarget = process.env.DEPLOY_TARGET ?? 'nitro'
 
 export default defineConfig({
@@ -18,5 +20,10 @@ export default defineConfig({
     tanstackStart(),
     deployTarget === 'netlify' ? netlify() : nitro(),
     viteReact(),
+    cloudflare({
+      viteEnvironment: {
+        name: "ssr"
+      }
+    })
   ],
 })

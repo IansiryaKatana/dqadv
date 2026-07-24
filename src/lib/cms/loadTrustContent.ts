@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticTrust from '#/data/static-trust.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { TrustBlock, TrustContent } from './types'
@@ -12,7 +13,7 @@ function staticTrustContent(): TrustContent {
   return indexBlocks(staticTrust.blocks as TrustBlock[])
 }
 
-export async function loadTrustContent(): Promise<TrustContent> {
+async function fetchTrustContent(): Promise<TrustContent> {
   const sb = getSupabase()
   if (!sb) return staticTrustContent()
 
@@ -39,6 +40,10 @@ export async function loadTrustContent(): Promise<TrustContent> {
     return staticTrustContent()
   }
 }
+
+export const loadTrustContent = createServerFn({ method: 'POST', strict: false }).handler(async () =>
+  fetchTrustContent(),
+)
 
 export function getTrustBlock(trust: TrustContent, key: string): TrustBlock | undefined {
   return trust.byKey[key]

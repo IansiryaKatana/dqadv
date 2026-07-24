@@ -1,8 +1,9 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticCms from '#/data/static-cms.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { StoryPoster } from './types'
 
-export async function loadAllStories(): Promise<StoryPoster[]> {
+async function fetchAllStories(): Promise<StoryPoster[]> {
   const sb = getSupabase()
   if (!sb) return staticCms.stories
 
@@ -29,7 +30,15 @@ export async function loadAllStories(): Promise<StoryPoster[]> {
   }
 }
 
-export async function loadStoryBySlug(slug: string): Promise<StoryPoster | null> {
-  const stories = await loadAllStories()
-  return stories.find((s) => (s.linkUrl ?? '').endsWith(`/${slug}`) || s.linkUrl === `/stories/${slug}`) ?? null
-}
+export const loadAllStories = createServerFn({ method: 'POST', strict: false }).handler(async () => fetchAllStories())
+
+export const loadStoryBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    const stories = await fetchAllStories()
+    return (
+      stories.find(
+        (s) => (s.linkUrl ?? '').endsWith(`/${data.slug}`) || s.linkUrl === `/stories/${data.slug}`,
+      ) ?? null
+    )
+  })

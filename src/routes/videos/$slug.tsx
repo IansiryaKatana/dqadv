@@ -8,7 +8,7 @@ export const Route = createFileRoute('/videos/$slug')({
   loader: async ({ params }) => {
     const [cms, video, all] = await Promise.all([
       loadCmsSnapshot(),
-      loadFeaturedVideoBySlug(params.slug),
+      loadFeaturedVideoBySlug({ data: { slug: params.slug } }),
       loadFeaturedVideos(),
     ])
     if (!video) throw notFound()

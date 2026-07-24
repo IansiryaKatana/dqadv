@@ -6,7 +6,10 @@ import { loadQuranEditionBySlug } from '#/lib/cms/loadQuranEditions'
 
 export const Route = createFileRoute('/quran/$slug')({
   loader: async ({ params }) => {
-    const [cms, edition] = await Promise.all([loadCmsSnapshot(), loadQuranEditionBySlug(params.slug)])
+    const [cms, edition] = await Promise.all([
+      loadCmsSnapshot(),
+      loadQuranEditionBySlug({ data: { slug: params.slug } }),
+    ])
     if (!edition) throw notFound()
     return { cms, edition }
   },

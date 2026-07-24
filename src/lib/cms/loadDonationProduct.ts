@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticCms from '#/data/static-cms.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { DonationProduct } from './types'
@@ -32,7 +33,7 @@ function staticProductBySlug(slug: string): DonationProduct | null {
   return staticProducts().find((p) => p.slug === slug) ?? null
 }
 
-export async function loadAllDonationProducts(): Promise<DonationProduct[]> {
+async function fetchAllDonationProducts(): Promise<DonationProduct[]> {
   const sb = getSupabase()
   if (!sb) return staticProducts()
 
@@ -51,7 +52,7 @@ export async function loadAllDonationProducts(): Promise<DonationProduct[]> {
   }
 }
 
-export async function loadDonationProductBySlug(slug: string): Promise<DonationProduct | null> {
+async function fetchDonationProductBySlug(slug: string): Promise<DonationProduct | null> {
   const sb = getSupabase()
   if (!sb) return staticProductBySlug(slug)
 
@@ -70,3 +71,11 @@ export async function loadDonationProductBySlug(slug: string): Promise<DonationP
     return staticProductBySlug(slug)
   }
 }
+
+export const loadAllDonationProducts = createServerFn({ method: 'POST', strict: false }).handler(async () =>
+  fetchAllDonationProducts(),
+)
+
+export const loadDonationProductBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => fetchDonationProductBySlug(data.slug))

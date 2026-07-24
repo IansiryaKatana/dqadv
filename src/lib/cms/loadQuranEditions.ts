@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticEditions from '#/data/static-quran-editions.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { QuranEdition } from './types'
@@ -13,7 +14,7 @@ function mapRow(r: Record<string, unknown>): QuranEdition {
   }
 }
 
-export async function loadQuranEditions(): Promise<QuranEdition[]> {
+async function fetchQuranEditions(): Promise<QuranEdition[]> {
   const sb = getSupabase()
   if (!sb) return staticEditions as QuranEdition[]
 
@@ -32,7 +33,13 @@ export async function loadQuranEditions(): Promise<QuranEdition[]> {
   }
 }
 
-export async function loadQuranEditionBySlug(slug: string): Promise<QuranEdition | null> {
-  const editions = await loadQuranEditions()
-  return editions.find((e) => e.slug === slug) ?? null
-}
+export const loadQuranEditions = createServerFn({ method: 'POST', strict: false }).handler(async () =>
+  fetchQuranEditions(),
+)
+
+export const loadQuranEditionBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    const editions = await fetchQuranEditions()
+    return editions.find((e) => e.slug === data.slug) ?? null
+  })

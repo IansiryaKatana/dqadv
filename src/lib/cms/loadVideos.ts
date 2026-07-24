@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticVideos from '#/data/static-videos.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { FeaturedVideo } from './types'
@@ -16,7 +17,7 @@ function mapRow(r: Record<string, unknown>): FeaturedVideo {
   }
 }
 
-export async function loadFeaturedVideos(): Promise<FeaturedVideo[]> {
+async function fetchFeaturedVideos(): Promise<FeaturedVideo[]> {
   const sb = getSupabase()
   if (!sb) return staticVideos as FeaturedVideo[]
 
@@ -35,7 +36,13 @@ export async function loadFeaturedVideos(): Promise<FeaturedVideo[]> {
   }
 }
 
-export async function loadFeaturedVideoBySlug(slug: string): Promise<FeaturedVideo | null> {
-  const videos = await loadFeaturedVideos()
-  return videos.find((v) => v.slug === slug) ?? null
-}
+export const loadFeaturedVideos = createServerFn({ method: 'POST', strict: false }).handler(async () =>
+  fetchFeaturedVideos(),
+)
+
+export const loadFeaturedVideoBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    const videos = await fetchFeaturedVideos()
+    return videos.find((v) => v.slug === data.slug) ?? null
+  })

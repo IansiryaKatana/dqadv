@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticBooks from '#/data/static-books.json'
 import { getSupabase } from '#/integrations/supabase/client'
 import type { Book, BookDetail } from './types'
@@ -8,9 +9,9 @@ function staticBookDetail(slug: string): BookDetail | null {
   return book as BookDetail
 }
 
-export async function loadAllBooks(): Promise<Book[]> {
+async function fetchAllBooks(): Promise<Book[]> {
   const sb = getSupabase()
-  if (!sb) return staticBooks as Book[]
+  if (!sb) return staticBooks as unknown as Book[]
 
   try {
     const [booksRes, authorsRes] = await Promise.all([
@@ -18,7 +19,7 @@ export async function loadAllBooks(): Promise<Book[]> {
       sb.from('dq_authors').select('*'),
     ])
 
-    if (booksRes.error || !booksRes.data?.length) return staticBooks as Book[]
+    if (booksRes.error || !booksRes.data?.length) return staticBooks as unknown as Book[]
 
     const authors = new Map((authorsRes.data ?? []).map((a) => [a.id, a]))
 
@@ -41,11 +42,11 @@ export async function loadAllBooks(): Promise<Book[]> {
       }
     })
   } catch {
-    return staticBooks as Book[]
+    return staticBooks as unknown as Book[]
   }
 }
 
-export async function loadBookBySlug(slug: string): Promise<BookDetail | null> {
+async function fetchBookBySlug(slug: string): Promise<BookDetail | null> {
   const sb = getSupabase()
   if (!sb) return staticBookDetail(slug)
 
@@ -89,3 +90,14 @@ export async function loadBookBySlug(slug: string): Promise<BookDetail | null> {
     return staticBookDetail(slug)
   }
 }
+
+/** Always runs on the server so Cloudflare request env is available on first paint. */
+export const loadAllBooks = createServerFn({ method: 'POST', strict: false }).handler(async () => {
+  return await fetchAllBooks()
+})
+
+export const loadBookBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    return await fetchBookBySlug(data.slug)
+  })

@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticCms from '#/data/static-cms.json'
 import staticTrust from '#/data/static-trust.json'
 import { getSupabase } from '#/integrations/supabase/client'
@@ -68,7 +69,7 @@ function isMissingTableError(error: { code?: string; message?: string } | null) 
   return error.code === '42P01' || /does not exist|relation.*not found/i.test(error.message ?? '')
 }
 
-export async function loadCmsSnapshot(): Promise<CmsSnapshot> {
+async function fetchCmsSnapshot(): Promise<CmsSnapshot> {
   const sb = getSupabase()
   if (!sb) {
     if (import.meta.env.DEV) {
@@ -278,3 +279,8 @@ export async function loadCmsSnapshot(): Promise<CmsSnapshot> {
     return staticSnapshot()
   }
 }
+
+/** Always runs on the server so Cloudflare request env is available on first paint. */
+export const loadCmsSnapshot = createServerFn({ method: 'POST', strict: false }).handler(async () => {
+  return await fetchCmsSnapshot()
+})

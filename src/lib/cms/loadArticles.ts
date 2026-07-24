@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import staticCms from '#/data/static-cms.json'
 import staticArticles from '#/data/static-articles.json'
 import { getSupabase } from '#/integrations/supabase/client'
@@ -17,7 +18,7 @@ function staticArticleDetail(slug: string): BlogPostDetail | null {
   }
 }
 
-export async function loadAllArticles(): Promise<BlogPost[]> {
+async function fetchAllArticles(): Promise<BlogPost[]> {
   const sb = getSupabase()
   if (!sb) return staticArticlesList()
 
@@ -51,7 +52,7 @@ export async function loadAllArticles(): Promise<BlogPost[]> {
   }
 }
 
-export async function loadArticleBySlug(slug: string): Promise<BlogPostDetail | null> {
+async function fetchArticleBySlug(slug: string): Promise<BlogPostDetail | null> {
   const sb = getSupabase()
   if (!sb) return staticArticleDetail(slug)
 
@@ -92,3 +93,9 @@ export async function loadArticleBySlug(slug: string): Promise<BlogPostDetail | 
     return staticArticleDetail(slug)
   }
 }
+
+export const loadAllArticles = createServerFn({ method: 'POST', strict: false }).handler(async () => fetchAllArticles())
+
+export const loadArticleBySlug = createServerFn({ method: 'POST', strict: false })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => fetchArticleBySlug(data.slug))

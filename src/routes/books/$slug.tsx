@@ -8,7 +8,7 @@ export const Route = createFileRoute('/books/$slug')({
   loader: async ({ params }) => {
     const [cms, book, allBooks] = await Promise.all([
       loadCmsSnapshot(),
-      loadBookBySlug(params.slug),
+      loadBookBySlug({ data: { slug: params.slug } }),
       loadAllBooks(),
     ])
     if (!book) throw notFound()

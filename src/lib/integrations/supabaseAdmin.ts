@@ -1,8 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { readServerSupabaseEnv } from '#/integrations/supabase/env'
 
 export function getSupabaseAdmin(): SupabaseClient | null {
-  const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const { url, serviceKey } = readServerSupabaseEnv()
   if (!url || !serviceKey) return null
   return createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -10,8 +10,7 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 }
 
 export function getSupabaseUserClient(accessToken: string) {
-  const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY
+  const { url, anonKey } = readServerSupabaseEnv()
   if (!url || !anonKey) return null
   return createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },

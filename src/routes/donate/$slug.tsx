@@ -8,7 +8,7 @@ export const Route = createFileRoute('/donate/$slug')({
   loader: async ({ params }) => {
     const [cms, product, allProducts] = await Promise.all([
       loadCmsSnapshot(),
-      loadDonationProductBySlug(params.slug),
+      loadDonationProductBySlug({ data: { slug: params.slug } }),
       loadAllDonationProducts(),
     ])
     if (!product) throw notFound()

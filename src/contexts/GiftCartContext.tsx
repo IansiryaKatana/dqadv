@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { DonationProduct } from '#/lib/cms/types'
 import { emptyCart, readCart, writeCart } from '#/lib/commerce/cartStorage'
+import { isPayableGiftProduct } from '#/lib/commerce/productFlags'
 import {
   cartItemCount,
   cartSubtotal,
@@ -49,7 +50,11 @@ export function GiftCartProvider({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
-    setCart(readCart())
+    const stored = readCart()
+    setCart({
+      ...stored,
+      items: stored.items.filter((item) => (item.unitAmount ?? 0) > 0),
+    })
     setHydrated(true)
   }, [])
 
@@ -63,6 +68,9 @@ export function GiftCartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback(
     (product: DonationProduct, quantity = 1) => {
+      if (!isPayableGiftProduct(product)) {
+        return
+      }
       persist((prev) => ({
         ...prev,
         items: mergeItem(prev.items, productToCartItem(product, quantity)),

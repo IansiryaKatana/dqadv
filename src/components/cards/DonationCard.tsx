@@ -1,12 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import type { DonationProduct } from '#/lib/cms/types'
+import { isFreeRequestProduct } from '#/lib/commerce/productFlags'
 import { AddToGiftButton } from '#/components/commerce/AddToGiftButton'
 import { formatPrice } from '#/lib/utils'
 
 export function DonationCard({ product }: { product: DonationProduct }) {
   const price = formatPrice(product.price ?? null, product.currency ?? 'GBP')
   const detailHref = `/donate/${product.slug}`
+  const free = isFreeRequestProduct(product)
 
   return (
     <motion.article
@@ -25,7 +27,11 @@ export function DonationCard({ product }: { product: DonationProduct }) {
           <h3 className="type-title text-dq-black transition-colors group-hover:text-dq-gold">{product.title}</h3>
         </Link>
         <p className="type-body flex-1 text-dq-muted">{product.description}</p>
-        {price ? <p className="type-body text-dq-black">{price}</p> : null}
+        {free ? (
+          <p className="type-body text-dq-black">Free</p>
+        ) : price ? (
+          <p className="type-body text-dq-black">{price}</p>
+        ) : null}
         <AddToGiftButton product={product} className="mt-auto" />
       </div>
     </motion.article>

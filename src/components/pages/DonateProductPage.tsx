@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import type { DonationProduct } from '#/lib/cms/types'
+import { isFreeRequestProduct, isPayableGiftProduct } from '#/lib/commerce/productFlags'
 import { Container } from '#/components/ui/container'
 import { Button } from '#/components/ui/button'
 import { AddToGiftButton } from '#/components/commerce/AddToGiftButton'
@@ -55,7 +56,9 @@ export function DonateProductPage({ product, related }: DonateProductPageProps) 
               ) : null}
 
               <div className="flex flex-wrap items-baseline gap-3">
-                {price ? (
+                {isFreeRequestProduct(product) ? (
+                  <p className="type-headline text-2xl text-dq-black">Free</p>
+                ) : price ? (
                   <p className="type-headline text-2xl text-dq-black">{price}</p>
                 ) : (
                   <p className="type-title text-dq-black">Suggested gift</p>
@@ -65,41 +68,45 @@ export function DonateProductPage({ product, related }: DonateProductPageProps) 
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex items-center gap-3">
-                  <span className="type-label text-dq-muted">Quantity</span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9"
-                      disabled={quantity <= 1}
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      aria-label="Decrease quantity"
-                    >
-                      −
-                    </Button>
-                    <span className="type-label min-w-[2ch] text-center">{quantity}</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9"
-                      disabled={quantity >= maxQty}
-                      onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </Button>
+              {isPayableGiftProduct(product) || isFreeRequestProduct(product) ? (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="type-label text-dq-muted">Quantity</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9"
+                        disabled={quantity <= 1}
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </Button>
+                      <span className="type-label min-w-[2ch] text-center">{quantity}</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9"
+                        disabled={quantity >= maxQty}
+                        onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : null}
 
               <AddToGiftButton product={product} quantity={quantity} size="lg" className="max-w-sm" />
 
               <p className="text-xs text-dq-muted">
-                Payment is processed as a donation. You receive the sponsored item or its equivalent impact.
+                {isFreeRequestProduct(product)
+                  ? 'Free copies are requested separately. We deliver to the address you provide — no payment required.'
+                  : 'Payment is processed as a donation. Your gift ships to the delivery address entered at checkout.'}
               </p>
             </div>
           </div>

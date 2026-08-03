@@ -31,6 +31,7 @@ import { Route as DonateSlugRouteImport } from './routes/donate/$slug'
 import { Route as BooksSlugRouteImport } from './routes/books/$slug'
 import { Route as BackendVideosRouteImport } from './routes/backend/videos'
 import { Route as BackendVentureRouteImport } from './routes/backend/venture'
+import { Route as BackendUsersRouteImport } from './routes/backend/users'
 import { Route as BackendTrustContentRouteImport } from './routes/backend/trust-content'
 import { Route as BackendSubmissionsRouteImport } from './routes/backend/submissions'
 import { Route as BackendStoriesRouteImport } from './routes/backend/stories'
@@ -168,6 +169,11 @@ const BackendVideosRoute = BackendVideosRouteImport.update({
 const BackendVentureRoute = BackendVentureRouteImport.update({
   id: '/venture',
   path: '/venture',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendUsersRoute = BackendUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => BackendRouteRoute,
 } as any)
 const BackendTrustContentRoute = BackendTrustContentRouteImport.update({
@@ -343,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/backend/stories': typeof BackendStoriesRoute
   '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
+  '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
   '/backend/videos': typeof BackendVideosRoute
   '/books/$slug': typeof BooksSlugRoute
@@ -394,6 +401,7 @@ export interface FileRoutesByTo {
   '/backend/stories': typeof BackendStoriesRoute
   '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
+  '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
   '/backend/videos': typeof BackendVideosRoute
   '/books/$slug': typeof BooksSlugRoute
@@ -447,6 +455,7 @@ export interface FileRoutesById {
   '/backend/stories': typeof BackendStoriesRoute
   '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
+  '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
   '/backend/videos': typeof BackendVideosRoute
   '/books/$slug': typeof BooksSlugRoute
@@ -501,6 +510,7 @@ export interface FileRouteTypes {
     | '/backend/stories'
     | '/backend/submissions'
     | '/backend/trust-content'
+    | '/backend/users'
     | '/backend/venture'
     | '/backend/videos'
     | '/books/$slug'
@@ -552,6 +562,7 @@ export interface FileRouteTypes {
     | '/backend/stories'
     | '/backend/submissions'
     | '/backend/trust-content'
+    | '/backend/users'
     | '/backend/venture'
     | '/backend/videos'
     | '/books/$slug'
@@ -604,6 +615,7 @@ export interface FileRouteTypes {
     | '/backend/stories'
     | '/backend/submissions'
     | '/backend/trust-content'
+    | '/backend/users'
     | '/backend/venture'
     | '/backend/videos'
     | '/books/$slug'
@@ -811,6 +823,13 @@ declare module '@tanstack/react-router' {
       path: '/venture'
       fullPath: '/backend/venture'
       preLoaderRoute: typeof BackendVentureRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/users': {
+      id: '/backend/users'
+      path: '/users'
+      fullPath: '/backend/users'
+      preLoaderRoute: typeof BackendUsersRouteImport
       parentRoute: typeof BackendRouteRoute
     }
     '/backend/trust-content': {
@@ -1029,6 +1048,7 @@ interface BackendRouteRouteChildren {
   BackendStoriesRoute: typeof BackendStoriesRoute
   BackendSubmissionsRoute: typeof BackendSubmissionsRoute
   BackendTrustContentRoute: typeof BackendTrustContentRoute
+  BackendUsersRoute: typeof BackendUsersRoute
   BackendVentureRoute: typeof BackendVentureRoute
   BackendVideosRoute: typeof BackendVideosRoute
   BackendIndexRoute: typeof BackendIndexRoute
@@ -1051,6 +1071,7 @@ const BackendRouteRouteChildren: BackendRouteRouteChildren = {
   BackendStoriesRoute: BackendStoriesRoute,
   BackendSubmissionsRoute: BackendSubmissionsRoute,
   BackendTrustContentRoute: BackendTrustContentRoute,
+  BackendUsersRoute: BackendUsersRoute,
   BackendVentureRoute: BackendVentureRoute,
   BackendVideosRoute: BackendVideosRoute,
   BackendIndexRoute: BackendIndexRoute,

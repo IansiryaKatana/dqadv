@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { Menu, X } from 'lucide-react'
+import { LogOut, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { canManageAdmins } from '#/lib/admin/adminUserApi'
@@ -66,7 +66,7 @@ function AdminShellInner() {
   const [open, setOpen] = useState(false)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { signOut, adminProfile } = useAdminAuth()
-  const showCreateAdmin = canManageAdmins(adminProfile)
+  const showUsers = canManageAdmins(adminProfile)
 
   return (
     <div className="admin-shell flex h-screen overflow-hidden">
@@ -95,13 +95,22 @@ function AdminShellInner() {
           })}
         </nav>
         <div className="mt-auto shrink-0 space-y-4 pt-4">
-          {showCreateAdmin ? (
-            <Link to="/backend/signup" className={cn(adminNavLink, 'block')} onClick={() => setOpen(false)}>
-              Create admin
+          {showUsers ? (
+            <Link
+              to="/backend/users"
+              className={cn(adminNavLink, 'block', pathname.startsWith('/backend/users') && adminNavLinkActive)}
+              onClick={() => setOpen(false)}
+            >
+              Users
             </Link>
           ) : null}
-          <button type="button" className="admin-btn-secondary w-full" onClick={() => void signOut()}>
-            Sign out
+          <button
+            type="button"
+            className="admin-btn-primary flex w-full items-center justify-between gap-2"
+            onClick={() => void signOut()}
+          >
+            <span>Sign out</span>
+            <LogOut className="h-3.5 w-3.5 shrink-0" aria-hidden />
           </button>
         </div>
       </aside>

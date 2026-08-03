@@ -62,9 +62,10 @@ export type DonationProduct = {
   stockStatus?: string | null
   ctaLabel: string
   ctaUrl: string
-  kind: 'product' | 'quick'
+  kind: 'product' | 'quick' | 'free'
   sortOrder: number
   requiresShipping?: boolean
+  isFree?: boolean
   impactStatement?: string | null
   minAmount?: number | null
   maxQuantity?: number

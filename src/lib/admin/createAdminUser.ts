@@ -5,9 +5,11 @@ import { readServerSupabaseEnv } from '#/integrations/supabase/env'
 type CreateAdminUserInput = {
   email: string
   password: string
-  role: 'owner' | 'admin'
+  role: 'owner' | 'admin' | 'editor' | 'viewer'
   accessToken: string
 }
+
+const ALLOWED_ROLES = new Set(['owner', 'admin', 'editor', 'viewer'])
 
 function getServerSupabaseConfig() {
   const { url, anonKey, serviceKey } = readServerSupabaseEnv()
@@ -28,8 +30,8 @@ export const createAdminUser = createServerFn({ method: 'POST' })
       throw new Error('Enter a valid email and a password with at least 8 characters.')
     }
 
-    if (data.role !== 'owner' && data.role !== 'admin') {
-      throw new Error('Only owner or admin roles can be created.')
+    if (!ALLOWED_ROLES.has(data.role)) {
+      throw new Error('Invalid admin role.')
     }
 
     const userClient = createClient(url, anonKey, {

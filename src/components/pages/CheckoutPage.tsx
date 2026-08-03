@@ -183,17 +183,20 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
               {needsShipping ? (
                 <div className="rounded-2xl border border-dq-border bg-white p-6">
                   <h2 className="type-title mb-4 text-dq-black">Delivery details</h2>
+                  <p className="type-body mb-4 text-sm text-dq-muted">
+                    Your gift ships to this address. Enter your own details or a recipient&apos;s address.
+                  </p>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
-                      <input className={inputClass + ' w-full'} placeholder="Address line 1 *" value={line1} onChange={(e) => setLine1(e.target.value)} />
+                      <input className={inputClass + ' w-full'} placeholder="Address line 1 *" value={line1} onChange={(e) => setLine1(e.target.value)} required={needsShipping} />
                     </div>
                     <div className="md:col-span-2">
                       <input className={inputClass + ' w-full'} placeholder="Address line 2" value={line2} onChange={(e) => setLine2(e.target.value)} />
                     </div>
-                    <input className={inputClass} placeholder="City *" value={city} onChange={(e) => setCity(e.target.value)} />
-                    <input className={inputClass} placeholder="State *" value={state} onChange={(e) => setState(e.target.value)} />
-                    <input className={inputClass} placeholder="Postal code *" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
-                    <input className={inputClass} placeholder="Country *" value={country} onChange={(e) => setCountry(e.target.value)} />
+                    <input className={inputClass} placeholder="City *" value={city} onChange={(e) => setCity(e.target.value)} required={needsShipping} />
+                    <input className={inputClass} placeholder="State / county *" value={state} onChange={(e) => setState(e.target.value)} required={needsShipping} />
+                    <input className={inputClass} placeholder="Postal code *" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required={needsShipping} />
+                    <input className={inputClass} placeholder="Country *" value={country} onChange={(e) => setCountry(e.target.value)} required={needsShipping} />
                   </div>
                 </div>
               ) : null}

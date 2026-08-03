@@ -85,6 +85,35 @@ const DISTRIBUTOR_SECTIONS: { title: string; keys: string[] }[] = [
   },
 ]
 
+const FREE_QURAN_FIELD_LABELS: Record<string, string> = {
+  productTitle: 'Product',
+  productSlug: 'Product slug',
+  quantity: 'Quantity',
+  fullName: 'Full name',
+  email: 'Email',
+  phone: 'Phone',
+  addressLine1: 'Address line 1',
+  addressLine2: 'Address line 2',
+  city: 'City',
+  state: 'State / county',
+  postalCode: 'Postal code',
+  country: 'Country',
+  note: 'Note',
+}
+
+const FREE_QURAN_SECTIONS: { title: string; keys: string[] }[] = [
+  {
+    title: 'Request',
+    keys: ['productTitle', 'quantity', 'fullName', 'email', 'phone'],
+  },
+  {
+    title: 'Delivery',
+    keys: ['addressLine1', 'addressLine2', 'city', 'state', 'postalCode', 'country', 'note'],
+  },
+]
+
+type SubmissionTab = 'contact' | 'distributor' | 'free_quran'
+
 function formatStatus(status: string) {
   if (!status) return 'New'
   return status.charAt(0).toUpperCase() + status.slice(1)
@@ -111,7 +140,7 @@ function FieldGrid({
 
 export function AdminSubmissions() {
   const { session } = useAdminAuth()
-  const [tab, setTab] = useState<'contact' | 'distributor'>('contact')
+  const [tab, setTab] = useState<SubmissionTab>('contact')
   const [rows, setRows] = useState<SubmissionRow[]>([])
   const [selected, setSelected] = useState<SubmissionRow | null>(null)
   const [err, setErr] = useState<string | null>(null)
@@ -122,7 +151,7 @@ export function AdminSubmissions() {
 
   useAdminPageHeader({
     title: 'Form submissions',
-    description: 'Review contact and distributor applications, then reply by email.',
+    description: 'Review contact messages, free Qur’an requests, and distributor applications.',
     actions: [],
   })
 
@@ -130,11 +159,10 @@ export function AdminSubmissions() {
     async function load() {
       const sb = getSupabase()
       if (!sb) return
-      const formType = tab === 'contact' ? 'contact' : 'distributor'
       const { data, error } = await sb
         .from('dq_form_submissions')
         .select('*')
-        .eq('form_type', formType)
+        .eq('form_type', tab)
         .order('created_at', { ascending: false })
       if (error) setErr(error.message)
       else setRows((data ?? []) as SubmissionRow[])
@@ -144,7 +172,12 @@ export function AdminSubmissions() {
 
   useEffect(() => {
     if (!selected) return
-    const kind = selected.form_type === 'distributor' ? 'distributor application' : 'message'
+    const kind =
+      selected.form_type === 'distributor'
+        ? 'distributor application'
+        : selected.form_type === 'free_quran'
+          ? 'free Qur’an request'
+          : 'message'
     setReplySubject(`Re: Your Donate Quran ${kind}`)
     setReplyBody('')
     setReplyStatus('idle')
@@ -161,6 +194,14 @@ export function AdminSubmissions() {
         { label: 'Submitted', value: selected.created_at ? new Date(selected.created_at).toLocaleString() : '' },
         { label: 'Status', value: formatStatus(selected.status) },
       ]
+    }
+
+    if (selected.form_type === 'free_quran') {
+      const payload = selected.payload ?? {}
+      return Object.entries(FREE_QURAN_FIELD_LABELS).map(([key, label]) => ({
+        label,
+        value: String(payload[key] ?? (key === 'email' ? selected.email : key === 'fullName' ? selected.name : '') ?? ''),
+      }))
     }
 
     const payload = selected.payload ?? {}
@@ -201,18 +242,24 @@ export function AdminSubmissions() {
   return (
     <div>
       {err ? <p className="mb-4 text-sm text-red-500">{err}</p> : null}
-      <div className="mb-4 flex gap-2">
-        {(['contact', 'distributor'] as const).map((t) => (
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(
+          [
+            { id: 'contact', label: 'Contact' },
+            { id: 'free_quran', label: 'Free Qur’an' },
+            { id: 'distributor', label: 'Distributor' },
+          ] as const
+        ).map((t) => (
           <button
-            key={t}
+            key={t.id}
             type="button"
-            className={cn('admin-btn-secondary capitalize', tab === t && 'ring-2 ring-dq-gold')}
+            className={cn('admin-btn-secondary', tab === t.id && 'ring-2 ring-dq-gold')}
             onClick={() => {
-              setTab(t)
+              setTab(t.id)
               setSelected(null)
             }}
           >
-            {t}
+            {t.label}
           </button>
         ))}
       </div>
@@ -231,7 +278,7 @@ export function AdminSubmissions() {
             {rows.length === 0 ? (
               <tr>
                 <td className={adminTd} colSpan={5}>
-                  No {tab} submissions yet.
+                  No {tab === 'free_quran' ? 'free Qur’an' : tab} submissions yet.
                 </td>
               </tr>
             ) : (
@@ -279,6 +326,27 @@ export function AdminSubmissions() {
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-dq-black">{selected.message}</p>
                 </div>
               ) : null}
+            </div>
+          ) : selected.form_type === 'free_quran' ? (
+            <div className="space-y-5">
+              {FREE_QURAN_SECTIONS.map((section) => {
+                const entries = section.keys.map((key) => ({
+                  label: FREE_QURAN_FIELD_LABELS[key] ?? key,
+                  value: String(
+                    (selected.payload ?? {})[key] ??
+                      (key === 'email' ? selected.email : key === 'fullName' ? selected.name : '') ??
+                      '',
+                  ),
+                }))
+                const hasContent = entries.some((e) => e.value.trim())
+                if (!hasContent) return null
+                return (
+                  <section key={section.title}>
+                    <h4 className="mb-2 text-sm font-semibold text-dq-black">{section.title}</h4>
+                    <FieldGrid entries={entries} />
+                  </section>
+                )
+              })}
             </div>
           ) : (
             <div className="space-y-5">

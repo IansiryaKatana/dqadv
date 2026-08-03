@@ -16,9 +16,13 @@ function mapProductRow(r: Record<string, unknown>): DonationProduct {
     stockStatus: r.stock_status as string | null,
     ctaLabel: (r.cta_label as string) ?? 'DONATE NOW',
     ctaUrl: (r.cta_url as string) ?? '/donate',
-    kind: r.kind as 'product' | 'quick',
+    kind: (r.kind as 'product' | 'quick' | 'free') ?? 'product',
     sortOrder: r.sort_order as number,
     requiresShipping: (r.requires_shipping as boolean) ?? false,
+    isFree:
+      Boolean(r.is_free) ||
+      r.kind === 'free' ||
+      (((r.price as number | null) ?? 0) <= 0 && Boolean(r.requires_shipping)),
     impactStatement: (r.impact_statement as string) ?? null,
     minAmount: (r.min_amount as number) ?? null,
     maxQuantity: (r.max_quantity as number) ?? 99,

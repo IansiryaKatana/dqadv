@@ -49,6 +49,8 @@ export function AdminPaymentsSettings() {
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [testBusy, setTestBusy] = useState<'stripe' | 'paypal' | 'resend' | null>(null)
+  const [resendTestSent, setResendTestSent] = useState(false)
 
   const load = useCallback(async () => {
     if (!session?.access_token) return
@@ -110,9 +112,11 @@ export function AdminPaymentsSettings() {
   }
 
   async function runTest(kind: 'stripe' | 'paypal' | 'resend') {
-    if (!session?.access_token) return
+    if (!session?.access_token || testBusy) return
     setErr(null)
     setMsg(null)
+    if (kind === 'resend') setResendTestSent(false)
+    setTestBusy(kind)
     try {
       if (kind === 'stripe') {
         await testStripeConnection({
@@ -125,12 +129,15 @@ export function AdminPaymentsSettings() {
         setMsg('PayPal connection successful.')
       }
       if (kind === 'resend') {
-        if (!testEmailTo) throw new Error('Enter a test email address.')
-        await testResendConnection({ data: { accessToken: session.access_token, to: testEmailTo } })
+        if (!testEmailTo.trim()) throw new Error('Enter a test email address.')
+        await testResendConnection({ data: { accessToken: session.access_token, to: testEmailTo.trim() } })
+        setResendTestSent(true)
         setMsg('Test email sent.')
       }
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Test failed.')
+    } finally {
+      setTestBusy(null)
     }
   }
 
@@ -173,8 +180,13 @@ export function AdminPaymentsSettings() {
           </div>
         </div>
         <p className="admin-muted mt-3 text-xs">Webhook URL: {origin}/api/stripe-webhook</p>
-        <button type="button" className="admin-btn-secondary mt-3" onClick={() => void runTest('stripe')}>
-          Test Stripe
+        <button
+          type="button"
+          className="admin-btn-secondary mt-3"
+          disabled={testBusy !== null}
+          onClick={() => void runTest('stripe')}
+        >
+          {testBusy === 'stripe' ? 'Testing…' : 'Test Stripe'}
         </button>
       </div>
 
@@ -206,8 +218,13 @@ export function AdminPaymentsSettings() {
           </div>
         </div>
         <p className="admin-muted mt-3 text-xs">Webhook URL: {origin}/api/paypal-webhook</p>
-        <button type="button" className="admin-btn-secondary mt-3" onClick={() => void runTest('paypal')}>
-          Test PayPal
+        <button
+          type="button"
+          className="admin-btn-secondary mt-3"
+          disabled={testBusy !== null}
+          onClick={() => void runTest('paypal')}
+        >
+          {testBusy === 'paypal' ? 'Testing…' : 'Test PayPal'}
         </button>
       </div>
 
@@ -235,12 +252,34 @@ export function AdminPaymentsSettings() {
           </div>
           <div className="md:col-span-2">
             <FieldLabel>Send test to</FieldLabel>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input className="admin-input flex-1" type="email" value={testEmailTo} onChange={(e) => setTestEmailTo(e.target.value)} placeholder="you@example.com" />
-              <button type="button" className="admin-btn-secondary shrink-0" onClick={() => void runTest('resend')}>
-                Send test
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+              <input
+                className="admin-input flex-1"
+                type="email"
+                value={testEmailTo}
+                onChange={(e) => {
+                  setTestEmailTo(e.target.value)
+                  if (resendTestSent) setResendTestSent(false)
+                }}
+                placeholder="you@example.com"
+                disabled={testBusy === 'resend'}
+              />
+              <button
+                type="button"
+                className={cn(
+                  'shrink-0 min-w-[7.5rem]',
+                  resendTestSent && !testBusy ? 'admin-btn-primary' : 'admin-btn-secondary',
+                )}
+                disabled={testBusy !== null || !testEmailTo.trim()}
+                onClick={() => void runTest('resend')}
+                aria-busy={testBusy === 'resend'}
+              >
+                {testBusy === 'resend' ? 'Sending…' : resendTestSent ? 'Test sent' : 'Send test'}
               </button>
             </div>
+            {resendTestSent && !testBusy ? (
+              <p className="mt-2 text-sm text-emerald-700">Test email delivered — check the inbox for {testEmailTo.trim()}.</p>
+            ) : null}
           </div>
         </div>
       </div>

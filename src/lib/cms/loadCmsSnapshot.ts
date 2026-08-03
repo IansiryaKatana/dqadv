@@ -16,7 +16,7 @@ function staticTrustContent(): TrustContent {
 
 function mapDonationProduct(
   r: Record<string, unknown>,
-  kind: 'product' | 'quick',
+  kind: 'product' | 'quick' | 'free',
 ): DonationProduct {
   return {
     id: r.id as string,
@@ -33,6 +33,10 @@ function mapDonationProduct(
     kind,
     sortOrder: r.sort_order as number,
     requiresShipping: (r.requires_shipping as boolean) ?? false,
+    isFree:
+      Boolean(r.is_free) ||
+      kind === 'free' ||
+      (((r.price as number | null) ?? 0) <= 0 && Boolean(r.requires_shipping)),
     impactStatement: (r.impact_statement as string) ?? null,
     minAmount: (r.min_amount as number) ?? null,
     maxQuantity: (r.max_quantity as number) ?? 99,
@@ -191,8 +195,8 @@ async function fetchCmsSnapshot(): Promise<CmsSnapshot> {
         .filter((r) => r.kind === 'product')
         .map((r) => mapDonationProduct(r, 'product')),
       quickDonations: (productsRes.data ?? [])
-        .filter((r) => r.kind === 'quick')
-        .map((r) => mapDonationProduct(r, 'quick')),
+        .filter((r) => r.kind === 'quick' || r.kind === 'free')
+        .map((r) => mapDonationProduct(r, r.kind === 'free' ? 'free' : 'quick')),
       stories: (storiesRes.data ?? []).map((r) => ({
         id: r.id,
         title: r.title,

@@ -58,7 +58,7 @@ export function AdminHero() {
       primary_cta_label: draft.primary_cta_label ?? 'DONATE NOW',
       primary_cta_url: draft.primary_cta_url ?? '/donate',
       secondary_cta_label: draft.secondary_cta_label ?? 'ORDER FREE COPY',
-      secondary_cta_url: draft.secondary_cta_url ?? '/donate/quran-free-copy',
+      secondary_cta_url: draft.secondary_cta_url ?? '/order-free-qurans',
       is_active: draft.is_active ?? true,
     }
     const { error } = await sb.from('dq_hero_content').upsert(row, { onConflict: 'id' })

@@ -131,6 +131,11 @@ export type Database = {
           sort_order: number
           is_active: boolean
           published: boolean
+          requires_shipping?: boolean
+          is_free?: boolean
+          impact_statement?: string | null
+          min_amount?: number | null
+          max_quantity?: number
           created_at: string | null
           updated_at: string | null
         }

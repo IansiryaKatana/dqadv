@@ -19,6 +19,7 @@ type Row = Database['public']['Tables']['dq_donation_products']['Row']
 const KIND_LABELS: Record<string, string> = {
   product: 'Donation products',
   quick: 'Quick donation',
+  free: 'Free requests',
 }
 
 function kindLabel(kind: string) {
@@ -35,6 +36,8 @@ const emptyRow = (kind = 'product'): Partial<Row> => ({
   cta_url: '/donate',
   currency: 'GBP',
   description: '',
+  requires_shipping: false,
+  max_quantity: 99,
 })
 
 export function AdminProducts() {
@@ -105,9 +108,10 @@ export function AdminProducts() {
         ? resolveSlugFromLabel(draft.title, existing.title, existing.slug)
         : draft.slug?.trim() ||
           `${slugify(draft.title) || 'product'}-${crypto.randomUUID().slice(0, 8)}`
+      const { is_free: _omitIsFree, ...rest } = draft as Partial<Row> & { is_free?: boolean }
       await persistRows([
         {
-          ...draft,
+          ...rest,
           slug,
         } as Row,
       ])
@@ -246,7 +250,7 @@ export function AdminProducts() {
   )
 
   const kindOptions = useMemo(() => {
-    const set = new Set([...kinds, 'product', 'quick'])
+    const set = new Set([...kinds, 'product', 'quick', 'free'])
     if (draft?.kind) set.add(draft.kind)
     return [...set].sort((a, b) => a.localeCompare(b))
   }, [kinds, draft?.kind])
@@ -423,9 +427,49 @@ export function AdminProducts() {
               <span className="admin-label">Sort order</span>
               <input className="admin-input" type="number" value={draft.sort_order ?? 0} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })} />
             </label>
+            <label className="block space-y-2">
+              <span className="admin-label">Max quantity</span>
+              <input
+                className="admin-input"
+                type="number"
+                value={draft.max_quantity ?? 99}
+                onChange={(e) => setDraft({ ...draft, max_quantity: Number(e.target.value) || 99 })}
+              />
+            </label>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={draft.published ?? true} onChange={(e) => setDraft({ ...draft, published: e.target.checked })} />
               Published
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(draft.requires_shipping)}
+                onChange={(e) => setDraft({ ...draft, requires_shipping: e.target.checked })}
+              />
+              Requires shipping (collect delivery address)
+            </label>
+            <label className="flex items-center gap-2 text-sm md:col-span-2">
+              <input
+                type="checkbox"
+                checked={
+                  draft.kind === 'free' ||
+                  Boolean(draft.is_free) ||
+                  (((draft.price ?? 0) <= 0) && Boolean(draft.requires_shipping))
+                }
+                onChange={(e) => {
+                  const on = e.target.checked
+                  setDraft({
+                    ...draft,
+                    // Keep kind as quick until DB allows kind=free (check constraint).
+                    kind: on ? (draft.kind === 'product' ? 'quick' : draft.kind || 'quick') : draft.kind === 'free' ? 'product' : draft.kind,
+                    price: on ? 0 : draft.price && draft.price > 0 ? draft.price : draft.price,
+                    requires_shipping: on ? true : draft.requires_shipping,
+                    cta_label: on ? 'REQUEST FREE COPY' : draft.cta_label,
+                    cta_url: on ? '/order-free-qurans' : draft.cta_url,
+                  })
+                }}
+              />
+              Free request product (separate form, not gift cart)
             </label>
             {saveErr ? <p className="text-sm text-red-400 md:col-span-2">{saveErr}</p> : null}
           </div>

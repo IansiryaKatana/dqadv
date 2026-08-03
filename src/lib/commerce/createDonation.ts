@@ -75,7 +75,10 @@ export function validateCheckoutInput(input: {
   if (!input.donorName.trim() || !input.donorEmail.trim()) {
     throw new Error('Name and email are required.')
   }
-  if (input.needsShipping && input.shippingAddress) {
+  if (input.needsShipping) {
+    if (!input.shippingAddress) {
+      throw new Error('Please complete all required delivery fields.')
+    }
     const { line1, city, state, postalCode, country } = input.shippingAddress
     if (!line1.trim() || !city.trim() || !state.trim() || !postalCode.trim() || !country.trim()) {
       throw new Error('Please complete all required delivery fields.')
@@ -83,7 +86,9 @@ export function validateCheckoutInput(input: {
   }
   for (const item of input.items) {
     if ((item.unitAmount ?? 0) <= 0) {
-      throw new Error(`"${item.title}" requires a configured gift amount before checkout.`)
+      throw new Error(
+        `"${item.title}" is a free request item and cannot be checked out as a paid gift. Please remove it and use Order free Qur'ans instead.`,
+      )
     }
   }
 }

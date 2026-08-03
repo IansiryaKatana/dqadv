@@ -66,3 +66,48 @@ export function adminNewDonationHtml(data: DonationEmailData & { donorEmail: str
 </body>
 </html>`
 }
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}
+
+export function formReplyHtml(data: {
+  recipientName: string
+  body: string
+  originalMessage?: string | null
+  formType: string
+}) {
+  const paragraphs = escapeHtml(data.body)
+    .split(/\n{2,}/)
+    .map((block) => `<p style="margin:0 0 16px;color:#333;line-height:1.6;">${block.replaceAll('\n', '<br/>')}</p>`)
+    .join('')
+
+  const original = data.originalMessage
+    ? `<div style="margin-top:28px;padding-top:20px;border-top:1px solid #eee;">
+        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#888;">Your message</p>
+        <p style="margin:0;color:#666;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.originalMessage)}</p>
+      </div>`
+    : ''
+
+  const kind = data.formType === 'distributor' ? 'distributor application' : 'contact message'
+
+  return `<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f7f3ea;font-family:Georgia,serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
+    <div style="background:#fff;border:2px solid #c9a227;border-radius:16px;padding:32px;">
+      <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#888;">Donate Quran</p>
+      <h1 style="margin:0 0 16px;font-size:26px;font-weight:300;color:#111;">Reply to your ${kind}</h1>
+      <p style="margin:0 0 24px;color:#555;line-height:1.6;">Assalamu alaikum, ${escapeHtml(data.recipientName)},</p>
+      ${paragraphs}
+      ${original}
+      <p style="margin:28px 0 0;color:#888;font-size:14px;line-height:1.6;">You can reply directly to this email.</p>
+    </div>
+  </div>
+</body>
+</html>`
+}

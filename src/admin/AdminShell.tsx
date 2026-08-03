@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { LogOut, Menu, X } from 'lucide-react'
+import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { canManageAdmins } from '#/lib/admin/adminUserApi'
@@ -110,7 +110,7 @@ function AdminShellInner() {
             onClick={() => void signOut()}
           >
             <span>Sign out</span>
-            <LogOut className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
           </button>
         </div>
       </aside>

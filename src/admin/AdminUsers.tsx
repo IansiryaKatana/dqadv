@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { getSupabase } from '#/integrations/supabase/client'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { Navigate } from '@tanstack/react-router'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { createAdminUser } from '#/lib/admin/createAdminUser'
+import { listAdminUsers, updateAdminUser } from '#/lib/admin/manageAdminUsers'
 import { canManageAdmins, type AdminRole } from '#/lib/admin/adminUserApi'
 import { useAdminPageHeader } from './AdminPageContext'
+import { AdminModal } from './components/AdminModal'
 import { AdminSelect } from './components/AdminSelect'
 import { adminTable, adminTableWrap, adminTd, adminTh } from './adminClassNames'
-import { Navigate } from '@tanstack/react-router'
 
 type AdminUserRow = {
   id: string
@@ -24,6 +25,15 @@ const ROLE_OPTIONS: { value: AdminRole; label: string }[] = [
   { value: 'viewer', label: 'Viewer' },
 ]
 
+function emptyCreateForm() {
+  return {
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'admin' as AdminRole,
+  }
+}
+
 export function AdminUsers() {
   const { session, adminProfile } = useAdminAuth()
   const allowed = canManageAdmins(adminProfile)
@@ -31,27 +41,40 @@ export function AdminUsers() {
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [role, setRole] = useState<AdminRole>('admin')
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createErr, setCreateErr] = useState<string | null>(null)
+  const [form, setForm] = useState(emptyCreateForm)
+
+  const headerActions = useMemo(
+    () => [
+      {
+        label: 'Create user',
+        onClick: () => {
+          setCreateErr(null)
+          setForm(emptyCreateForm())
+          setCreateOpen(true)
+        },
+      },
+    ],
+    [],
+  )
 
   useAdminPageHeader({
     title: 'Users',
     description: 'Create and manage CMS admin accounts.',
-    actions: [],
+    actions: headerActions,
   })
 
   const load = useCallback(async () => {
-    const sb = getSupabase()
-    if (!sb) return
-    const { data, error } = await sb
-      .from('dq_admin_users')
-      .select('id, email, role, is_active, created_at, auth_user_id')
-      .order('created_at', { ascending: true })
-    if (error) setErr(error.message)
-    else setRows((data ?? []) as AdminUserRow[])
-  }, [])
+    if (!session?.access_token) return
+    try {
+      const data = await listAdminUsers({ data: { accessToken: session.access_token } })
+      setRows(data)
+      setErr(null)
+    } catch (error) {
+      setErr(error instanceof Error ? error.message : 'Could not load admin users.')
+    }
+  }, [session?.access_token])
 
   useEffect(() => {
     if (allowed) void load()
@@ -59,23 +82,23 @@ export function AdminUsers() {
 
   async function onCreate(e: FormEvent) {
     e.preventDefault()
-    setErr(null)
+    setCreateErr(null)
     setMsg(null)
 
-    if (password !== confirmPassword) {
-      setErr('Passwords do not match.')
+    if (form.password !== form.confirmPassword) {
+      setCreateErr('Passwords do not match.')
       return
     }
-    if (password.length < 8) {
-      setErr('Password must be at least 8 characters.')
+    if (form.password.length < 8) {
+      setCreateErr('Password must be at least 8 characters.')
       return
     }
     if (!session?.access_token) {
-      setErr('Your session expired. Sign in again.')
+      setCreateErr('Your session expired. Sign in again.')
       return
     }
-    if (role === 'owner' && adminProfile?.role !== 'owner') {
-      setErr('Only owners can create owner accounts.')
+    if (form.role === 'owner' && adminProfile?.role !== 'owner') {
+      setCreateErr('Only owners can create owner accounts.')
       return
     }
 
@@ -83,20 +106,18 @@ export function AdminUsers() {
     try {
       await createAdminUser({
         data: {
-          email: email.trim(),
-          password,
-          role,
+          email: form.email.trim(),
+          password: form.password,
+          role: form.role,
           accessToken: session.access_token,
         },
       })
-      setMsg(`Created ${role} account for ${email.trim()}.`)
-      setEmail('')
-      setPassword('')
-      setConfirmPassword('')
-      setRole('admin')
+      setMsg(`Created ${form.role} account for ${form.email.trim()}.`)
+      setForm(emptyCreateForm())
+      setCreateOpen(false)
       await load()
     } catch (error) {
-      setErr(error instanceof Error ? error.message : 'Could not create user.')
+      setCreateErr(error instanceof Error ? error.message : 'Could not create user.')
     } finally {
       setBusy(false)
     }
@@ -105,13 +126,15 @@ export function AdminUsers() {
   async function updateUser(id: string, patch: Partial<Pick<AdminUserRow, 'role' | 'is_active'>>) {
     setErr(null)
     setMsg(null)
-    const sb = getSupabase()
-    if (!sb) return
+    if (!session?.access_token) {
+      setErr('Your session expired. Sign in again.')
+      return
+    }
 
     const target = rows.find((row) => row.id === id)
     if (!target) return
 
-    if (target.auth_user_id && target.auth_user_id === session?.user.id && patch.is_active === false) {
+    if (target.auth_user_id && target.auth_user_id === session.user.id && patch.is_active === false) {
       setErr('You cannot deactivate your own account.')
       return
     }
@@ -120,15 +143,19 @@ export function AdminUsers() {
       return
     }
 
-    const { error } = await sb
-      .from('dq_admin_users')
-      .update({ ...patch, updated_at: new Date().toISOString() })
-      .eq('id', id)
-
-    if (error) setErr(error.message)
-    else {
+    try {
+      await updateAdminUser({
+        data: {
+          accessToken: session.access_token,
+          id,
+          role: patch.role,
+          isActive: patch.is_active,
+        },
+      })
       setMsg('User updated.')
       await load()
+    } catch (error) {
+      setErr(error instanceof Error ? error.message : 'Could not update user.')
     }
   }
 
@@ -143,58 +170,6 @@ export function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <section className="admin-panel p-4">
-        <h2 className="text-sm font-semibold text-dq-black">Create user</h2>
-        <p className="admin-muted mt-1 text-sm">Creates a Supabase auth account and links it as a CMS admin.</p>
-        <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={onCreate}>
-          <label className="block space-y-1.5 md:col-span-2">
-            <span className="admin-label">Email</span>
-            <input
-              className="admin-input"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <label className="block space-y-1.5">
-            <span className="admin-label">Password</span>
-            <input
-              className="admin-input"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-          <label className="block space-y-1.5">
-            <span className="admin-label">Confirm password</span>
-            <input
-              className="admin-input"
-              type="password"
-              required
-              minLength={8}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </label>
-          <label className="block space-y-1.5 md:col-span-2">
-            <span className="admin-label">Role</span>
-            <AdminSelect
-              value={role}
-              onValueChange={(value) => setRole(value as AdminRole)}
-              options={createRoleOptions}
-            />
-          </label>
-          <div className="md:col-span-2">
-            <button type="submit" className="admin-btn-primary" disabled={busy}>
-              {busy ? 'Creating…' : 'Create user'}
-            </button>
-          </div>
-        </form>
-      </section>
-
       {err ? <p className="text-sm text-red-500">{err}</p> : null}
       {msg ? <p className="text-sm text-emerald-700">{msg}</p> : null}
 
@@ -260,6 +235,73 @@ export function AdminUsers() {
           </table>
         </div>
       </section>
+
+      <AdminModal
+        open={createOpen}
+        onOpenChange={(open) => {
+          setCreateOpen(open)
+          if (!open) {
+            setCreateErr(null)
+            setForm(emptyCreateForm())
+          }
+        }}
+        title="Create user"
+        footer={
+          <>
+            <button type="button" className="admin-btn-secondary" onClick={() => setCreateOpen(false)} disabled={busy}>
+              Cancel
+            </button>
+            <button type="submit" form="admin-create-user-form" className="admin-btn-primary" disabled={busy}>
+              {busy ? 'Creating…' : 'Create user'}
+            </button>
+          </>
+        }
+      >
+        <p className="admin-muted mb-4 text-sm">Create an admin account.</p>
+        <form id="admin-create-user-form" className="grid gap-3 md:grid-cols-2" onSubmit={onCreate}>
+          <label className="block space-y-1.5 md:col-span-2">
+            <span className="admin-label">Email</span>
+            <input
+              className="admin-input"
+              type="email"
+              required
+              value={form.email}
+              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="admin-label">Password</span>
+            <input
+              className="admin-input"
+              type="password"
+              required
+              minLength={8}
+              value={form.password}
+              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="admin-label">Confirm password</span>
+            <input
+              className="admin-input"
+              type="password"
+              required
+              minLength={8}
+              value={form.confirmPassword}
+              onChange={(e) => setForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+            />
+          </label>
+          <label className="block space-y-1.5 md:col-span-2">
+            <span className="admin-label">Role</span>
+            <AdminSelect
+              value={form.role}
+              onValueChange={(value) => setForm((prev) => ({ ...prev, role: value as AdminRole }))}
+              options={createRoleOptions}
+            />
+          </label>
+          {createErr ? <p className="text-sm text-red-500 md:col-span-2">{createErr}</p> : null}
+        </form>
+      </AdminModal>
     </div>
   )
 }

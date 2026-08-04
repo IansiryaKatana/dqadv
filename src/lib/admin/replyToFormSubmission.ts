@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { verifyAdminAccess } from '#/lib/admin/verifyAdminAccess'
+import { verifySubmissionsAccess } from '#/lib/admin/verifyAdminAccess'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { getResendClient } from '#/lib/email/resendClient'
 import { formReplyHtml } from '#/lib/email/templates'
@@ -14,7 +14,7 @@ type ReplyInput = {
 export const replyToFormSubmission = createServerFn({ method: 'POST' })
   .validator((data: ReplyInput) => data)
   .handler(async ({ data }) => {
-    await verifyAdminAccess(data.accessToken)
+    const user = await verifySubmissionsAccess(data.accessToken)
 
     const subject = data.subject.trim()
     const body = data.body.trim()
@@ -63,8 +63,13 @@ export const replyToFormSubmission = createServerFn({ method: 'POST' })
 
     await admin.from('dq_email_log').insert({
       donation_id: null,
+      submission_id: submission.id,
       template: 'form_reply',
       recipient: submission.email,
+      subject,
+      body_text: body,
+      body_html: html,
+      sent_by: user.id,
       resend_id: sent?.id ?? null,
       status: sendError ? 'failed' : 'sent',
       error: sendError?.message ?? null,
@@ -77,5 +82,17 @@ export const replyToFormSubmission = createServerFn({ method: 'POST' })
       .update({ status: 'replied' })
       .eq('id', submission.id)
 
-    return { ok: true as const, resendId: sent?.id ?? null }
+    return {
+      ok: true as const,
+      resendId: sent?.id ?? null,
+      reply: {
+        id: sent?.id ?? null,
+        subject,
+        body_text: body,
+        body_html: html,
+        status: 'sent' as const,
+        created_at: new Date().toISOString(),
+        recipient: submission.email,
+      },
+    }
   })

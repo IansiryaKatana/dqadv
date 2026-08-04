@@ -8,7 +8,7 @@ export type Database = {
           id: string
           auth_user_id: string | null
           email: string
-          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          role: 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
           is_active: boolean
           created_at: string | null
           updated_at: string | null
@@ -329,6 +329,28 @@ export type Database = {
         }
         Update: Partial<Database['public']['Tables']['dq_form_submissions']['Row']>
       }
+      dq_email_log: {
+        Row: {
+          id: string
+          donation_id: string | null
+          submission_id: string | null
+          template: string
+          recipient: string
+          subject: string | null
+          body_text: string | null
+          body_html: string | null
+          sent_by: string | null
+          resend_id: string | null
+          status: string
+          error: string | null
+          created_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['dq_email_log']['Row']> & {
+          template: string
+          recipient: string
+        }
+        Update: Partial<Database['public']['Tables']['dq_email_log']['Row']>
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -336,16 +358,20 @@ export type Database = {
         Args: Record<string, never>
         Returns: boolean
       }
+      dq_can_manage_submissions: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
       dq_register_admin_user: {
         Args: {
-          p_role: 'owner' | 'admin' | 'editor' | 'viewer'
+          p_role: 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
         }
         Returns: string
       }
       dq_get_my_admin_profile: {
         Args: Record<string, never>
         Returns: {
-          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          role: 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
           is_active: boolean
         }[]
       }

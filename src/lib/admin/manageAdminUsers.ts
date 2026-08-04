@@ -12,7 +12,7 @@ type UpdateAdminUserInput = {
   isActive?: boolean
 }
 
-const ALLOWED_ROLES = new Set<AdminRole>(['owner', 'admin', 'editor', 'viewer'])
+const ALLOWED_ROLES = new Set<AdminRole>(['owner', 'admin', 'editor', 'viewer', 'office_admin'])
 
 function getClients(accessToken: string) {
   const { url, anonKey, serviceKey } = readServerSupabaseEnv()

@@ -13,7 +13,7 @@ const deployTarget =
   process.env.DEPLOY_TARGET ??
   (process.env.WORKERS_CI === '1' ? 'cloudflare' : 'nitro')
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   // Keep Vite's dep cache outside the repo to avoid Windows EPERM rename races.
   cacheDir: path.join(os.tmpdir(), 'dq-vite'),
   resolve: { tsconfigPaths: true },
@@ -27,8 +27,14 @@ export default defineConfig({
         ]
       : [
           tanstackStart(),
-          deployTarget === 'netlify' ? netlify() : nitro(),
+          // Nitro's Vite env often 503s on slow Windows cold starts (entry wait ~3s).
+          // Use Nitro for builds only; TanStack Start handles local vite SSR.
+          ...(deployTarget === 'netlify'
+            ? [netlify()]
+            : command === 'build'
+              ? [nitro()]
+              : []),
           viteReact(),
         ]),
   ],
-})
+}))

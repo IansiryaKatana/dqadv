@@ -21,10 +21,10 @@ export function GiftCartPage({ postageNote }: GiftCartPageProps) {
   return (
     <>
       <PageHero
-        eyebrow="Your gift"
-        title="Complete"
-        highlight="Your Gift"
-        description="Review your sponsorship selections below. When you're ready, proceed to complete your donation."
+        eyebrow="Your cart"
+        title="Review your"
+        highlight="Donation"
+        description="Review your selections below. When you're ready, continue to checkout to complete your donation."
         variant="cream"
       />
 
@@ -40,9 +40,9 @@ export function GiftCartPage({ postageNote }: GiftCartPageProps) {
 
           {cart.items.length === 0 ? (
             <div className="flex flex-col items-center gap-6 rounded-2xl border border-dq-border bg-dq-cream/30 px-6 py-16 text-center">
-              <p className="type-body text-dq-muted">Your gift is empty.</p>
+              <p className="type-body text-dq-muted">Your cart is empty.</p>
               <Button asChild variant="gold">
-                <Link to="/donate">BROWSE GIFTS</Link>
+                <Link to="/donate">BROWSE DONATIONS</Link>
               </Button>
             </div>
           ) : (
@@ -54,14 +54,14 @@ export function GiftCartPage({ postageNote }: GiftCartPageProps) {
               </div>
 
               <aside className="h-fit rounded-2xl border-2 border-dq-gold/60 bg-white p-6 shadow-sm">
-                <h2 className="type-title mb-6 text-dq-black">Gift summary</h2>
+                <h2 className="type-title mb-6 text-dq-black">Order summary</h2>
                 <div className="space-y-3 border-b border-dq-border pb-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-dq-muted">Items</span>
                     <span className="text-dq-black">{itemCount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="type-label text-dq-muted">Your total gift</span>
+                    <span className="type-label text-dq-muted">Total</span>
                     <span className="type-title text-dq-black">
                       {subtotal > 0 ? formatPrice(subtotal, currency) : 'Custom amount'}
                     </span>
@@ -69,10 +69,10 @@ export function GiftCartPage({ postageNote }: GiftCartPageProps) {
                 </div>
                 {needsShipping ? <PostageFootnote block={postageNote} className="mb-4" /> : null}
                 <Button asChild variant="gold" className="mt-6 w-full">
-                  <Link to="/donate/checkout">COMPLETE YOUR GIFT</Link>
+                  <Link to="/donate/checkout">CONTINUE TO CHECKOUT</Link>
                 </Button>
                 <Button asChild variant="ghost" className="mt-2 w-full">
-                  <Link to="/donate">Add more gifts</Link>
+                  <Link to="/donate">Add more</Link>
                 </Button>
               </aside>
             </div>

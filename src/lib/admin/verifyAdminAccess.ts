@@ -1,6 +1,8 @@
 import { getSupabaseAdmin, getSupabaseUserClient } from '#/lib/integrations/supabaseAdmin'
 
-export async function verifyAdminAccess(accessToken: string) {
+type AdminRow = { role: string; is_active: boolean }
+
+async function loadActiveAdmin(accessToken: string) {
   const userClient = getSupabaseUserClient(accessToken)
   if (!userClient) throw new Error('Server configuration is missing.')
 
@@ -17,9 +19,29 @@ export async function verifyAdminAccess(accessToken: string) {
     .maybeSingle()
 
   if (adminError || !adminRow?.is_active) throw new Error('Unauthorized')
+
+  return { user: userData.user, adminRow: adminRow as AdminRow }
+}
+
+/** Full CMS: owner / admin / editor. */
+export async function verifyAdminAccess(accessToken: string) {
+  const { user, adminRow } = await loadActiveAdmin(accessToken)
   if (adminRow.role !== 'owner' && adminRow.role !== 'admin' && adminRow.role !== 'editor') {
     throw new Error('Unauthorized')
   }
+  return user
+}
 
-  return userData.user
+/** Form submissions + replies: CMS roles or office_admin. */
+export async function verifySubmissionsAccess(accessToken: string) {
+  const { user, adminRow } = await loadActiveAdmin(accessToken)
+  if (
+    adminRow.role !== 'owner' &&
+    adminRow.role !== 'admin' &&
+    adminRow.role !== 'editor' &&
+    adminRow.role !== 'office_admin'
+  ) {
+    throw new Error('Unauthorized')
+  }
+  return user
 }

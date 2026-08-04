@@ -1,14 +1,14 @@
-import { Link, Outlet, useRouterState } from '@tanstack/react-router'
+import { Link, Navigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
-import { canManageAdmins } from '#/lib/admin/adminUserApi'
+import { canManageAdmins, isOfficeAdmin } from '#/lib/admin/adminUserApi'
 import { AdminPageProvider, useAdminPage } from './AdminPageContext'
 import { adminNavLink, adminNavLinkActive } from './adminClassNames'
 import { cn } from '#/lib/utils'
 import '#/admin/admin-theme.css'
 
-const navItems = [
+const cmsNavItems = [
   { to: '/backend', label: 'Dashboard', exact: true },
   { to: '/backend/hero', label: 'Hero' },
   { to: '/backend/products', label: 'Products' },
@@ -24,6 +24,8 @@ const navItems = [
   { to: '/backend/submissions', label: 'Submissions' },
   { to: '/backend/settings', label: 'Settings' },
 ]
+
+const officeAdminNavItems = [{ to: '/backend/submissions', label: 'Submissions', exact: false }]
 
 function AdminHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { page } = useAdminPage()
@@ -67,6 +69,12 @@ function AdminShellInner() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { signOut, adminProfile } = useAdminAuth()
   const showUsers = canManageAdmins(adminProfile)
+  const officeOnly = isOfficeAdmin(adminProfile)
+  const navItems = officeOnly ? officeAdminNavItems : cmsNavItems
+
+  if (officeOnly && !pathname.startsWith('/backend/submissions')) {
+    return <Navigate to="/backend/submissions" replace />
+  }
 
   return (
     <div className="admin-shell flex h-screen overflow-hidden">

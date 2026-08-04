@@ -217,7 +217,14 @@ export function AdminPaymentsSettings() {
             <input className="admin-input" type="password" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} placeholder={settings?.paypalClientSecretMasked || 'Secret'} />
           </div>
         </div>
-        <p className="admin-muted mt-3 text-xs">Webhook URL: {origin}/api/paypal-webhook</p>
+        <p className="admin-muted mt-3 text-xs">
+          Mode must match your keys: sandbox Client ID/Secret only work in Sandbox; live keys only work in Live.
+        </p>
+        <p className="admin-muted mt-1 text-xs">
+          For guest card checkout (no PayPal login): in PayPal → Account Settings → Website payments → Website
+          preferences, set “PayPal account optional” to On.
+        </p>
+        <p className="admin-muted mt-1 text-xs">Webhook URL: {origin}/api/paypal-webhook</p>
         <button
           type="button"
           className="admin-btn-secondary mt-3"

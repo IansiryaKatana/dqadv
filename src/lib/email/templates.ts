@@ -93,7 +93,12 @@ export function formReplyHtml(data: {
       </div>`
     : ''
 
-  const kind = data.formType === 'distributor' ? 'distributor application' : 'contact message'
+  const kind =
+    data.formType === 'distributor'
+      ? 'distributor application'
+      : data.formType === 'free_quran'
+        ? 'free Qur’an request'
+        : 'contact message'
 
   return `<!DOCTYPE html>
 <html>

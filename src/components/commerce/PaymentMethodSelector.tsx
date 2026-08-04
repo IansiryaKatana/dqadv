@@ -19,13 +19,13 @@ export function PaymentMethodSelector({
     {
       id: 'stripe',
       label: 'Card payment',
-      description: 'Pay securely with credit or debit card via Stripe.',
+      description: 'Pay securely with credit or debit card.',
       enabled: stripeEnabled,
     },
     {
       id: 'paypal',
       label: 'PayPal',
-      description: 'Complete your gift using your PayPal account.',
+      description: 'Pay with PayPal or as a guest with a debit/credit card (no PayPal account required when enabled).',
       enabled: paypalEnabled,
     },
   ]

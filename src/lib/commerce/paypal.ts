@@ -20,9 +20,26 @@ export async function getPayPalAccessToken() {
     body: 'grant_type=client_credentials',
   })
 
-  if (!res.ok) throw new Error('Could not authenticate with PayPal.')
-  const json = (await res.json()) as { access_token?: string }
-  if (!json.access_token) throw new Error('Could not authenticate with PayPal.')
+  if (!res.ok) {
+    const errBody = await res.text()
+    let description = ''
+    try {
+      const json = JSON.parse(errBody) as { error?: string; error_description?: string }
+      description = json.error_description || json.error || ''
+    } catch {
+      description = errBody
+    }
+    if (res.status === 401 || /invalid_client/i.test(description)) {
+      throw new Error(
+        `PayPal rejected these credentials for ${config.paypalMode} mode. Switch PayPal mode in Settings to match your Client ID/Secret (sandbox vs live), or update the keys.`,
+      )
+    }
+    throw new Error(description || 'Could not authenticate with PayPal.')
+  }
+  const json = (await res.json()) as { access_token?: string; error_description?: string; error?: string }
+  if (!json.access_token) {
+    throw new Error(json.error_description || json.error || 'Could not authenticate with PayPal.')
+  }
   return { token: json.access_token, mode: config.paypalMode }
 }
 
@@ -50,7 +67,7 @@ export async function createPayPalOrder(params: {
             currency_code: params.currency.toUpperCase(),
             value: params.amount.toFixed(2),
           },
-          description: `Donate Quran gift ${params.reference}`,
+          description: `Donate Quran donation ${params.reference}`,
         },
       ],
       application_context: {
@@ -58,13 +75,33 @@ export async function createPayPalOrder(params: {
         cancel_url: params.cancelUrl,
         brand_name: 'Donate Quran',
         user_action: 'PAY_NOW',
+        // Prefer card / guest pay UI; merchant must also enable “PayPal account optional”.
+        landing_page: 'BILLING',
+        // Address is collected on our checkout; don’t force PayPal shipping again.
+        shipping_preference: 'NO_SHIPPING',
       },
     }),
   })
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(err || 'Could not create PayPal order.')
+    let detail = err || 'Could not create PayPal order.'
+    try {
+      const json = JSON.parse(err) as {
+        message?: string
+        name?: string
+        details?: Array<{ description?: string; issue?: string }>
+      }
+      detail =
+        json.details?.[0]?.description ||
+        json.details?.[0]?.issue ||
+        json.message ||
+        json.name ||
+        detail
+    } catch {
+      // keep raw text
+    }
+    throw new Error(detail)
   }
 
   const json = (await res.json()) as {

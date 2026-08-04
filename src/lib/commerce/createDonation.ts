@@ -71,9 +71,12 @@ export function validateCheckoutInput(input: {
   shippingAddress?: CreateDonationInput['shippingAddress']
   needsShipping: boolean
 }) {
-  if (!input.items.length) throw new Error('Your gift is empty.')
+  if (!input.items.length) throw new Error('Your donation cart is empty.')
   if (!input.donorName.trim() || !input.donorEmail.trim()) {
     throw new Error('Name and email are required.')
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.donorEmail.trim())) {
+    throw new Error('Please enter a valid email address.')
   }
   if (input.needsShipping) {
     if (!input.shippingAddress) {

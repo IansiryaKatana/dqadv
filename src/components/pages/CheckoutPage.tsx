@@ -39,9 +39,10 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
   const [postalCode, setPostalCode] = useState('')
   const [country, setCountry] = useState('')
   const [createAccount, setCreateAccount] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe')
-  const [stripeEnabled, setStripeEnabled] = useState(true)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('paypal')
+  const [stripeEnabled, setStripeEnabled] = useState(false)
   const [paypalEnabled, setPaypalEnabled] = useState(false)
+  const [paymentsReady, setPaymentsReady] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,13 +50,20 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
     'rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold focus:ring-2 focus:ring-dq-gold/20'
 
   useEffect(() => {
-    void getPublicPaymentOptions().then((options) => {
-      setStripeEnabled(options.stripeEnabled)
-      setPaypalEnabled(options.paypalEnabled)
-      if (!options.stripeEnabled && options.paypalEnabled) {
-        setPaymentMethod('paypal')
-      }
-    })
+    void getPublicPaymentOptions()
+      .then((options) => {
+        setStripeEnabled(options.stripeEnabled)
+        setPaypalEnabled(options.paypalEnabled)
+        if (options.paypalEnabled && !options.stripeEnabled) setPaymentMethod('paypal')
+        else if (options.stripeEnabled && !options.paypalEnabled) setPaymentMethod('stripe')
+        else if (options.paypalEnabled) setPaymentMethod('paypal')
+        else if (options.stripeEnabled) setPaymentMethod('stripe')
+      })
+      .catch(() => {
+        setStripeEnabled(false)
+        setPaypalEnabled(false)
+      })
+      .finally(() => setPaymentsReady(true))
   }, [])
 
   useEffect(() => {
@@ -65,6 +73,29 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
       if (profile?.phone) setDonorPhone(profile.phone)
     }
   }, [user, profile])
+
+  function validateClient(): string | null {
+    if (!donorName.trim() || !donorEmail.trim()) return 'Name and email are required.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(donorEmail.trim())) {
+      return 'Please enter a valid email address.'
+    }
+    if (needsShipping) {
+      if (!line1.trim() || !city.trim() || !state.trim() || !postalCode.trim() || !country.trim()) {
+        return 'Please complete all required delivery fields.'
+      }
+    }
+    if (!paymentsReady) return 'Payment options are still loading. Please wait a moment.'
+    if (!stripeEnabled && !paypalEnabled) {
+      return 'Online payment is temporarily unavailable. Please try again later or use bank transfer below.'
+    }
+    if (paymentMethod === 'stripe' && !stripeEnabled) {
+      return 'Card payment is unavailable. Please choose PayPal or use bank transfer.'
+    }
+    if (paymentMethod === 'paypal' && !paypalEnabled) {
+      return 'PayPal is unavailable. Please choose card payment or use bank transfer.'
+    }
+    return null
+  }
 
   const checkoutPayload = () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -84,6 +115,12 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
   }
 
   async function handleCheckout() {
+    const clientError = validateClient()
+    if (clientError) {
+      setError(clientError)
+      return
+    }
+
     setBusy(true)
     setError(null)
     try {
@@ -118,9 +155,9 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
     return (
       <section className="py-16">
         <Container className="text-center">
-          <p className="type-body text-dq-muted">Your gift is empty.</p>
+          <p className="type-body text-dq-muted">Your donation cart is empty.</p>
           <Button asChild variant="gold" className="mt-4">
-            <Link to="/donate">BROWSE GIFTS</Link>
+            <Link to="/donate">BROWSE DONATIONS</Link>
           </Button>
         </Container>
       </section>
@@ -128,14 +165,20 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
   }
 
   const onlinePaymentAvailable = stripeEnabled || paypalEnabled
+  const totalLabel = formatPrice(subtotal, currency)
+  const ctaLabel = busy
+    ? 'REDIRECTING TO PAYMENT…'
+    : totalLabel
+      ? `DONATE ${totalLabel}`
+      : 'CONTINUE TO PAYMENT'
 
   return (
     <>
       <PageHero
-        eyebrow="Complete your gift"
-        title="Your"
+        eyebrow="Checkout"
+        title="Complete your"
         highlight="Donation"
-        description="Enter your details below to complete your gift. Payment is processed securely as a donation."
+        description="Enter your details below. Payment is processed securely as a donation."
         variant="cream"
       />
       <section className="pt-10 md:pt-12 pb-16 md:pb-24">
@@ -145,7 +188,7 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
             className="type-label mb-8 inline-flex items-center gap-2 text-dq-muted hover:text-dq-gold"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to your gift
+            Back to cart
           </Link>
 
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
@@ -157,25 +200,50 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
                     <label className="type-label mb-2 block" htmlFor="donorName">
                       Full name *
                     </label>
-                    <input id="donorName" required className={inputClass + ' w-full'} value={donorName} onChange={(e) => setDonorName(e.target.value)} />
+                    <input
+                      id="donorName"
+                      required
+                      className={inputClass + ' w-full'}
+                      value={donorName}
+                      onChange={(e) => setDonorName(e.target.value)}
+                    />
                   </div>
                   <div>
                     <label className="type-label mb-2 block" htmlFor="donorEmail">
                       Email *
                     </label>
-                    <input id="donorEmail" type="email" required className={inputClass + ' w-full'} value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} />
+                    <input
+                      id="donorEmail"
+                      type="email"
+                      required
+                      className={inputClass + ' w-full'}
+                      value={donorEmail}
+                      onChange={(e) => setDonorEmail(e.target.value)}
+                    />
                   </div>
                   <div>
                     <label className="type-label mb-2 block" htmlFor="donorPhone">
                       Phone
                     </label>
-                    <input id="donorPhone" type="tel" className={inputClass + ' w-full'} value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} />
+                    <input
+                      id="donorPhone"
+                      type="tel"
+                      className={inputClass + ' w-full'}
+                      value={donorPhone}
+                      onChange={(e) => setDonorPhone(e.target.value)}
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <label className="type-label mb-2 block" htmlFor="dedication">
-                      Gift dedication (optional)
+                      Dedication (optional)
                     </label>
-                    <input id="dedication" className={inputClass + ' w-full'} placeholder="In honor of / In memory of" value={dedication} onChange={(e) => setDedication(e.target.value)} />
+                    <input
+                      id="dedication"
+                      className={inputClass + ' w-full'}
+                      placeholder="In honor of / In memory of"
+                      value={dedication}
+                      onChange={(e) => setDedication(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -184,19 +252,54 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
                 <div className="rounded-2xl border border-dq-border bg-white p-6">
                   <h2 className="type-title mb-4 text-dq-black">Delivery details</h2>
                   <p className="type-body mb-4 text-sm text-dq-muted">
-                    Your gift ships to this address. Enter your own details or a recipient&apos;s address.
+                    Your order ships to this address. Enter your own details or a recipient&apos;s address.
                   </p>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
-                      <input className={inputClass + ' w-full'} placeholder="Address line 1 *" value={line1} onChange={(e) => setLine1(e.target.value)} required={needsShipping} />
+                      <input
+                        className={inputClass + ' w-full'}
+                        placeholder="Address line 1 *"
+                        value={line1}
+                        onChange={(e) => setLine1(e.target.value)}
+                        required={needsShipping}
+                      />
                     </div>
                     <div className="md:col-span-2">
-                      <input className={inputClass + ' w-full'} placeholder="Address line 2" value={line2} onChange={(e) => setLine2(e.target.value)} />
+                      <input
+                        className={inputClass + ' w-full'}
+                        placeholder="Address line 2"
+                        value={line2}
+                        onChange={(e) => setLine2(e.target.value)}
+                      />
                     </div>
-                    <input className={inputClass} placeholder="City *" value={city} onChange={(e) => setCity(e.target.value)} required={needsShipping} />
-                    <input className={inputClass} placeholder="State / county *" value={state} onChange={(e) => setState(e.target.value)} required={needsShipping} />
-                    <input className={inputClass} placeholder="Postal code *" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required={needsShipping} />
-                    <input className={inputClass} placeholder="Country *" value={country} onChange={(e) => setCountry(e.target.value)} required={needsShipping} />
+                    <input
+                      className={inputClass}
+                      placeholder="City *"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required={needsShipping}
+                    />
+                    <input
+                      className={inputClass}
+                      placeholder="State / county *"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      required={needsShipping}
+                    />
+                    <input
+                      className={inputClass}
+                      placeholder="Postal code *"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      required={needsShipping}
+                    />
+                    <input
+                      className={inputClass}
+                      placeholder="Country *"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      required={needsShipping}
+                    />
                   </div>
                 </div>
               ) : null}
@@ -210,6 +313,10 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
                 />
               ) : null}
 
+              <p className="text-sm text-dq-muted">
+                Guest checkout: you can donate with PayPal or card without creating a Donate Quran account.
+              </p>
+
               {!user && onlinePaymentAvailable ? (
                 <label className="flex items-start gap-3 rounded-xl border border-dq-border bg-dq-cream/20 p-4">
                   <input
@@ -219,7 +326,7 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
                     onChange={(e) => setCreateAccount(e.target.checked)}
                   />
                   <span className="text-sm text-dq-muted">
-                    Create an account to track your gift history. You can set a password after completing your gift.
+                    Optional: create an account after payment to track donations. Not required to checkout.
                   </span>
                 </label>
               ) : null}
@@ -227,18 +334,26 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
               {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
               {onlinePaymentAvailable ? (
-                <Button variant="gold" size="lg" className="w-full md:w-auto" disabled={busy} onClick={() => void handleCheckout()}>
-                  {busy ? 'REDIRECTING TO PAYMENT...' : 'COMPLETE YOUR GIFT'}
+                <Button
+                  variant="gold"
+                  size="lg"
+                  className="w-full md:w-auto"
+                  disabled={busy || !paymentsReady}
+                  onClick={() => void handleCheckout()}
+                >
+                  {!paymentsReady ? 'LOADING PAYMENT…' : ctaLabel}
                 </Button>
-              ) : (
+              ) : paymentsReady ? (
                 <p className="text-sm text-dq-muted">
-                  Online payment is not available right now. Please use bank transfer below to complete your gift.
+                  Online payment is not available right now. Please use bank transfer below to complete your donation.
                 </p>
+              ) : (
+                <p className="text-sm text-dq-muted">Loading payment options…</p>
               )}
             </div>
 
             <aside className="h-fit rounded-2xl border-2 border-dq-gold/60 bg-white p-6">
-              <h2 className="type-title mb-4 text-dq-black">Gift summary</h2>
+              <h2 className="type-title mb-4 text-dq-black">Order summary</h2>
               {cart.items.map((item) => (
                 <GiftLineItem key={item.productId} item={item} />
               ))}

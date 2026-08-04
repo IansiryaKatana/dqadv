@@ -1,11 +1,34 @@
 import { getSupabase } from '#/integrations/supabase/client'
 
-export type AdminRole = 'owner' | 'admin' | 'editor' | 'viewer'
+export type AdminRole = 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
 export type SignupAdminRole = 'owner' | 'admin'
 
 export type AdminProfile = {
   role: AdminRole
   is_active: boolean
+}
+
+/** Full CMS access (content, donations, settings). */
+export function canAccessCms(profile: AdminProfile | null) {
+  return Boolean(
+    profile?.is_active &&
+      (profile.role === 'owner' || profile.role === 'admin' || profile.role === 'editor'),
+  )
+}
+
+/** Submissions inbox (includes office admin). */
+export function canAccessSubmissions(profile: AdminProfile | null) {
+  return Boolean(
+    profile?.is_active &&
+      (profile.role === 'owner' ||
+        profile.role === 'admin' ||
+        profile.role === 'editor' ||
+        profile.role === 'office_admin'),
+  )
+}
+
+export function isOfficeAdmin(profile: AdminProfile | null) {
+  return Boolean(profile?.is_active && profile.role === 'office_admin')
 }
 
 export async function canBootstrapAdmin() {

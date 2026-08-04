@@ -22,6 +22,7 @@ const ROLE_OPTIONS: { value: AdminRole; label: string }[] = [
   { value: 'owner', label: 'Owner' },
   { value: 'admin', label: 'Admin' },
   { value: 'editor', label: 'Editor' },
+  { value: 'office_admin', label: 'Office admin' },
   { value: 'viewer', label: 'Viewer' },
 ]
 

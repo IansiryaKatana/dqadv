@@ -43,14 +43,14 @@ export function CheckoutSuccessPage({ reference }: { reference?: string }) {
     <section className="bg-dq-cream/40 py-20 md:py-28">
       <Container className="max-w-xl text-center">
         {loading ? (
-          <p className="type-body text-dq-muted">Confirming your gift...</p>
+          <p className="type-body text-dq-muted">Confirming your donation...</p>
         ) : (
           <>
             <p className="type-eyebrow mb-3 text-dq-gold">JazakAllah khair</p>
             <h1 className="type-headline text-dq-black">
               {isPaid ? (
                 <>
-                  Your gift is <span className="text-dq-gold">complete</span>
+                  Donation <span className="text-dq-gold">received</span>
                 </>
               ) : isPending ? (
                 <>
@@ -66,12 +66,12 @@ export function CheckoutSuccessPage({ reference }: { reference?: string }) {
               {isPaid
                 ? 'Thank you for your generous donation. A confirmation email has been sent to you.'
                 : isPending
-                  ? 'Your payment is being confirmed. You will receive an email once your gift is complete.'
-                  : 'Thank you for your generous donation. Your gift will help place the Qur\'an in the hands of those seeking guidance.'}
+                  ? 'Your payment is being confirmed. You will receive an email once it is complete.'
+                  : 'Thank you for your generous donation. Your support helps place the Qur\'an in the hands of those seeking guidance.'}
             </p>
             {reference ? (
               <p className="mt-4 text-sm text-dq-muted">
-                Gift reference: <span className="font-mono text-dq-black">{reference}</span>
+                Reference: <span className="font-mono text-dq-black">{reference}</span>
               </p>
             ) : null}
             {donation && isPaid ? (

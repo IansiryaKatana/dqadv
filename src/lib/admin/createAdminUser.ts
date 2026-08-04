@@ -5,11 +5,11 @@ import { readServerSupabaseEnv } from '#/integrations/supabase/env'
 type CreateAdminUserInput = {
   email: string
   password: string
-  role: 'owner' | 'admin' | 'editor' | 'viewer'
+  role: 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
   accessToken: string
 }
 
-const ALLOWED_ROLES = new Set(['owner', 'admin', 'editor', 'viewer'])
+const ALLOWED_ROLES = new Set(['owner', 'admin', 'editor', 'viewer', 'office_admin'])
 
 function getServerSupabaseConfig() {
   const { url, anonKey, serviceKey } = readServerSupabaseEnv()

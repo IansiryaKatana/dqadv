@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { PageHero } from '#/components/layout/PageHero'
 import { Container } from '#/components/ui/container'
 import { Button } from '#/components/ui/button'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import { useDonorAuth } from '#/contexts/DonorAuthContext'
 
 type AccountRegisterPageProps = {
@@ -68,7 +69,14 @@ export function AccountRegisterPage({ initialEmail, reference }: AccountRegister
             </div>
             <div>
               <label className="type-label mb-2 block" htmlFor="password">Password</label>
-              <input id="password" type="password" required minLength={8} className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput
+                id="password"
+                required
+                minLength={8}
+                className={inputClass}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
             <Button type="submit" variant="gold" className="w-full" disabled={busy}>

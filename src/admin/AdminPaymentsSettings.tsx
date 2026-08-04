@@ -9,6 +9,7 @@ import {
 } from '#/lib/integrations/integrationSettingsApi'
 import type { MaskedIntegrationSettings } from '#/lib/integrations/types'
 import { cn } from '#/lib/utils'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import { AdminSelect } from './components/AdminSelect'
 import { ADMIN_PAYPAL_MODE_OPTIONS, ADMIN_STRIPE_MODE_OPTIONS } from './adminSelectOptions'
 
@@ -172,11 +173,11 @@ export function AdminPaymentsSettings() {
           </div>
           <div>
             <FieldLabel>Secret key</FieldLabel>
-            <input className="admin-input" type="password" value={stripeSecretKey} onChange={(e) => setStripeSecretKey(e.target.value)} placeholder={settings?.stripeSecretKeyMasked || 'sk_test_...'} />
+            <PasswordInput className="admin-input" value={stripeSecretKey} onChange={(e) => setStripeSecretKey(e.target.value)} placeholder={settings?.stripeSecretKeyMasked || 'sk_test_...'} autoComplete="off" />
           </div>
           <div>
             <FieldLabel>Webhook secret</FieldLabel>
-            <input className="admin-input" type="password" value={stripeWebhookSecret} onChange={(e) => setStripeWebhookSecret(e.target.value)} placeholder={settings?.stripeWebhookSecretMasked || 'whsec_...'} />
+            <PasswordInput className="admin-input" value={stripeWebhookSecret} onChange={(e) => setStripeWebhookSecret(e.target.value)} placeholder={settings?.stripeWebhookSecretMasked || 'whsec_...'} autoComplete="off" />
           </div>
         </div>
         <p className="admin-muted mt-3 text-xs">Webhook URL: {origin}/api/stripe-webhook</p>
@@ -214,7 +215,7 @@ export function AdminPaymentsSettings() {
           </div>
           <div className="md:col-span-2">
             <FieldLabel>Client secret</FieldLabel>
-            <input className="admin-input" type="password" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} placeholder={settings?.paypalClientSecretMasked || 'Secret'} />
+            <PasswordInput className="admin-input" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} placeholder={settings?.paypalClientSecretMasked || 'Secret'} autoComplete="off" />
           </div>
         </div>
         <p className="admin-muted mt-3 text-xs">
@@ -243,7 +244,7 @@ export function AdminPaymentsSettings() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <FieldLabel>Resend API key</FieldLabel>
-            <input className="admin-input" type="password" value={resendApiKey} onChange={(e) => setResendApiKey(e.target.value)} placeholder={settings?.resendApiKeyMasked || 're_...'} />
+            <PasswordInput className="admin-input" value={resendApiKey} onChange={(e) => setResendApiKey(e.target.value)} placeholder={settings?.resendApiKeyMasked || 're_...'} autoComplete="off" />
           </div>
           <div>
             <FieldLabel>From name</FieldLabel>

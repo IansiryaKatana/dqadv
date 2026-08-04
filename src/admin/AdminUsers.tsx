@@ -7,6 +7,7 @@ import { canManageAdmins, type AdminRole } from '#/lib/admin/adminUserApi'
 import { useAdminPageHeader } from './AdminPageContext'
 import { AdminModal } from './components/AdminModal'
 import { AdminSelect } from './components/AdminSelect'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import { adminTable, adminTableWrap, adminTd, adminTh } from './adminClassNames'
 
 type AdminUserRow = {
@@ -272,9 +273,8 @@ export function AdminUsers() {
           </label>
           <label className="block space-y-1.5">
             <span className="admin-label">Password</span>
-            <input
+            <PasswordInput
               className="admin-input"
-              type="password"
               required
               minLength={8}
               value={form.password}
@@ -283,9 +283,8 @@ export function AdminUsers() {
           </label>
           <label className="block space-y-1.5">
             <span className="admin-label">Confirm password</span>
-            <input
+            <PasswordInput
               className="admin-input"
-              type="password"
               required
               minLength={8}
               value={form.confirmPassword}

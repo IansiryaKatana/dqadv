@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { createAdminUser } from '#/lib/admin/createAdminUser'
 import type { SignupAdminRole } from '#/lib/admin/adminUserApi'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import { AdminSelect } from './components/AdminSelect'
 import '#/admin/admin-theme.css'
 
@@ -156,9 +157,8 @@ export function AdminSignup() {
                   </label>
                   <label className="block space-y-2">
                     <span className="admin-label">Password</span>
-                    <input
+                    <PasswordInput
                       className="admin-input"
-                      type="password"
                       required={!completeSetupMode}
                       minLength={8}
                       value={password}
@@ -167,9 +167,8 @@ export function AdminSignup() {
                   </label>
                   <label className="block space-y-2">
                     <span className="admin-label">Confirm password</span>
-                    <input
+                    <PasswordInput
                       className="admin-input"
-                      type="password"
                       required={!completeSetupMode}
                       minLength={8}
                       value={confirmPassword}

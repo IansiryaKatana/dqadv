@@ -84,9 +84,10 @@ function AdminShellInner() {
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        <div className="mb-8 flex shrink-0 items-center justify-between">
-          <Link to="/" className="text-xl font-extrabold">
-            <span className="text-white">Donate Quran</span> <span className="text-dq-gold">CMS</span>
+        <div className="mb-8 flex shrink-0 items-center justify-between gap-2">
+          <Link to="/" className="flex min-w-0 items-center gap-2.5 text-xl font-extrabold">
+            <img src="/favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-sm object-contain" width={28} height={28} />
+            <span className="truncate text-white">Donate Quran</span>
           </Link>
           <button type="button" className="md:hidden" onClick={() => setOpen(false)} aria-label="Close sidebar">
             <X className="h-5 w-5" />

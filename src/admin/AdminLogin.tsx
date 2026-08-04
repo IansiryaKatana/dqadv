@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { Eye, EyeOff } from 'lucide-react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import '#/admin/admin-theme.css'
 
 export function AdminLogin() {
@@ -10,7 +10,6 @@ export function AdminLogin() {
   const search = useSearch({ from: '/backend/login' }) as { redirect?: string }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -50,23 +49,12 @@ export function AdminLogin() {
             </label>
             <label className="block space-y-2">
               <span className="admin-label">Password</span>
-              <div className="relative">
-                <input
-                  className="admin-input pr-11"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dq-muted transition-colors hover:text-dq-black"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <PasswordInput
+                className="admin-input"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </label>
             <p className="text-right">
               <Link to="/backend/forgot-password" className="text-sm text-dq-gold hover:underline">

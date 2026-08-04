@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { PageHero } from '#/components/layout/PageHero'
 import { Container } from '#/components/ui/container'
 import { Button } from '#/components/ui/button'
+import { PasswordInput } from '#/components/ui/PasswordInput'
 import { useDonorAuth } from '#/contexts/DonorAuthContext'
 import { getSupabase } from '#/integrations/supabase/client'
 
@@ -103,9 +104,8 @@ export function AccountResetPasswordPage() {
                 <label className="type-label mb-2 block" htmlFor="new-password">
                   New password
                 </label>
-                <input
+                <PasswordInput
                   id="new-password"
-                  type="password"
                   required
                   minLength={8}
                   autoComplete="new-password"
@@ -118,9 +118,8 @@ export function AccountResetPasswordPage() {
                 <label className="type-label mb-2 block" htmlFor="confirm-password">
                   Confirm password
                 </label>
-                <input
+                <PasswordInput
                   id="confirm-password"
-                  type="password"
                   required
                   minLength={8}
                   autoComplete="new-password"

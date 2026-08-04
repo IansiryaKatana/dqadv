@@ -42,11 +42,13 @@ export function useAdminPage() {
 }
 
 export function useAdminPageHeader({ title, description, actions }: AdminPageMeta) {
-  const { setPage } = useAdminPage()
+  const ctx = useContext(AdminPageContext)
+  const setPage = ctx?.setPage
   const resolvedActions = Array.isArray(actions) ? actions : EMPTY_ACTIONS
   const actionsKey = resolvedActions.map((action) => action.label).join('|')
 
   useLayoutEffect(() => {
+    if (!setPage) return
     setPage({
       title,
       description,

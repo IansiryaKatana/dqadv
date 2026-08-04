@@ -2,7 +2,7 @@ import { Link, Navigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
-import { canManageAdmins, isOfficeAdmin } from '#/lib/admin/adminUserApi'
+import { canManageAdmins, isOfficeAdmin, isOfficeAdminAllowedPath } from '#/lib/admin/adminUserApi'
 import { AdminPageProvider, useAdminPage } from './AdminPageContext'
 import { adminNavLink, adminNavLinkActive } from './adminClassNames'
 import { cn } from '#/lib/utils'
@@ -25,7 +25,10 @@ const cmsNavItems = [
   { to: '/backend/settings', label: 'Settings' },
 ]
 
-const officeAdminNavItems = [{ to: '/backend/submissions', label: 'Submissions', exact: false }]
+const officeAdminNavItems = [
+  { to: '/backend/donations', label: 'Donations', exact: false },
+  { to: '/backend/submissions', label: 'Submissions', exact: false },
+]
 
 function AdminHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const { page } = useAdminPage()
@@ -71,13 +74,11 @@ function AdminShellInner() {
   const showUsers = canManageAdmins(adminProfile)
   const officeOnly = isOfficeAdmin(adminProfile)
   const navItems = officeOnly ? officeAdminNavItems : cmsNavItems
-
-  if (officeOnly && !pathname.startsWith('/backend/submissions')) {
-    return <Navigate to="/backend/submissions" replace />
-  }
+  const officeNeedsRedirect = officeOnly && !isOfficeAdminAllowedPath(pathname)
 
   return (
     <div className="admin-shell flex h-screen overflow-hidden">
+      {officeNeedsRedirect ? <Navigate to="/backend/submissions" replace /> : null}
       <aside
         className={cn(
           'admin-sidebar fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-hidden border-r border-white/10 p-4 transition-transform md:static',

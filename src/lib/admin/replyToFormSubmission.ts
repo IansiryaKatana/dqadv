@@ -75,7 +75,13 @@ export const replyToFormSubmission = createServerFn({ method: 'POST' })
       error: sendError?.message ?? null,
     })
 
-    if (sendError) throw new Error(sendError.message)
+    if (sendError) {
+      const msg = sendError.message || 'Email send failed.'
+      if (/unauthorized|invalid.?api.?key|401/i.test(msg)) {
+        throw new Error('Email provider rejected the request. Check the Resend API key in Payments.')
+      }
+      throw new Error(msg)
+    }
 
     await admin
       .from('dq_form_submissions')

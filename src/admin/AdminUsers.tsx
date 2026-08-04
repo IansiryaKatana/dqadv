@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { Navigate } from '@tanstack/react-router'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { createAdminUser } from '#/lib/admin/createAdminUser'
-import { listAdminUsers, updateAdminUser } from '#/lib/admin/manageAdminUsers'
+import { bulkUpdateAdminUsers, listAdminUsers, updateAdminUser } from '#/lib/admin/manageAdminUsers'
 import { canManageAdmins, type AdminRole } from '#/lib/admin/adminUserApi'
+import { cn } from '#/lib/utils'
 import { useAdminPageHeader } from './AdminPageContext'
 import { AdminModal } from './components/AdminModal'
 import { AdminSelect } from './components/AdminSelect'
@@ -46,6 +47,8 @@ export function AdminUsers() {
   const [createOpen, setCreateOpen] = useState(false)
   const [createErr, setCreateErr] = useState<string | null>(null)
   const [form, setForm] = useState(emptyCreateForm)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkRole, setBulkRole] = useState<AdminRole>('editor')
 
   const headerActions = useMemo(
     () => [
@@ -63,7 +66,7 @@ export function AdminUsers() {
 
   useAdminPageHeader({
     title: 'Users',
-    description: 'Create and manage CMS admin accounts.',
+    description: 'Create and manage CMS admin accounts. Select rows for bulk updates.',
     actions: headerActions,
   })
 
@@ -72,6 +75,7 @@ export function AdminUsers() {
     try {
       const data = await listAdminUsers({ data: { accessToken: session.access_token } })
       setRows(data)
+      setSelectedIds(new Set())
       setErr(null)
     } catch (error) {
       setErr(error instanceof Error ? error.message : 'Could not load admin users.')
@@ -161,6 +165,29 @@ export function AdminUsers() {
     }
   }
 
+  async function applyBulk(patch: { role?: AdminRole; isActive?: boolean }) {
+    if (!session?.access_token || !selectedIds.size) return
+    setBusy(true)
+    setErr(null)
+    setMsg(null)
+    try {
+      const result = await bulkUpdateAdminUsers({
+        data: {
+          accessToken: session.access_token,
+          ids: [...selectedIds],
+          role: patch.role,
+          isActive: patch.isActive,
+        },
+      })
+      setMsg(`Updated ${result.count} user${result.count === 1 ? '' : 's'}.`)
+      await load()
+    } catch (error) {
+      setErr(error instanceof Error ? error.message : 'Bulk update failed.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   if (!allowed) {
     return <Navigate to="/backend" replace />
   }
@@ -170,16 +197,57 @@ export function AdminUsers() {
       ? ROLE_OPTIONS
       : ROLE_OPTIONS.filter((option) => option.value !== 'owner')
 
+  const selectedCount = selectedIds.size
+  const allSelected = rows.length > 0 && selectedCount === rows.length
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set())
+      return
+    }
+    setSelectedIds(new Set(rows.map((row) => row.id)))
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   return (
     <div className="space-y-6">
       {err ? <p className="text-sm text-red-500">{err}</p> : null}
       {msg ? <p className="text-sm text-emerald-700">{msg}</p> : null}
+
+      {selectedCount > 0 ? (
+        <div className="admin-panel flex flex-wrap items-center gap-2 px-4 py-3">
+          <span className="admin-muted text-sm">{selectedCount} selected</span>
+          <div className="w-44">
+            <AdminSelect value={bulkRole} onValueChange={(value) => setBulkRole(value as AdminRole)} options={createRoleOptions} />
+          </div>
+          <button type="button" className="admin-btn-secondary" disabled={busy} onClick={() => void applyBulk({ role: bulkRole })}>
+            Set role
+          </button>
+          <button type="button" className="admin-btn-secondary" disabled={busy} onClick={() => void applyBulk({ isActive: true })}>
+            Activate
+          </button>
+          <button type="button" className="admin-btn-secondary" disabled={busy} onClick={() => void applyBulk({ isActive: false })}>
+            Deactivate
+          </button>
+        </div>
+      ) : null}
 
       <section>
         <div className={adminTableWrap}>
           <table className={adminTable}>
             <thead>
               <tr>
+                <th className={cn(adminTh, 'w-10')}>
+                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="Select all users" />
+                </th>
                 <th className={adminTh}>Email</th>
                 <th className={adminTh}>Role</th>
                 <th className={adminTh}>Status</th>
@@ -190,7 +258,7 @@ export function AdminUsers() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td className={adminTd} colSpan={5}>
+                  <td className={adminTd} colSpan={6}>
                     No admin users yet.
                   </td>
                 </tr>
@@ -199,6 +267,14 @@ export function AdminUsers() {
                   const isSelf = Boolean(row.auth_user_id && row.auth_user_id === session?.user.id)
                   return (
                     <tr key={row.id}>
+                      <td className={adminTd}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(row.id)}
+                          onChange={() => toggleSelect(row.id)}
+                          aria-label={`Select ${row.email}`}
+                        />
+                      </td>
                       <td className={adminTd}>
                         {row.email}
                         {isSelf ? <span className="admin-muted ml-2 text-xs">(you)</span> : null}

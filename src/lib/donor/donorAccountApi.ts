@@ -110,11 +110,33 @@ export const upsertDonorProfile = createServerFn({ method: 'POST' })
     return { ok: true as const }
   })
 
+const FULFILLMENT_STATUSES = new Set(['pending', 'processing', 'shipped', 'delivered'])
+
+export const listDonationsAdmin = createServerFn({ method: 'POST' })
+  .validator((data: { accessToken: string }) => data)
+  .handler(async ({ data }) => {
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
+
+    const admin = getSupabaseAdmin()
+    if (!admin) throw new Error('Server configuration is missing.')
+
+    const { data: rows, error } = await admin
+      .from('dq_donations')
+      .select(
+        'id, reference, donor_name, donor_email, donor_phone, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at',
+      )
+      .order('created_at', { ascending: false })
+
+    if (error) throw new Error(error.message)
+    return rows ?? []
+  })
+
 export const resendDonationReceiptFn = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string; donationId: string }) => data)
   .handler(async ({ data }) => {
-    const { verifyAdminAccess } = await import('#/lib/admin/verifyAdminAccess')
-    await verifyAdminAccess(data.accessToken)
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
     const { resendDonationReceipt } = await import('#/lib/email/sendDonationEmails')
     await resendDonationReceipt(data.donationId)
     return { ok: true as const }
@@ -130,8 +152,12 @@ export const updateDonationFulfillment = createServerFn({ method: 'POST' })
     }) => data,
   )
   .handler(async ({ data }) => {
-    const { verifyAdminAccess } = await import('#/lib/admin/verifyAdminAccess')
-    await verifyAdminAccess(data.accessToken)
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
+
+    if (!FULFILLMENT_STATUSES.has(data.fulfillmentStatus)) {
+      throw new Error('Invalid fulfillment status.')
+    }
 
     const admin = getSupabaseAdmin()
     if (!admin) throw new Error('Server configuration is missing.')
@@ -147,4 +173,54 @@ export const updateDonationFulfillment = createServerFn({ method: 'POST' })
 
     if (error) throw new Error(error.message)
     return { ok: true as const }
+  })
+
+export const bulkUpdateDonationFulfillment = createServerFn({ method: 'POST' })
+  .validator(
+    (data: {
+      accessToken: string
+      donationIds: string[]
+      fulfillmentStatus: string
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
+
+    const ids = [...new Set(data.donationIds.filter(Boolean))]
+    if (!ids.length) throw new Error('Select at least one donation.')
+    if (!FULFILLMENT_STATUSES.has(data.fulfillmentStatus)) {
+      throw new Error('Invalid fulfillment status.')
+    }
+
+    const admin = getSupabaseAdmin()
+    if (!admin) throw new Error('Server configuration is missing.')
+
+    const { error } = await admin
+      .from('dq_donations')
+      .update({
+        fulfillment_status: data.fulfillmentStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .in('id', ids)
+
+    if (error) throw new Error(error.message)
+    return { ok: true as const, count: ids.length }
+  })
+
+export const bulkDeleteDonations = createServerFn({ method: 'POST' })
+  .validator((data: { accessToken: string; donationIds: string[] }) => data)
+  .handler(async ({ data }) => {
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
+
+    const ids = [...new Set(data.donationIds.filter(Boolean))]
+    if (!ids.length) throw new Error('Select at least one donation.')
+
+    const admin = getSupabaseAdmin()
+    if (!admin) throw new Error('Server configuration is missing.')
+
+    const { error } = await admin.from('dq_donations').delete().in('id', ids)
+    if (error) throw new Error(error.message)
+    return { ok: true as const, count: ids.length }
   })

@@ -12,6 +12,13 @@ type UpdateAdminUserInput = {
   isActive?: boolean
 }
 
+type BulkUpdateAdminUsersInput = {
+  accessToken: string
+  ids: string[]
+  role?: AdminRole
+  isActive?: boolean
+}
+
 const ALLOWED_ROLES = new Set<AdminRole>(['owner', 'admin', 'editor', 'viewer', 'office_admin'])
 
 function getClients(accessToken: string) {
@@ -111,4 +118,50 @@ export const updateAdminUser = createServerFn({ method: 'POST' })
     if (error) throw new Error(error.message)
 
     return { success: true as const }
+  })
+
+export const bulkUpdateAdminUsers = createServerFn({ method: 'POST' })
+  .validator((data: BulkUpdateAdminUsersInput) => data)
+  .handler(async ({ data }) => {
+    const { adminClient, actor } = await requireManager(data.accessToken)
+
+    const ids = [...new Set(data.ids.filter(Boolean))]
+    if (!ids.length) throw new Error('Select at least one user.')
+    if (data.role == null && data.isActive == null) {
+      throw new Error('Choose a role or active status to apply.')
+    }
+    if (data.role != null && !ALLOWED_ROLES.has(data.role)) {
+      throw new Error('Invalid admin role.')
+    }
+    if (data.role === 'owner' && actor.role !== 'owner') {
+      throw new Error('Only owners can assign the owner role.')
+    }
+
+    const { data: targets, error: targetError } = await adminClient
+      .from('dq_admin_users')
+      .select('id, auth_user_id, role')
+      .in('id', ids)
+
+    if (targetError) throw new Error(targetError.message)
+    if (!targets?.length) throw new Error('No matching admin users found.')
+
+    if (data.isActive === false) {
+      const selfSelected = targets.some((row) => row.auth_user_id === actor.authUserId)
+      if (selfSelected) throw new Error('You cannot deactivate your own account.')
+    }
+
+    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    if (data.role != null) patch.role = data.role
+    if (data.isActive != null) patch.is_active = data.isActive
+
+    const { error } = await adminClient
+      .from('dq_admin_users')
+      .update(patch)
+      .in(
+        'id',
+        targets.map((row) => row.id),
+      )
+    if (error) throw new Error(error.message)
+
+    return { success: true as const, count: targets.length }
   })

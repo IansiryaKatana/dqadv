@@ -201,6 +201,10 @@
   --admin-input-bg: #ffffff;
 }
 
+.admin-sheet {
+  border-radius: 0;
+}
+
 @media (min-width: 768px) {
   .admin-sheet[data-state='open'] {
     animation: admin-sheet-in 0.28s ease-out;

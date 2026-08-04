@@ -27,8 +27,24 @@ export function canAccessSubmissions(profile: AdminProfile | null) {
   )
 }
 
+/** Donations inbox (includes office admin). */
+export function canAccessDonations(profile: AdminProfile | null) {
+  return canAccessSubmissions(profile)
+}
+
 export function isOfficeAdmin(profile: AdminProfile | null) {
   return Boolean(profile?.is_active && profile.role === 'office_admin')
+}
+
+/** Paths office admins may open (everything else redirects to submissions). */
+export function isOfficeAdminAllowedPath(pathname: string) {
+  return (
+    pathname.startsWith('/backend/submissions') ||
+    pathname.startsWith('/backend/donations') ||
+    pathname === '/backend/login' ||
+    pathname === '/backend/forgot-password' ||
+    pathname === '/backend/reset-password'
+  )
 }
 
 export async function canBootstrapAdmin() {

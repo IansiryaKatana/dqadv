@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
-import { getSupabase } from '#/integrations/supabase/client'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
+import {
+  bulkDeleteDonations,
+  bulkUpdateDonationFulfillment,
+  listDonationsAdmin,
+  resendDonationReceiptFn,
+  updateDonationFulfillment,
+} from '#/lib/donor/donorAccountApi'
+import type { GiftCartItem } from '#/lib/commerce/types'
+import { formatPrice, cn } from '#/lib/utils'
 import { useAdminPageHeader } from './AdminPageContext'
 import { adminTable, adminTableWrap, adminTd, adminTh } from './adminClassNames'
+import { AdminDeleteConfirmDialog } from './components/AdminDeleteConfirmDialog'
+import { AdminModal } from './components/AdminModal'
 import { AdminSelect } from './components/AdminSelect'
+import { AdminTablePagination } from './components/AdminTablePagination'
 import { ADMIN_FULFILLMENT_OPTIONS } from './adminSelectOptions'
-import { formatPrice } from '#/lib/utils'
-import { resendDonationReceiptFn, updateDonationFulfillment } from '#/lib/donor/donorAccountApi'
-import type { GiftCartItem } from '#/lib/commerce/types'
+import { useAdminDeleteConfirm } from './useAdminDeleteConfirm'
+import { useAdminTablePagination } from './useAdminTablePagination'
 
 type DonationRow = {
   id: string
@@ -31,25 +39,27 @@ type DonationRow = {
 export function AdminDonations() {
   const { session } = useAdminAuth()
   const [rows, setRows] = useState<DonationRow[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState<DonationRow | null>(null)
   const [fulfillment, setFulfillment] = useState('pending')
+  const [bulkFulfillment, setBulkFulfillment] = useState('processing')
   const [adminNotes, setAdminNotes] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const deleteConfirm = useAdminDeleteConfirm({ singular: 'donation', plural: 'donations' })
 
   const load = useCallback(async () => {
-    const sb = getSupabase()
-    if (!sb) return
-    const { data, error } = await sb
-      .from('dq_donations')
-      .select(
-        'id, reference, donor_name, donor_email, donor_phone, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at',
-      )
-      .order('created_at', { ascending: false })
-    if (error) setErr(error.message)
-    else setRows((data ?? []) as DonationRow[])
-  }, [])
+    if (!session?.access_token) return
+    try {
+      const data = await listDonationsAdmin({ data: { accessToken: session.access_token } })
+      setRows((data ?? []) as DonationRow[])
+      setSelectedIds(new Set())
+      setErr(null)
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Could not load donations.')
+    }
+  }, [session?.access_token])
 
   useEffect(() => {
     void load()
@@ -57,9 +67,39 @@ export function AdminDonations() {
 
   useAdminPageHeader({
     title: 'Donations',
-    description: 'Gift completions, payment status, and fulfillment.',
+    description: 'Gift completions, payment status, and fulfillment. Select rows for bulk updates.',
     actions: [],
   })
+
+  const { page, setPage, totalPages, pageRows } = useAdminTablePagination(rows, 12)
+
+  const selectedCount = selectedIds.size
+  const allPageSelected = pageRows.length > 0 && pageRows.every((row) => selectedIds.has(row.id))
+
+  function toggleSelectAll() {
+    if (allPageSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        for (const row of pageRows) next.delete(row.id)
+        return next
+      })
+      return
+    }
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      for (const row of pageRows) next.add(row.id)
+      return next
+    })
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   function openDetail(row: DonationRow) {
     setSelected(row)
@@ -110,15 +150,91 @@ export function AdminDonations() {
     }
   }
 
+  async function applyBulkFulfillment() {
+    if (!session?.access_token || !selectedCount) return
+    setBusy(true)
+    setErr(null)
+    setMsg(null)
+    try {
+      const result = await bulkUpdateDonationFulfillment({
+        data: {
+          accessToken: session.access_token,
+          donationIds: [...selectedIds],
+          fulfillmentStatus: bulkFulfillment,
+        },
+      })
+      setMsg(`Updated fulfillment on ${result.count} donation${result.count === 1 ? '' : 's'}.`)
+      await load()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Bulk update failed.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function remove(ids: string[]) {
+    if (!session?.access_token || !ids.length) return
+    setBusy(true)
+    setErr(null)
+    setMsg(null)
+    try {
+      const result = await bulkDeleteDonations({
+        data: { accessToken: session.access_token, donationIds: ids },
+      })
+      deleteConfirm.cancel()
+      if (selected && ids.includes(selected.id)) setSelected(null)
+      setMsg(`Deleted ${result.count} donation${result.count === 1 ? '' : 's'}.`)
+      await load()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Could not delete donations.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const items = (Array.isArray(selected?.cart_snapshot) ? selected.cart_snapshot : []) as GiftCartItem[]
 
   return (
     <div>
       {err && !selected ? <p className="mb-4 text-sm text-red-400">{err}</p> : null}
+      {msg && !selected ? <p className="mb-4 text-sm text-emerald-600">{msg}</p> : null}
+
+      {selectedCount > 0 ? (
+        <div className="admin-panel mb-4 flex flex-wrap items-center gap-2 px-4 py-3">
+          <span className="admin-muted text-sm">{selectedCount} selected</span>
+          <div className="w-44">
+            <AdminSelect
+              value={bulkFulfillment}
+              onValueChange={setBulkFulfillment}
+              options={ADMIN_FULFILLMENT_OPTIONS}
+            />
+          </div>
+          <button type="button" className="admin-btn-secondary" disabled={busy} onClick={() => void applyBulkFulfillment()}>
+            Set fulfillment
+          </button>
+          <button
+            type="button"
+            className="admin-btn-danger"
+            disabled={busy}
+            onClick={() => deleteConfirm.request([...selectedIds])}
+          >
+            Delete selected
+          </button>
+        </div>
+      ) : null}
+
       <div className={adminTableWrap}>
         <table className={adminTable}>
           <thead>
             <tr>
+              <th className={cn(adminTh, 'w-10')}>
+                <input
+                  type="checkbox"
+                  checked={allPageSelected}
+                  onChange={toggleSelectAll}
+                  aria-label="Select all donations on this page"
+                />
+              </th>
               <th className={adminTh}>Reference</th>
               <th className={adminTh}>Donor</th>
               <th className={adminTh}>Total</th>
@@ -128,19 +244,27 @@ export function AdminDonations() {
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 ? (
+            {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className={adminTd}>
+                <td colSpan={7} className={adminTd}>
                   No donations yet.
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              pageRows.map((row) => (
                 <tr
                   key={row.id}
                   className="cursor-pointer hover:bg-[#fafafa]"
                   onClick={() => openDetail(row)}
                 >
+                  <td className={adminTd} onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(row.id)}
+                      onChange={() => toggleSelect(row.id)}
+                      aria-label={`Select ${row.reference}`}
+                    />
+                  </td>
                   <td className={adminTd}>{row.reference}</td>
                   <td className={adminTd}>
                     {row.donor_name}
@@ -160,88 +284,106 @@ export function AdminDonations() {
         </table>
       </div>
 
-      <Dialog.Root open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/40" />
-          <Dialog.Content className="fixed z-[90] flex max-h-[92dvh] w-full flex-col overflow-hidden bg-white shadow-2xl outline-none bottom-0 left-0 right-0 rounded-t-2xl mb-0 md:bottom-auto md:left-1/2 md:top-1/2 md:max-w-2xl md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl">
-            <div className="flex items-center justify-between border-b border-[#e5e5e5] px-5 py-4">
-              <Dialog.Title className="font-semibold text-dq-black">{selected?.reference}</Dialog.Title>
-              <Dialog.Close className="rounded-full p-2 hover:bg-[#f5f5f5]" aria-label="Close">
-                <X className="h-5 w-5" />
-              </Dialog.Close>
-            </div>
-            <div className="flex-1 overflow-y-auto px-5 py-4">
-              {selected ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
-                      <p className="text-xs uppercase text-[#737373]">Donor</p>
-                      <p className="text-sm">{selected.donor_name}</p>
-                      <p className="text-xs text-[#737373]">{selected.donor_email}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase text-[#737373]">Payment</p>
-                      <p className="text-sm">
-                        {selected.payment_provider} · {selected.payment_status}
-                      </p>
-                      <p className="text-sm font-medium">{formatPrice(Number(selected.total), selected.currency)}</p>
-                    </div>
-                  </div>
-                  {selected.dedication ? (
-                    <p className="text-sm italic text-[#737373]">{selected.dedication}</p>
-                  ) : null}
-                  <div>
-                    <p className="mb-2 text-xs uppercase text-[#737373]">Gift items</p>
-                    <ul className="space-y-2">
-                      {items.map((item) => (
-                        <li key={item.productId} className="flex justify-between text-sm">
-                          <span>
-                            {item.title} × {item.quantity}
-                          </span>
-                          <span>
-                            {item.unitAmount != null
-                              ? formatPrice(item.unitAmount * item.quantity, item.currency)
-                              : '—'}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]">
-                      Fulfillment status
-                    </label>
-                    <AdminSelect
-                      value={fulfillment}
-                      onValueChange={setFulfillment}
-                      options={ADMIN_FULFILLMENT_OPTIONS}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]">
-                      Admin notes
-                    </label>
-                    <textarea className="admin-input min-h-20" value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
-                  </div>
-                  {err ? <p className="text-sm text-red-400">{err}</p> : null}
-                  {msg ? <p className="text-sm text-emerald-600">{msg}</p> : null}
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-2 border-t border-[#e5e5e5] px-5 py-4 sm:flex-row">
-              <button type="button" className="admin-btn-primary flex-1" disabled={busy} onClick={() => void saveFulfillment()}>
-                Save
+      <AdminTablePagination page={page} totalPages={totalPages} onPageChange={setPage} />
+
+      <AdminModal
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null)
+        }}
+        title={selected?.reference ?? 'Donation'}
+        wide
+        footer={
+          <>
+            <button type="button" className="admin-btn-primary" disabled={busy} onClick={() => void saveFulfillment()}>
+              Save
+            </button>
+            {selected?.payment_status === 'paid' ? (
+              <button type="button" className="admin-btn-secondary" disabled={busy} onClick={() => void resendReceipt()}>
+                Resend receipt
               </button>
-              {selected?.payment_status === 'paid' ? (
-                <button type="button" className="admin-btn-secondary flex-1" disabled={busy} onClick={() => void resendReceipt()}>
-                  Resend receipt
-                </button>
-              ) : null}
-              <Dialog.Close className="admin-btn-secondary flex-1">Close</Dialog.Close>
+            ) : null}
+            {selected ? (
+              <button
+                type="button"
+                className="admin-btn-danger"
+                disabled={busy}
+                onClick={() => deleteConfirm.request([selected.id])}
+              >
+                Delete
+              </button>
+            ) : null}
+            <button type="button" className="admin-btn-secondary" onClick={() => setSelected(null)}>
+              Close
+            </button>
+          </>
+        }
+      >
+        {selected ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase text-[#737373]">Donor</p>
+                <p className="text-sm">{selected.donor_name}</p>
+                <p className="text-xs text-[#737373]">{selected.donor_email}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-[#737373]">Payment</p>
+                <p className="text-sm">
+                  {selected.payment_provider} · {selected.payment_status}
+                </p>
+                <p className="text-sm font-medium">{formatPrice(Number(selected.total), selected.currency)}</p>
+              </div>
             </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+            {selected.dedication ? (
+              <p className="text-sm italic text-[#737373]">{selected.dedication}</p>
+            ) : null}
+            <div>
+              <p className="mb-2 text-xs uppercase text-[#737373]">Gift items</p>
+              <ul className="space-y-2">
+                {items.map((item) => (
+                  <li key={item.productId} className="flex justify-between text-sm">
+                    <span>
+                      {item.title} × {item.quantity}
+                    </span>
+                    <span>
+                      {item.unitAmount != null
+                        ? formatPrice(item.unitAmount * item.quantity, item.currency)
+                        : '—'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]">
+                Fulfillment status
+              </label>
+              <AdminSelect
+                value={fulfillment}
+                onValueChange={setFulfillment}
+                options={ADMIN_FULFILLMENT_OPTIONS}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]">
+                Admin notes
+              </label>
+              <textarea className="admin-input min-h-20" value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} />
+            </div>
+            {err ? <p className="text-sm text-red-400">{err}</p> : null}
+            {msg ? <p className="text-sm text-emerald-600">{msg}</p> : null}
+          </div>
+        ) : null}
+      </AdminModal>
+
+      <AdminDeleteConfirmDialog
+        open={deleteConfirm.open}
+        description={deleteConfirm.description}
+        busy={busy}
+        onCancel={deleteConfirm.cancel}
+        onConfirm={() => void remove(deleteConfirm.pendingIds)}
+      />
     </div>
   )
 }

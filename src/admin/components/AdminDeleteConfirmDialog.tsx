@@ -27,7 +27,7 @@ export function AdminDeleteConfirmDialog({
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />
         <Dialog.Content
           aria-describedby="admin-delete-confirm-description"
-          className="admin-panel fixed left-1/2 top-1/2 z-[70] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 shadow-2xl outline-none"
+          className="admin-panel admin-modal fixed left-1/2 top-1/2 z-[70] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 bg-white shadow-2xl outline-none"
         >
           <div className="flex items-center justify-between border-b border-[#e5e5e5] px-4 py-3">
             <Dialog.Title className="text-lg font-bold text-dq-black">Delete confirmation</Dialog.Title>

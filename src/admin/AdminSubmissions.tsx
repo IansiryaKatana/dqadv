@@ -248,7 +248,11 @@ export function AdminSubmissions() {
   }, [selected, replyBody])
 
   async function handleReply() {
-    if (!selected || !session?.access_token) {
+    const sb = getSupabase()
+    const accessToken =
+      (sb ? (await sb.auth.getSession()).data.session?.access_token : null) ?? session?.access_token
+
+    if (!selected || !accessToken) {
       setReplyError('Sign in again to send a reply.')
       setReplyStatus('error')
       return
@@ -258,7 +262,7 @@ export function AdminSubmissions() {
     try {
       const result = await replyToFormSubmission({
         data: {
-          accessToken: session.access_token,
+          accessToken,
           submissionId: selected.id,
           subject: replySubject,
           body: replyBody,
@@ -287,7 +291,13 @@ export function AdminSubmissions() {
       setShowComposePreview(false)
     } catch (e) {
       setReplyStatus('error')
-      setReplyError(e instanceof Error ? e.message : 'Could not send reply.')
+      const message =
+        e instanceof Error
+          ? e.message
+          : e && typeof e === 'object' && 'message' in e && typeof (e as { message: unknown }).message === 'string'
+            ? (e as { message: string }).message
+            : 'Could not send reply.'
+      setReplyError(message === 'Forbidden' ? 'Request blocked. Refresh the page and try again.' : message)
     }
   }
 

@@ -9,17 +9,19 @@ type AdminModalProps = {
   children: React.ReactNode
   footer?: React.ReactNode
   wide?: boolean
+  stacked?: boolean
 }
 
-export function AdminModal({ open, onOpenChange, title, children, footer, wide }: AdminModalProps) {
+export function AdminModal({ open, onOpenChange, title, children, footer, wide, stacked }: AdminModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className={cn('fixed inset-0 bg-black/40', stacked ? 'z-[70]' : 'z-50')} />
         <Dialog.Content
           aria-describedby={undefined}
           className={cn(
-            'admin-panel admin-modal admin-sheet fixed z-50 flex flex-col overflow-hidden rounded-none shadow-2xl outline-none',
+            'admin-panel admin-modal admin-sheet fixed flex flex-col overflow-hidden rounded-none shadow-2xl outline-none',
+            stacked ? 'z-[70]' : 'z-50',
             'inset-x-0 bottom-0 max-h-[92vh] w-full',
             'md:inset-x-auto md:inset-y-0 md:right-0 md:max-h-none md:w-full',
             wide ? 'md:max-w-3xl' : 'md:max-w-xl',

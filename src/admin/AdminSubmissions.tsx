@@ -39,6 +39,7 @@ type ReplyLogRow = {
 }
 
 type SubmissionTab = 'contact' | 'distributor' | 'free_quran'
+type DetailTab = 'details' | 'reply' | 'history'
 
 function formatStatus(status: string) {
   if (!status) return 'New'
@@ -67,10 +68,7 @@ function FieldGrid({
 function EmailPreviewFrame({ html, title }: { html: string; title: string }) {
   return (
     <div className="overflow-hidden rounded-lg border border-[#ebebeb] bg-[#f7f3ea]">
-      <p className="border-b border-[#ebebeb] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[#737373]">
-        {title}
-      </p>
-      <iframe title={title} srcDoc={html} className="h-72 w-full bg-white" sandbox="" />
+      <iframe title={title} srcDoc={html} className="h-[min(70vh,40rem)] w-full bg-white" sandbox="" />
     </div>
   )
 }
@@ -89,7 +87,8 @@ export function AdminSubmissions() {
   const [replyHistory, setReplyHistory] = useState<ReplyLogRow[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [previewReplyId, setPreviewReplyId] = useState<string | null>(null)
-  const [showComposePreview, setShowComposePreview] = useState(false)
+  const [emailPreview, setEmailPreview] = useState<'compose' | 'sent' | null>(null)
+  const [detailTab, setDetailTab] = useState<DetailTab>('details')
 
   useAdminPageHeader({
     title: 'Form submissions',
@@ -116,6 +115,8 @@ export function AdminSubmissions() {
     if (!selected) {
       setReplyHistory([])
       setPreviewReplyId(null)
+      setEmailPreview(null)
+      setDetailTab('details')
       return
     }
     const kind =
@@ -128,8 +129,9 @@ export function AdminSubmissions() {
     setReplyBody('')
     setReplyStatus('idle')
     setReplyError(null)
-    setShowComposePreview(false)
     setPreviewReplyId(null)
+    setEmailPreview(null)
+    setDetailTab('details')
 
     async function loadHistory() {
       const sb = getSupabase()
@@ -200,9 +202,10 @@ export function AdminSubmissions() {
         }
         setReplyHistory((prev) => [entry, ...prev])
         setPreviewReplyId(entry.id)
+        setEmailPreview('sent')
+        setDetailTab('history')
       }
       setReplyBody('')
-      setShowComposePreview(false)
     } catch (e) {
       setReplyStatus('error')
       const message =
@@ -217,6 +220,13 @@ export function AdminSubmissions() {
 
   const sheetOpen = Boolean(selected)
   const previewedReply = replyHistory.find((r) => r.id === previewReplyId) ?? null
+  const previewHtml =
+    emailPreview === 'compose'
+      ? composePreviewHtml
+      : emailPreview === 'sent'
+        ? previewedReply?.body_html ?? null
+        : null
+  const previewTitle = emailPreview === 'sent' ? 'Sent email' : 'Email preview'
 
   return (
     <div>
@@ -280,6 +290,7 @@ export function AdminSubmissions() {
       <AdminModal
         open={sheetOpen}
         onOpenChange={(open) => {
+          if (!open && emailPreview) return
           if (!open) setSelected(null)
         }}
         title={selected?.name || 'Submission'}
@@ -296,124 +307,143 @@ export function AdminSubmissions() {
               {new Date(selected.created_at).toLocaleString()}
             </p>
 
-            {selected.form_type === 'contact' ? (
-              <div className="space-y-4">
-                <FieldGrid
-                  entries={[
-                    { label: 'Name', value: selected.name || '' },
-                    { label: 'Email', value: selected.email || '' },
-                    { label: 'Phone', value: selected.phone || '' },
-                    {
-                      label: 'Submitted',
-                      value: selected.created_at ? new Date(selected.created_at).toLocaleString() : '',
-                    },
-                    { label: 'Status', value: formatStatus(selected.status) },
-                  ]}
-                />
-                {selected.message ? (
-                  <div className="rounded-lg border border-[#ebebeb] bg-white px-4 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#737373]">Message</p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-dq-black">{selected.message}</p>
-                  </div>
-                ) : null}
-              </div>
-            ) : selected.form_type === 'free_quran' ? (
-              <div className="space-y-5">
-                {FREE_QURAN_SECTIONS.map((section) => {
-                  const entries = section.keys.map((key) => ({
-                    label: FREE_QURAN_FIELD_LABELS[key] ?? key,
-                    value: String(
-                      (selected.payload ?? {})[key] ??
-                        (key === 'email' ? selected.email : key === 'fullName' ? selected.name : '') ??
-                        '',
-                    ),
-                  }))
-                  const hasContent = entries.some((e) => e.value.trim())
-                  if (!hasContent) return null
-                  return (
-                    <section key={section.title}>
-                      <h4 className="mb-2 text-sm font-semibold text-dq-black">{section.title}</h4>
-                      <FieldGrid entries={entries} />
-                    </section>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {DISTRIBUTOR_SECTIONS.map((section) => {
-                  const entries = section.keys.map((key) => ({
-                    label: DISTRIBUTOR_FIELD_LABELS[key] ?? key,
-                    value: String((selected.payload ?? {})[key] ?? (key === 'email' ? selected.email : '') ?? ''),
-                  }))
-                  const hasContent = entries.some((e) => e.value.trim())
-                  if (!hasContent) return null
-                  return (
-                    <section key={section.title}>
-                      <h4 className="mb-2 text-sm font-semibold text-dq-black">{section.title}</h4>
-                      <FieldGrid entries={entries} />
-                    </section>
-                  )
-                })}
-                {selected.message ? (
-                  <div className="rounded-lg border border-[#ebebeb] bg-white px-4 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#737373]">Summary message</p>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-dq-black">{selected.message}</p>
-                  </div>
-                ) : null}
-              </div>
-            )}
-
-            <div className="border-t border-[#ebebeb] pt-4">
-              <h4 className="text-sm font-semibold text-dq-black">Reply history</h4>
-              <p className="admin-muted mt-1 text-sm">All emails sent for this submission.</p>
-              {historyLoading ? (
-                <p className="mt-3 text-sm text-[#737373]">Loading replies…</p>
-              ) : replyHistory.length === 0 ? (
-                <p className="mt-3 text-sm text-[#737373]">No replies sent yet.</p>
-              ) : (
-                <ul className="mt-3 space-y-2">
-                  {replyHistory.map((reply) => {
-                    const active = previewReplyId === reply.id
-                    return (
-                      <li key={reply.id}>
-                        <button
-                          type="button"
-                          className={cn(
-                            'w-full rounded-lg border px-3 py-2.5 text-left transition-colors',
-                            active ? 'border-dq-gold bg-[#fbf8ef]' : 'border-[#ebebeb] hover:bg-[#fafafa]',
-                          )}
-                          onClick={() => setPreviewReplyId(active ? null : reply.id)}
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-sm font-medium text-dq-black">
-                              {reply.subject || '(no subject)'}
-                            </span>
-                            <span className="text-xs text-[#737373]">
-                              {formatStatus(reply.status)} · {new Date(reply.created_at).toLocaleString()}
-                            </span>
-                          </div>
-                          {reply.body_text ? (
-                            <p className="mt-1 line-clamp-2 text-sm text-[#555]">{reply.body_text}</p>
-                          ) : null}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-              {previewedReply?.body_html ? (
-                <div className="mt-3">
-                  <EmailPreviewFrame html={previewedReply.body_html} title="Sent email preview" />
-                </div>
-              ) : null}
+            <div className="flex flex-wrap gap-2 border-b border-[#ebebeb] pb-3">
+              {(
+                [
+                  { id: 'details', label: 'Details' },
+                  { id: 'reply', label: 'Reply' },
+                  { id: 'history', label: `History${replyHistory.length ? ` (${replyHistory.length})` : ''}` },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={cn('admin-btn-secondary', detailTab === item.id && 'ring-2 ring-dq-gold')}
+                  onClick={() => setDetailTab(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
-            <div className="border-t border-[#ebebeb] pt-4">
-              <h4 className="text-sm font-semibold text-dq-black">Reply by email</h4>
-              <p className="admin-muted mt-1 text-sm">
-                Sends via Resend to {selected.email}. Replies go to your admin notify address when configured.
-              </p>
-              <div className="mt-3 space-y-3">
+            {detailTab === 'details' ? (
+              selected.form_type === 'contact' ? (
+                <div className="space-y-4">
+                  <FieldGrid
+                    entries={[
+                      { label: 'Name', value: selected.name || '' },
+                      { label: 'Email', value: selected.email || '' },
+                      { label: 'Phone', value: selected.phone || '' },
+                      {
+                        label: 'Submitted',
+                        value: selected.created_at ? new Date(selected.created_at).toLocaleString() : '',
+                      },
+                      { label: 'Status', value: formatStatus(selected.status) },
+                    ]}
+                  />
+                  {selected.message ? (
+                    <div className="rounded-lg border border-[#ebebeb] bg-white px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#737373]">Message</p>
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-dq-black">{selected.message}</p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : selected.form_type === 'free_quran' ? (
+                <div className="space-y-5">
+                  {FREE_QURAN_SECTIONS.map((section) => {
+                    const entries = section.keys.map((key) => ({
+                      label: FREE_QURAN_FIELD_LABELS[key] ?? key,
+                      value: String(
+                        (selected.payload ?? {})[key] ??
+                          (key === 'email' ? selected.email : key === 'fullName' ? selected.name : '') ??
+                          '',
+                      ),
+                    }))
+                    const hasContent = entries.some((e) => e.value.trim())
+                    if (!hasContent) return null
+                    return (
+                      <section key={section.title}>
+                        <h4 className="mb-2 text-sm font-semibold text-dq-black">{section.title}</h4>
+                        <FieldGrid entries={entries} />
+                      </section>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  {DISTRIBUTOR_SECTIONS.map((section) => {
+                    const entries = section.keys.map((key) => ({
+                      label: DISTRIBUTOR_FIELD_LABELS[key] ?? key,
+                      value: String((selected.payload ?? {})[key] ?? (key === 'email' ? selected.email : '') ?? ''),
+                    }))
+                    const hasContent = entries.some((e) => e.value.trim())
+                    if (!hasContent) return null
+                    return (
+                      <section key={section.title}>
+                        <h4 className="mb-2 text-sm font-semibold text-dq-black">{section.title}</h4>
+                        <FieldGrid entries={entries} />
+                      </section>
+                    )
+                  })}
+                  {selected.message ? (
+                    <div className="rounded-lg border border-[#ebebeb] bg-white px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#737373]">Summary message</p>
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-dq-black">{selected.message}</p>
+                    </div>
+                  ) : null}
+                </div>
+              )
+            ) : null}
+
+            {detailTab === 'history' ? (
+              <div>
+                <p className="admin-muted text-sm">All emails sent for this submission.</p>
+                {historyLoading ? (
+                  <p className="mt-3 text-sm text-[#737373]">Loading replies…</p>
+                ) : replyHistory.length === 0 ? (
+                  <p className="mt-3 text-sm text-[#737373]">No replies sent yet.</p>
+                ) : (
+                  <ul className="mt-3 space-y-2">
+                    {replyHistory.map((reply) => {
+                      const active = previewReplyId === reply.id && emailPreview === 'sent'
+                      return (
+                        <li key={reply.id}>
+                          <button
+                            type="button"
+                            className={cn(
+                              'w-full rounded-lg border px-3 py-2.5 text-left transition-colors',
+                              active ? 'border-dq-gold bg-[#fbf8ef]' : 'border-[#ebebeb] hover:bg-[#fafafa]',
+                            )}
+                            onClick={() => {
+                              setPreviewReplyId(reply.id)
+                              setEmailPreview('sent')
+                            }}
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="text-sm font-medium text-dq-black">
+                                {reply.subject || '(no subject)'}
+                              </span>
+                              <span className="text-xs text-[#737373]">
+                                {formatStatus(reply.status)} · {new Date(reply.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                            {reply.body_text ? (
+                              <p className="mt-1 line-clamp-2 text-sm text-[#555]">{reply.body_text}</p>
+                            ) : null}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            ) : null}
+
+            {detailTab === 'reply' ? (
+              <div className="space-y-3">
+                <p className="admin-muted text-sm">
+                  Sends via Resend to {selected.email}. Replies go to your admin notify address when configured.
+                </p>
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]" htmlFor="reply-subject">
                     Subject
@@ -454,18 +484,44 @@ export function AdminSubmissions() {
                     type="button"
                     className="admin-btn-secondary"
                     disabled={!composePreviewHtml}
-                    onClick={() => setShowComposePreview((v) => !v)}
+                    onClick={() => setEmailPreview('compose')}
                   >
-                    {showComposePreview ? 'Hide preview' : 'Preview email'}
+                    Preview email
                   </button>
                 </div>
-                {showComposePreview && composePreviewHtml ? (
-                  <EmailPreviewFrame html={composePreviewHtml} title="Draft email preview" />
-                ) : null}
               </div>
-            </div>
+            ) : null}
           </div>
         ) : null}
+      </AdminModal>
+
+      <AdminModal
+        open={Boolean(emailPreview && previewHtml)}
+        onOpenChange={(open) => {
+          if (!open) setEmailPreview(null)
+        }}
+        title={previewTitle}
+        wide
+        stacked
+        footer={
+          <>
+            {emailPreview === 'compose' ? (
+              <button
+                type="button"
+                className="admin-btn-primary"
+                disabled={replyStatus === 'sending' || !replySubject.trim() || !replyBody.trim()}
+                onClick={() => void handleReply()}
+              >
+                {replyStatus === 'sending' ? 'Sending…' : 'Send reply'}
+              </button>
+            ) : null}
+            <button type="button" className="admin-btn-secondary" onClick={() => setEmailPreview(null)}>
+              Close
+            </button>
+          </>
+        }
+      >
+        {previewHtml ? <EmailPreviewFrame html={previewHtml} title={previewTitle} /> : null}
       </AdminModal>
     </div>
   )

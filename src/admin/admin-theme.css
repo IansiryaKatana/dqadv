@@ -71,9 +71,10 @@
   font-size: 0.875rem;
 }
 
-.admin-input:focus {
-  outline: 2px solid var(--admin-primary);
-  outline-offset: 1px;
+.admin-input:focus,
+.admin-input:focus-visible {
+  outline: none;
+  border-color: var(--admin-primary);
 }
 
 .admin-btn-primary {

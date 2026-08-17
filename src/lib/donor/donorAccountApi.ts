@@ -124,7 +124,7 @@ export const listDonationsAdmin = createServerFn({ method: 'POST' })
     const { data: rows, error } = await admin
       .from('dq_donations')
       .select(
-        'id, reference, donor_name, donor_email, donor_phone, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at',
+        'id, reference, donor_name, donor_email, donor_phone, shipping_address, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at',
       )
       .order('created_at', { ascending: false })
 

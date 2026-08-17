@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useMarkInboxViewed } from '#/admin/AdminInboxContext'
 import { getSupabase } from '#/integrations/supabase/client'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { replyToFormSubmission } from '#/lib/admin/replyToFormSubmission'
@@ -163,6 +164,7 @@ function EmailPreviewFrame({ html, title }: { html: string; title: string }) {
 }
 
 export function AdminSubmissions() {
+  useMarkInboxViewed('submissions')
   const { session } = useAdminAuth()
   const [tab, setTab] = useState<SubmissionTab>('contact')
   const [rows, setRows] = useState<SubmissionRow[]>([])

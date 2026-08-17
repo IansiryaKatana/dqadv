@@ -111,7 +111,7 @@ export function StoryCard({ story, shape = 'circle', className }: StoryCardProps
                   {story.title}
                 </Dialog.Title>
                 <Dialog.Close
-                  className="shrink-0 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dq-gold"
+                  className="shrink-0 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                   aria-label="Close video"
                 >
                   <X className="h-5 w-5" />

@@ -3,12 +3,22 @@ import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { canManageAdmins, isOfficeAdmin, isOfficeAdminAllowedPath } from '#/lib/admin/adminUserApi'
+import type { AdminInbox } from '#/lib/admin/adminInboxApi'
+import { AdminInboxProvider, useAdminInbox } from './AdminInboxContext'
 import { AdminPageProvider, useAdminPage } from './AdminPageContext'
+import { AdminNavBadge } from './components/AdminNavBadge'
 import { adminNavLink, adminNavLinkActive } from './adminClassNames'
 import { cn } from '#/lib/utils'
 import '#/admin/admin-theme.css'
 
-const cmsNavItems = [
+type AdminNavItem = {
+  to: string
+  label: string
+  exact?: boolean
+  inbox?: AdminInbox
+}
+
+const cmsNavItems: AdminNavItem[] = [
   { to: '/backend', label: 'Dashboard', exact: true },
   { to: '/backend/hero', label: 'Hero' },
   { to: '/backend/products', label: 'Products' },
@@ -20,14 +30,14 @@ const cmsNavItems = [
   { to: '/backend/quran-wiki', label: "Qur'an Wiki" },
   { to: '/backend/trust-content', label: 'Trust Content' },
   { to: '/backend/venture', label: 'Venture Gallery' },
-  { to: '/backend/donations', label: 'Donations' },
-  { to: '/backend/submissions', label: 'Submissions' },
+  { to: '/backend/donations', label: 'Donations', inbox: 'donations' },
+  { to: '/backend/submissions', label: 'Submissions', inbox: 'submissions' },
   { to: '/backend/settings', label: 'Settings' },
 ]
 
-const officeAdminNavItems = [
-  { to: '/backend/donations', label: 'Donations', exact: false },
-  { to: '/backend/submissions', label: 'Submissions', exact: false },
+const officeAdminNavItems: AdminNavItem[] = [
+  { to: '/backend/donations', label: 'Donations', inbox: 'donations' },
+  { to: '/backend/submissions', label: 'Submissions', inbox: 'submissions' },
 ]
 
 function AdminHeader({ onOpenSidebar }: { onOpenSidebar: () => void }) {
@@ -71,6 +81,7 @@ function AdminShellInner() {
   const [open, setOpen] = useState(false)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { signOut, adminProfile } = useAdminAuth()
+  const { counts } = useAdminInbox()
   const showUsers = canManageAdmins(adminProfile)
   const officeOnly = isOfficeAdmin(adminProfile)
   const navItems = officeOnly ? officeAdminNavItems : cmsNavItems
@@ -97,9 +108,16 @@ function AdminShellInner() {
         <nav className="min-h-0 flex-1 space-y-1 overflow-hidden">
           {navItems.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to)
+            const badgeCount = item.inbox ? counts[item.inbox] : 0
             return (
-              <Link key={item.to} to={item.to} className={cn(adminNavLink, active && adminNavLinkActive)} onClick={() => setOpen(false)}>
-                {item.label}
+              <Link
+                key={item.to}
+                to={item.to}
+                className={cn(adminNavLink, 'flex items-center gap-2', active && adminNavLinkActive)}
+                onClick={() => setOpen(false)}
+              >
+                <span className="truncate">{item.label}</span>
+                <AdminNavBadge count={badgeCount} />
               </Link>
             )
           })}
@@ -138,7 +156,9 @@ function AdminShellInner() {
 export function AdminShell() {
   return (
     <AdminPageProvider>
-      <AdminShellInner />
+      <AdminInboxProvider>
+        <AdminShellInner />
+      </AdminInboxProvider>
     </AdminPageProvider>
   )
 }

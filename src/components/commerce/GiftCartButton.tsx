@@ -14,7 +14,7 @@ export function GiftCartButton({ className }: GiftCartButtonProps) {
       type="button"
       onClick={openDrawer}
       className={cn(
-        'relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dq-border text-dq-black transition-colors hover:border-dq-gold hover:text-dq-gold focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-dq-gold',
+        'relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dq-border text-dq-black transition-colors hover:border-dq-gold hover:text-dq-gold',
         className,
       )}
       aria-label={`Your cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}

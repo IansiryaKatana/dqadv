@@ -18,6 +18,20 @@ export type Database = {
         }
         Update: Partial<Database['public']['Tables']['dq_admin_users']['Row']>
       }
+      dq_admin_inbox_cursors: {
+        Row: {
+          id: string
+          admin_user_id: string
+          inbox: 'donations' | 'submissions'
+          last_viewed_at: string
+          updated_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['dq_admin_inbox_cursors']['Row']> & {
+          admin_user_id: string
+          inbox: 'donations' | 'submissions'
+        }
+        Update: Partial<Database['public']['Tables']['dq_admin_inbox_cursors']['Row']>
+      }
       dq_navigation_links: {
         Row: {
           id: string
@@ -374,6 +388,19 @@ export type Database = {
           role: 'owner' | 'admin' | 'editor' | 'viewer' | 'office_admin'
           is_active: boolean
         }[]
+      }
+      dq_get_inbox_missed_counts: {
+        Args: Record<string, never>
+        Returns: {
+          donations: number
+          submissions: number
+        }[]
+      }
+      dq_mark_inbox_viewed: {
+        Args: {
+          p_inbox: 'donations' | 'submissions'
+        }
+        Returns: undefined
       }
       dq_record_book_view: {
         Args: {

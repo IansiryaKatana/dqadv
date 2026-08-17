@@ -47,7 +47,7 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
   const [error, setError] = useState<string | null>(null)
 
   const inputClass =
-    'rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold focus:ring-2 focus:ring-dq-gold/20'
+    'rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold'
 
   useEffect(() => {
     void getPublicPaymentOptions()

@@ -8,7 +8,7 @@ import { useDonorAuth } from '#/contexts/DonorAuthContext'
 import { getSupabase } from '#/integrations/supabase/client'
 
 const inputClass =
-  'w-full rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold focus:ring-2 focus:ring-dq-gold/20'
+  'w-full rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold'
 
 export function AccountResetPasswordPage() {
   const { updatePassword, configured } = useDonorAuth()

@@ -21,7 +21,7 @@ export function AccountRegisterPage({ initialEmail, reference }: AccountRegister
   const [error, setError] = useState<string | null>(null)
 
   const inputClass =
-    'w-full rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold focus:ring-2 focus:ring-dq-gold/20'
+    'w-full rounded-xl border border-dq-border px-4 py-3 text-dq-black outline-none focus:border-dq-gold'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

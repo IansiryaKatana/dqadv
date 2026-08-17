@@ -11,7 +11,7 @@ type HeaderActionsProps = {
 }
 
 const donateButtonClass =
-  'inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-paypal-blue bg-paypal-blue px-5 text-white transition-colors hover:border-[#005ea6] hover:bg-[#005ea6] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-dq-gold'
+  'inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-paypal-blue bg-paypal-blue px-5 text-white transition-colors hover:border-[#005ea6] hover:bg-[#005ea6]'
 
 export function HeaderActions({ appStoreUrl, playStoreUrl, donateUrl = '/donate', className }: HeaderActionsProps) {
   return (

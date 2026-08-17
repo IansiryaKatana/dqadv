@@ -12,6 +12,13 @@ export const ADMIN_FULFILLMENT_OPTIONS: AdminSelectOption[] = [
   { value: 'delivered', label: 'Delivered' },
 ]
 
+export const ADMIN_PAYMENT_STATUS_OPTIONS: AdminSelectOption[] = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'refunded', label: 'Refunded' },
+]
+
 export const ADMIN_STRIPE_MODE_OPTIONS: AdminSelectOption[] = [
   { value: 'test', label: 'Test' },
   { value: 'live', label: 'Live' },

@@ -85,7 +85,7 @@ export function StoreDownloadButtons({
         <button
           type="button"
           className={cn(
-            'inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-dq-black bg-dq-black px-3 text-white transition-colors hover:border-dq-gold hover:bg-dq-soft-black focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-dq-gold 2xl:px-4',
+            'inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-dq-black bg-dq-black px-3 text-white transition-colors hover:border-dq-gold hover:bg-dq-soft-black 2xl:px-4',
             className,
           )}
           aria-label="Get the app"

@@ -187,14 +187,24 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid #f4b000;
-  outline-offset: 3px;
+  outline: 2px solid #f4b000;
+  outline-offset: -2px;
 }
 
-/* Form controls use their own border focus — avoid a second outer ring. */
+/* Fields: gold border, no outer ring. */
 input:focus-visible,
 textarea:focus-visible,
-select:focus-visible {
+select:focus-visible,
+[role='combobox']:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  border-color: #f4b000;
+}
+
+/* Menu / listbox items: highlight only, no ring (overflow clips outer outlines). */
+[role='option']:focus-visible,
+[role='menuitem']:focus-visible,
+[role='tab']:focus-visible {
   outline: none;
   outline-offset: 0;
 }

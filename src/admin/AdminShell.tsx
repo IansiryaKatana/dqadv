@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { canManageAdmins, isOfficeAdmin, isOfficeAdminAllowedPath } from '#/lib/admin/adminUserApi'
 import type { AdminInbox } from '#/lib/admin/adminInboxApi'
-import { AdminInboxProvider, useAdminInbox } from './AdminInboxContext'
+import { useAdminInbox } from '#/admin/AdminInboxContext'
 import { AdminPageProvider, useAdminPage } from './AdminPageContext'
 import { AdminNavBadge } from './components/AdminNavBadge'
 import { adminNavLink, adminNavLinkActive } from './adminClassNames'
@@ -156,9 +156,7 @@ function AdminShellInner() {
 export function AdminShell() {
   return (
     <AdminPageProvider>
-      <AdminInboxProvider>
-        <AdminShellInner />
-      </AdminInboxProvider>
+      <AdminShellInner />
     </AdminPageProvider>
   )
 }

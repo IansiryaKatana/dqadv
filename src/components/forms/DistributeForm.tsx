@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import type { DistributorFormPayload } from '#/lib/cms/types'
-import { getSupabase } from '#/integrations/supabase/client'
+import { submitPublicForm } from '#/lib/forms/submitPublicForm'
 import { Button } from '#/components/ui/button'
 import { formControlClass } from '#/components/ui/form-controls'
 import { FormSelect } from '#/components/ui/select'
@@ -122,29 +122,24 @@ export function DistributeForm() {
     setStatus('sending')
     setError(null)
 
-    const sb = getSupabase()
     const fullName = `${form.title} ${form.firstName} ${form.lastName}`.trim()
 
-    if (!sb) {
+    try {
+      await submitPublicForm({
+        data: {
+          formType: 'distributor',
+          name: fullName,
+          email: form.email,
+          phone: form.primaryPhone,
+          message: form.contactReason,
+          payload: form,
+        },
+      })
       setStatus('sent')
-      return
-    }
-
-    const { error: insertError } = await sb.from('dq_form_submissions').insert({
-      form_type: 'distributor',
-      name: fullName,
-      email: form.email,
-      phone: form.primaryPhone,
-      message: form.contactReason,
-      payload: form,
-    })
-
-    if (insertError) {
+    } catch (e) {
       setStatus('error')
-      setError(insertError.message)
-      return
+      setError(e instanceof Error ? e.message : 'Could not send your application.')
     }
-    setStatus('sent')
   }
 
   if (status === 'sent') {

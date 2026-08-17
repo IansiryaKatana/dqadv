@@ -1,22 +1,51 @@
 import type { GiftCartItem } from '#/lib/commerce/types'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { getResendClient } from './resendClient'
-import { adminNewDonationHtml, donationReceiptHtml } from './templates'
+import { adminNewDonationHtml, donationReceiptHtml, testEmailHtml } from './templates'
 
 type DonationRow = {
   id: string
   reference: string
   donor_name: string
   donor_email: string
+  donor_phone?: string | null
   dedication?: string | null
   total: number
   currency: string
   cart_snapshot: unknown
+  payment_provider?: string | null
+  shipping_address?: unknown
 }
 
 function parseItems(snapshot: unknown): GiftCartItem[] {
   if (!Array.isArray(snapshot)) return []
   return snapshot as GiftCartItem[]
+}
+
+function parseShipping(value: unknown): {
+  line1: string
+  line2?: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
+} | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  const line1 = typeof row.line1 === 'string' ? row.line1.trim() : ''
+  const city = typeof row.city === 'string' ? row.city.trim() : ''
+  const state = typeof row.state === 'string' ? row.state.trim() : ''
+  const postalCode = typeof row.postalCode === 'string' ? row.postalCode.trim() : ''
+  const country = typeof row.country === 'string' ? row.country.trim() : ''
+  if (!line1 && !city && !country) return null
+  return {
+    line1,
+    line2: typeof row.line2 === 'string' ? row.line2.trim() : undefined,
+    city,
+    state,
+    postalCode,
+    country,
+  }
 }
 
 async function logEmail(
@@ -55,10 +84,13 @@ export async function sendDonationEmails(donation: DonationRow) {
     reference: donation.reference,
     donorName: donation.donor_name,
     donorEmail: donation.donor_email,
+    donorPhone: donation.donor_phone,
     total: Number(donation.total),
     currency: donation.currency,
     dedication: donation.dedication,
     items,
+    paymentProvider: donation.payment_provider,
+    shippingAddress: parseShipping(donation.shipping_address),
   }
 
   let receiptSent = false
@@ -95,7 +127,8 @@ export async function sendDonationEmails(donation: DonationRow) {
       const { data, error } = await client.emails.send({
         from,
         to: config.emailAdminNotify,
-        subject: `New gift: ${donation.reference}`,
+        replyTo: donation.donor_email,
+        subject: `New gift — ${donation.reference}`,
         html: adminNewDonationHtml(payload),
       })
       await logEmail(
@@ -151,7 +184,7 @@ export async function sendTestEmail(to: string) {
     from,
     to,
     subject: 'Donate Quran — test email',
-    html: '<p>Your email integration is working correctly.</p>',
+    html: testEmailHtml(),
   })
 
   if (error) throw new Error(error.message)

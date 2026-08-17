@@ -94,9 +94,11 @@ export function useAdminInbox() {
 }
 
 export function useMarkInboxViewed(inbox: AdminInbox) {
-  const { markViewed } = useAdminInbox()
+  const ctx = useContext(AdminInboxContext)
+  const markViewed = ctx?.markViewed
 
   useEffect(() => {
+    if (!markViewed) return
     void markViewed(inbox)
   }, [inbox, markViewed])
 }

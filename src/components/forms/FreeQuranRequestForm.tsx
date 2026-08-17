@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import type { DonationProduct } from '#/lib/cms/types'
 import { isFreeRequestProduct } from '#/lib/commerce/productFlags'
-import { getSupabase } from '#/integrations/supabase/client'
+import { submitPublicForm } from '#/lib/forms/submitPublicForm'
 import { Button } from '#/components/ui/button'
 import { formControlClass } from '#/components/ui/form-controls'
 import { FormSelect } from '#/components/ui/select'
@@ -122,27 +122,22 @@ export function FreeQuranRequestForm({
       note: note.trim(),
     }
 
-    const sb = getSupabase()
-    if (!sb) {
+    try {
+      await submitPublicForm({
+        data: {
+          formType: 'free_quran',
+          name: payload.fullName,
+          email: payload.email,
+          phone: payload.phone,
+          message: payload.note || `Free request: ${payload.productTitle} × ${payload.quantity}`,
+          payload,
+        },
+      })
       setStatus('sent')
-      return
-    }
-
-    const { error: insertError } = await sb.from('dq_form_submissions').insert({
-      form_type: 'free_quran',
-      name: payload.fullName,
-      email: payload.email,
-      phone: payload.phone,
-      message: payload.note || `Free request: ${payload.productTitle} × ${payload.quantity}`,
-      payload,
-    })
-
-    if (insertError) {
+    } catch (e) {
       setStatus('error')
-      setError(insertError.message)
-      return
+      setError(e instanceof Error ? e.message : 'Could not send your request.')
     }
-    setStatus('sent')
   }
 
   if (!freeProducts.length) {

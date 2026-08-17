@@ -5,7 +5,7 @@ import { Container } from '#/components/ui/container'
 import { Button } from '#/components/ui/button'
 import { formControlClass } from '#/components/ui/form-controls'
 import { cn } from '#/lib/utils'
-import { getSupabase } from '#/integrations/supabase/client'
+import { submitPublicForm } from '#/lib/forms/submitPublicForm'
 
 type ContactPageProps = {
   footer: FooterSettings
@@ -21,26 +21,23 @@ export function ContactPage({ footer }: ContactPageProps) {
     e.preventDefault()
     setStatus('sending')
 
-    const sb = getSupabase()
-    if (!sb) {
+    try {
+      await submitPublicForm({
+        data: {
+          formType: 'contact',
+          name,
+          email,
+          phone: null,
+          message,
+          payload: {},
+        },
+      })
       setStatus('sent')
-      return
-    }
-
-    const { error } = await sb.from('dq_form_submissions').insert({
-      form_type: 'contact',
-      name,
-      email,
-      phone: null,
-      message,
-      payload: {},
-    })
-
-    setStatus(error ? 'error' : 'sent')
-    if (!error) {
       setName('')
       setEmail('')
       setMessage('')
+    } catch {
+      setStatus('error')
     }
   }
 

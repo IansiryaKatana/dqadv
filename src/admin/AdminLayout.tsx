@@ -1,9 +1,18 @@
 import { Link, Navigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
+import { AdminInboxProvider } from '#/admin/AdminInboxContext'
 import { AdminShell } from './AdminShell'
 
 export function AdminLayout() {
+  return (
+    <AdminInboxProvider>
+      <AdminLayoutInner />
+    </AdminInboxProvider>
+  )
+}
+
+function AdminLayoutInner() {
   const { configured, loading, session, adminProfile, canBootstrap, signOut } = useAdminAuth()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const isPublicAdminRoute =

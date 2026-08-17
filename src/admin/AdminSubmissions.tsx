@@ -12,7 +12,10 @@ import {
 } from '#/lib/forms/submissionFields'
 import { useAdminPageHeader } from './AdminPageContext'
 import { AdminModal } from './components/AdminModal'
+import { AdminTablePagination } from './components/AdminTablePagination'
 import { adminTable, adminTableWrap, adminTd, adminTh } from './adminClassNames'
+import { formatAdminDate, formatAdminDateTime, formatAdminTime } from './formatAdminDate'
+import { useAdminTablePagination } from './useAdminTablePagination'
 import { cn } from '#/lib/utils'
 
 type SubmissionRow = {
@@ -44,6 +47,32 @@ type DetailTab = 'details' | 'reply' | 'history'
 function formatStatus(status: string) {
   if (!status) return 'New'
   return status.charAt(0).toUpperCase() + status.slice(1)
+}
+
+const SUBMISSION_STATUS_BADGE_CLASS: Record<string, string> = {
+  new: 'bg-amber-100 text-amber-800',
+  replied: 'bg-emerald-100 text-emerald-800',
+}
+
+const EMAIL_STATUS_BADGE_CLASS: Record<string, string> = {
+  sent: 'bg-emerald-100 text-emerald-800',
+  failed: 'bg-red-100 text-red-800',
+  pending: 'bg-amber-100 text-amber-800',
+}
+
+function StatusBadge({ status, className }: { status: string; className?: string }) {
+  const key = status.trim().toLowerCase() || 'new'
+  return (
+    <span
+      className={cn(
+        'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+        SUBMISSION_STATUS_BADGE_CLASS[key] ?? EMAIL_STATUS_BADGE_CLASS[key] ?? 'bg-slate-100 text-slate-700',
+        className,
+      )}
+    >
+      {formatStatus(key)}
+    </span>
+  )
 }
 
 function FieldGrid({
@@ -110,6 +139,12 @@ export function AdminSubmissions() {
     }
     void load()
   }, [tab])
+
+  const { page, setPage, totalPages, pageRows } = useAdminTablePagination(rows, 12)
+
+  useEffect(() => {
+    setPage(1)
+  }, [tab, setPage])
 
   useEffect(() => {
     if (!selected) {
@@ -246,6 +281,7 @@ export function AdminSubmissions() {
             onClick={() => {
               setTab(t.id)
               setSelected(null)
+              setPage(1)
             }}
           >
             {t.label}
@@ -270,7 +306,7 @@ export function AdminSubmissions() {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              pageRows.map((row) => (
                 <tr
                   key={row.id}
                   className="cursor-pointer hover:bg-[#fafafa]"
@@ -278,14 +314,21 @@ export function AdminSubmissions() {
                 >
                   <td className={adminTd}>{row.name}</td>
                   <td className={adminTd}>{row.email}</td>
-                  <td className={adminTd}>{formatStatus(row.status)}</td>
-                  <td className={adminTd}>{new Date(row.created_at).toLocaleString()}</td>
+                  <td className={adminTd}>
+                    <StatusBadge status={row.status} />
+                  </td>
+                  <td className={adminTd}>
+                    <span className="block text-sm text-dq-black">{formatAdminDate(row.created_at)}</span>
+                    <span className="admin-muted text-xs">{formatAdminTime(row.created_at)}</span>
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      <AdminTablePagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       <AdminModal
         open={sheetOpen}
@@ -298,13 +341,11 @@ export function AdminSubmissions() {
       >
         {selected ? (
           <div className="space-y-5">
-            <p className="admin-muted text-sm">
-              {selected.email}
-              {selected.phone ? ` · ${selected.phone}` : ''}
-              {' · '}
-              {formatStatus(selected.status)}
-              {' · '}
-              {new Date(selected.created_at).toLocaleString()}
+            <p className="admin-muted flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span>{selected.email}</span>
+              {selected.phone ? <span>· {selected.phone}</span> : null}
+              <StatusBadge status={selected.status} />
+              <span>· {formatAdminDateTime(selected.created_at)}</span>
             </p>
 
             <div className="flex flex-wrap gap-2 border-b border-[#ebebeb] pb-3">
@@ -336,7 +377,7 @@ export function AdminSubmissions() {
                       { label: 'Phone', value: selected.phone || '' },
                       {
                         label: 'Submitted',
-                        value: selected.created_at ? new Date(selected.created_at).toLocaleString() : '',
+                        value: selected.created_at ? formatAdminDateTime(selected.created_at) : '',
                       },
                       { label: 'Status', value: formatStatus(selected.status) },
                     ]}
@@ -423,8 +464,9 @@ export function AdminSubmissions() {
                               <span className="text-sm font-medium text-dq-black">
                                 {reply.subject || '(no subject)'}
                               </span>
-                              <span className="text-xs text-[#737373]">
-                                {formatStatus(reply.status)} · {new Date(reply.created_at).toLocaleString()}
+                              <span className="inline-flex items-center gap-1.5 text-xs text-[#737373]">
+                                <StatusBadge status={reply.status} />
+                                {formatAdminDateTime(reply.created_at)}
                               </span>
                             </div>
                             {reply.body_text ? (

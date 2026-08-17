@@ -18,6 +18,7 @@ import { AdminSelect } from './components/AdminSelect'
 import { AdminTablePagination } from './components/AdminTablePagination'
 import { ADMIN_FULFILLMENT_OPTIONS, ADMIN_PAYMENT_STATUS_OPTIONS } from './adminSelectOptions'
 import { useAdminDeleteConfirm } from './useAdminDeleteConfirm'
+import { formatAdminDate, formatAdminTime } from './formatAdminDate'
 import { useAdminTablePagination } from './useAdminTablePagination'
 
 type ShippingAddress = {
@@ -396,7 +397,10 @@ export function AdminDonations() {
                   <td className={adminTd}>
                     <FulfillmentBadge status={row.fulfillment_status} />
                   </td>
-                  <td className={adminTd}>{new Date(row.created_at).toLocaleString()}</td>
+                  <td className={adminTd}>
+                    <span className="block text-sm text-dq-black">{formatAdminDate(row.created_at)}</span>
+                    <span className="admin-muted text-xs">{formatAdminTime(row.created_at)}</span>
+                  </td>
                 </tr>
               ))
             )}

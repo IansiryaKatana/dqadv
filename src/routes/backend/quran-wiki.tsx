@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AdminQuranWiki } from '#/admin/AdminQuranWiki'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/backend/quran-wiki')({
-  component: AdminQuranWiki,
+  beforeLoad: () => {
+    throw redirect({ to: '/backend/content/quran-wiki' })
+  },
 })

@@ -39,6 +39,8 @@ export function isOfficeAdmin(profile: AdminProfile | null) {
 /** Paths office admins may open (everything else redirects to submissions). */
 export function isOfficeAdminAllowedPath(pathname: string) {
   return (
+    pathname.startsWith('/backend/inbox/submissions') ||
+    pathname.startsWith('/backend/commerce/donations') ||
     pathname.startsWith('/backend/submissions') ||
     pathname.startsWith('/backend/donations') ||
     pathname === '/backend/login' ||

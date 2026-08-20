@@ -44,6 +44,27 @@ type ReplyLogRow = {
 type SubmissionTab = 'contact' | 'distributor' | 'free_quran'
 type DetailTab = 'details' | 'reply' | 'history'
 
+const SUBMISSION_PAGES: Record<
+  SubmissionTab,
+  { title: string; description: string; empty: string }
+> = {
+  contact: {
+    title: 'Contact',
+    description: 'Messages sent from the contact form.',
+    empty: 'No contact submissions yet.',
+  },
+  free_quran: {
+    title: "Free Qur'an",
+    description: 'Requests for a free printed Qur’an.',
+    empty: 'No free Qur’an submissions yet.',
+  },
+  distributor: {
+    title: 'Distributor',
+    description: 'Applications to distribute Qur’ans.',
+    empty: 'No distributor submissions yet.',
+  },
+}
+
 function formatStatus(status: string) {
   if (!status) return 'New'
   return status.charAt(0).toUpperCase() + status.slice(1)
@@ -102,10 +123,10 @@ function EmailPreviewFrame({ html, title }: { html: string; title: string }) {
   )
 }
 
-export function AdminSubmissions() {
+export function AdminSubmissions({ formType }: { formType: SubmissionTab }) {
   useMarkInboxViewed('submissions')
   const { session } = useAdminAuth()
-  const [tab, setTab] = useState<SubmissionTab>('contact')
+  const pageMeta = SUBMISSION_PAGES[formType]
   const [rows, setRows] = useState<SubmissionRow[]>([])
   const [selected, setSelected] = useState<SubmissionRow | null>(null)
   const [err, setErr] = useState<string | null>(null)
@@ -120,8 +141,8 @@ export function AdminSubmissions() {
   const [detailTab, setDetailTab] = useState<DetailTab>('details')
 
   useAdminPageHeader({
-    title: 'Form submissions',
-    description: 'Review contact messages, free Qur’an requests, and distributor applications.',
+    title: pageMeta.title,
+    description: pageMeta.description,
     actions: [],
   })
 
@@ -132,19 +153,20 @@ export function AdminSubmissions() {
       const { data, error } = await sb
         .from('dq_form_submissions')
         .select('*')
-        .eq('form_type', tab)
+        .eq('form_type', formType)
         .order('created_at', { ascending: false })
       if (error) setErr(error.message)
       else setRows((data ?? []) as SubmissionRow[])
     }
     void load()
-  }, [tab])
+  }, [formType])
 
   const { page, setPage, totalPages, pageRows } = useAdminTablePagination(rows, 12)
 
   useEffect(() => {
     setPage(1)
-  }, [tab, setPage])
+    setSelected(null)
+  }, [formType, setPage])
 
   useEffect(() => {
     if (!selected) {
@@ -274,28 +296,6 @@ export function AdminSubmissions() {
   return (
     <div>
       {err ? <p className="mb-4 text-sm text-red-500">{err}</p> : null}
-      <div className="mb-4 flex flex-wrap gap-2">
-        {(
-          [
-            { id: 'contact', label: 'Contact' },
-            { id: 'free_quran', label: 'Free Qur’an' },
-            { id: 'distributor', label: 'Distributor' },
-          ] as const
-        ).map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={cn('admin-btn-secondary', tab === t.id && 'ring-2 ring-dq-gold')}
-            onClick={() => {
-              setTab(t.id)
-              setSelected(null)
-              setPage(1)
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
       <div className={adminTableWrap}>
         <table className={adminTable}>
           <thead>
@@ -310,7 +310,7 @@ export function AdminSubmissions() {
             {rows.length === 0 ? (
               <tr>
                 <td className={adminTd} colSpan={4}>
-                  No {tab === 'free_quran' ? 'free Qur’an' : tab} submissions yet.
+                  {pageMeta.empty}
                 </td>
               </tr>
             ) : (

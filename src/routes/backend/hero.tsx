@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AdminHero } from '#/admin/AdminHero'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/backend/hero')({
-  component: AdminHero,
+  beforeLoad: () => {
+    throw redirect({ to: '/backend/content/hero' })
+  },
 })

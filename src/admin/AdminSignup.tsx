@@ -35,7 +35,7 @@ export function AdminSignup() {
 
   useEffect(() => {
     void refreshAdminProfile()
-  }, [refreshAdminProfile, session])
+  }, [refreshAdminProfile])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()

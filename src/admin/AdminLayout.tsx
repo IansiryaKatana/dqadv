@@ -69,7 +69,7 @@ function AdminLayoutInner() {
     )
   } else if (shellReady && session && adminProfile?.is_active) {
     body = (
-      <div className="relative h-screen">
+      <div className="relative h-dvh overflow-hidden">
         <AdminShell />
         {loading ? (
           <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-dq-black/50 text-white">
@@ -116,7 +116,11 @@ function AdminLayoutInner() {
       </div>
     )
   } else {
-    body = <AdminShell />
+    body = (
+      <div className="h-dvh overflow-hidden">
+        <AdminShell />
+      </div>
+    )
   }
 
   return (

@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AdminUsers } from '#/admin/AdminUsers'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/backend/users')({
-  component: AdminUsers,
+  beforeLoad: () => {
+    throw redirect({ to: '/backend/settings/users' })
+  },
 })

@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AdminTrustContent } from '#/admin/AdminTrustContent'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/backend/trust-content')({
-  component: AdminTrustContent,
+  beforeLoad: () => {
+    throw redirect({ to: '/backend/content/trust-content' })
+  },
 })

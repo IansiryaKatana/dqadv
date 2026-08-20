@@ -1,4 +1,4 @@
-export const adminNavLink = 'block rounded-xl px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white'
+export const adminNavLink = 'block rounded-xl px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/15 hover:text-white'
 export const adminNavLinkActive = 'bg-white/10 text-dq-gold'
 export const adminTable = 'min-w-full text-left text-sm text-dq-black'
 /** Header row — darker shade, no radius */

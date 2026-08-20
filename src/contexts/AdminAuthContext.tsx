@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { getSupabase, isSupabaseConfigured } from '#/integrations/supabase/client'
 import {
@@ -39,17 +39,21 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [canBootstrap, setCanBootstrap] = useState(false)
   const configured = isSupabaseConfigured()
   const loading = authLoading || profileLoading
+  const userId = session?.user?.id
+  const adminProfileRef = useRef(adminProfile)
+  adminProfileRef.current = adminProfile
 
   const refreshAdminProfile = useCallback(async () => {
     const sb = getSupabase()
-    if (!sb || !session?.user) {
+    if (!sb || !userId) {
       setAdminProfile(null)
       setCanBootstrap(false)
       setProfileLoading(false)
       return
     }
 
-    setProfileLoading(true)
+    const alreadyInShell = Boolean(adminProfileRef.current)
+    if (!alreadyInShell) setProfileLoading(true)
 
     try {
       const [bootstrap, profile] = await Promise.all([canBootstrapAdmin(), fetchAdminProfile()])
@@ -58,7 +62,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setProfileLoading(false)
     }
-  }, [session])
+  }, [userId])
 
   useEffect(() => {
     const sb = getSupabase()
@@ -72,9 +76,24 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setAuthLoading(false)
     })
 
-    const { data: sub } = sb.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: sub } = sb.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession)
       setAuthLoading(false)
+
+      if (event === 'SIGNED_OUT') {
+        setAdminProfile(null)
+        setCanBootstrap(false)
+        setProfileLoading(false)
+        return
+      }
+
+      if (event === 'USER_UPDATED') {
+        void (async () => {
+          const [bootstrap, profile] = await Promise.all([canBootstrapAdmin(), fetchAdminProfile()])
+          setCanBootstrap(bootstrap)
+          setAdminProfile(profile)
+        })()
+      }
     })
 
     return () => sub.subscription.unsubscribe()

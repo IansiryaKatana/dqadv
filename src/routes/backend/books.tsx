@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AdminBooks } from '#/admin/AdminBooks'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/backend/books')({
-  component: AdminBooks,
+  beforeLoad: () => {
+    throw redirect({ to: '/backend/content/books' })
+  },
 })

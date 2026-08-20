@@ -1,8 +1,13 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
+import { peekAdminReturnPath, resolveAdminReturnPath, takeAdminReturnPath } from '#/lib/admin/adminReturnPath'
 import { PasswordInput } from '#/components/ui/PasswordInput'
 import '#/admin/admin-theme.css'
+
+function returnHref(redirect?: string) {
+  return resolveAdminReturnPath(redirect ?? peekAdminReturnPath())
+}
 
 export function AdminLogin() {
   const { configured, loading, session, signIn } = useAdminAuth()
@@ -12,10 +17,15 @@ export function AdminLogin() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const redirected = useRef(false)
 
-  if (!loading && session) {
-    void navigate({ to: search.redirect ?? '/backend' })
-  }
+  useEffect(() => {
+    if (loading || !session || redirected.current) return
+    redirected.current = true
+    const next = returnHref(search.redirect)
+    takeAdminReturnPath()
+    void navigate({ href: next })
+  }, [loading, session, search.redirect, navigate])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -27,7 +37,10 @@ export function AdminLogin() {
       setError(result.error)
       return
     }
-    void navigate({ to: search.redirect ?? '/backend' })
+    redirected.current = true
+    const next = returnHref(search.redirect)
+    takeAdminReturnPath()
+    void navigate({ href: next })
   }
 
   return (

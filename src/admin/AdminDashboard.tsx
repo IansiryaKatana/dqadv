@@ -93,16 +93,16 @@ export function AdminDashboard() {
       <div className="admin-panel mt-6 p-4">
         <h2 className="font-semibold text-dq-black">Quick links</h2>
         <div className="mt-3 flex flex-wrap gap-3">
-          <Link to="/backend/hero" className="admin-btn-primary">
+          <Link to="/backend/content/hero" className="admin-btn-primary">
             Edit hero
           </Link>
-          <Link to="/backend/products" className="admin-btn-secondary">
+          <Link to="/backend/commerce/products" className="admin-btn-secondary">
             Manage products
           </Link>
-          <Link to="/backend/articles" className="admin-btn-secondary">
+          <Link to="/backend/content/articles" className="admin-btn-secondary">
             Manage articles
           </Link>
-          <Link to="/backend/quran-wiki" className="admin-btn-secondary">
+          <Link to="/backend/content/quran-wiki" className="admin-btn-secondary">
             Manage Qur&apos;an Wiki
           </Link>
         </div>

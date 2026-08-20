@@ -33,11 +33,9 @@ import { Route as BackendVideosRouteImport } from './routes/backend/videos'
 import { Route as BackendVentureRouteImport } from './routes/backend/venture'
 import { Route as BackendUsersRouteImport } from './routes/backend/users'
 import { Route as BackendTrustContentRouteImport } from './routes/backend/trust-content'
-import { Route as BackendSubmissionsRouteImport } from './routes/backend/submissions'
 import { Route as BackendStoriesRouteImport } from './routes/backend/stories'
 import { Route as BackendSiteRouteImport } from './routes/backend/site'
 import { Route as BackendSignupRouteImport } from './routes/backend/signup'
-import { Route as BackendSettingsRouteImport } from './routes/backend/settings'
 import { Route as BackendResetPasswordRouteImport } from './routes/backend/reset-password'
 import { Route as BackendQuranWikiRouteImport } from './routes/backend/quran-wiki'
 import { Route as BackendQuranEditionsRouteImport } from './routes/backend/quran-editions'
@@ -55,10 +53,35 @@ import { Route as AccountResetPasswordRouteImport } from './routes/account/reset
 import { Route as AccountRegisterRouteImport } from './routes/account/register'
 import { Route as AccountLoginRouteImport } from './routes/account/login'
 import { Route as AccountForgotPasswordRouteImport } from './routes/account/forgot-password'
+import { Route as BackendSettingsRouteRouteImport } from './routes/backend/settings/route'
+import { Route as BackendSubmissionsIndexRouteImport } from './routes/backend/submissions/index'
+import { Route as BackendSettingsIndexRouteImport } from './routes/backend/settings/index'
 import { Route as AccountOrdersIndexRouteImport } from './routes/account/orders/index'
 import { Route as DonateCheckoutSuccessRouteImport } from './routes/donate/checkout/success'
 import { Route as DonateCheckoutPaypalReturnRouteImport } from './routes/donate/checkout/paypal-return'
 import { Route as DonateCheckoutCancelRouteImport } from './routes/donate/checkout/cancel'
+import { Route as BackendSubmissionsFreeQuranRouteImport } from './routes/backend/submissions/free-quran'
+import { Route as BackendSubmissionsDistributorRouteImport } from './routes/backend/submissions/distributor'
+import { Route as BackendSubmissionsContactRouteImport } from './routes/backend/submissions/contact'
+import { Route as BackendSettingsUsersRouteImport } from './routes/backend/settings/users'
+import { Route as BackendSettingsSocialRouteImport } from './routes/backend/settings/social'
+import { Route as BackendSettingsPaymentsRouteImport } from './routes/backend/settings/payments'
+import { Route as BackendSettingsNavigationRouteImport } from './routes/backend/settings/navigation'
+import { Route as BackendSettingsFooterRouteImport } from './routes/backend/settings/footer'
+import { Route as BackendSettingsBrandingRouteImport } from './routes/backend/settings/branding'
+import { Route as BackendSettingsAppsRouteImport } from './routes/backend/settings/apps'
+import { Route as BackendInboxSubmissionsRouteImport } from './routes/backend/inbox/submissions'
+import { Route as BackendContentVideosRouteImport } from './routes/backend/content/videos'
+import { Route as BackendContentVentureRouteImport } from './routes/backend/content/venture'
+import { Route as BackendContentTrustContentRouteImport } from './routes/backend/content/trust-content'
+import { Route as BackendContentStoriesRouteImport } from './routes/backend/content/stories'
+import { Route as BackendContentQuranWikiRouteImport } from './routes/backend/content/quran-wiki'
+import { Route as BackendContentQuranEditionsRouteImport } from './routes/backend/content/quran-editions'
+import { Route as BackendContentHeroRouteImport } from './routes/backend/content/hero'
+import { Route as BackendContentBooksRouteImport } from './routes/backend/content/books'
+import { Route as BackendContentArticlesRouteImport } from './routes/backend/content/articles'
+import { Route as BackendCommerceProductsRouteImport } from './routes/backend/commerce/products'
+import { Route as BackendCommerceDonationsRouteImport } from './routes/backend/commerce/donations'
 import { Route as AccountOrdersReferenceRouteImport } from './routes/account/orders/$reference'
 
 const OrderFreeQuransRoute = OrderFreeQuransRouteImport.update({
@@ -181,11 +204,6 @@ const BackendTrustContentRoute = BackendTrustContentRouteImport.update({
   path: '/trust-content',
   getParentRoute: () => BackendRouteRoute,
 } as any)
-const BackendSubmissionsRoute = BackendSubmissionsRouteImport.update({
-  id: '/submissions',
-  path: '/submissions',
-  getParentRoute: () => BackendRouteRoute,
-} as any)
 const BackendStoriesRoute = BackendStoriesRouteImport.update({
   id: '/stories',
   path: '/stories',
@@ -199,11 +217,6 @@ const BackendSiteRoute = BackendSiteRouteImport.update({
 const BackendSignupRoute = BackendSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => BackendRouteRoute,
-} as any)
-const BackendSettingsRoute = BackendSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
   getParentRoute: () => BackendRouteRoute,
 } as any)
 const BackendResetPasswordRoute = BackendResetPasswordRouteImport.update({
@@ -291,6 +304,21 @@ const AccountForgotPasswordRoute = AccountForgotPasswordRouteImport.update({
   path: '/account/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackendSettingsRouteRoute = BackendSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendSubmissionsIndexRoute = BackendSubmissionsIndexRouteImport.update({
+  id: '/submissions/',
+  path: '/submissions/',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendSettingsIndexRoute = BackendSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
 const AccountOrdersIndexRoute = AccountOrdersIndexRouteImport.update({
   id: '/account/orders/',
   path: '/account/orders/',
@@ -312,6 +340,123 @@ const DonateCheckoutCancelRoute = DonateCheckoutCancelRouteImport.update({
   path: '/cancel',
   getParentRoute: () => DonateCheckoutRoute,
 } as any)
+const BackendSubmissionsFreeQuranRoute =
+  BackendSubmissionsFreeQuranRouteImport.update({
+    id: '/submissions/free-quran',
+    path: '/submissions/free-quran',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
+const BackendSubmissionsDistributorRoute =
+  BackendSubmissionsDistributorRouteImport.update({
+    id: '/submissions/distributor',
+    path: '/submissions/distributor',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
+const BackendSubmissionsContactRoute =
+  BackendSubmissionsContactRouteImport.update({
+    id: '/submissions/contact',
+    path: '/submissions/contact',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
+const BackendSettingsUsersRoute = BackendSettingsUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendSettingsSocialRoute = BackendSettingsSocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendSettingsPaymentsRoute = BackendSettingsPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendSettingsNavigationRoute =
+  BackendSettingsNavigationRouteImport.update({
+    id: '/navigation',
+    path: '/navigation',
+    getParentRoute: () => BackendSettingsRouteRoute,
+  } as any)
+const BackendSettingsFooterRoute = BackendSettingsFooterRouteImport.update({
+  id: '/footer',
+  path: '/footer',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendSettingsBrandingRoute = BackendSettingsBrandingRouteImport.update({
+  id: '/branding',
+  path: '/branding',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendSettingsAppsRoute = BackendSettingsAppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => BackendSettingsRouteRoute,
+} as any)
+const BackendInboxSubmissionsRoute = BackendInboxSubmissionsRouteImport.update({
+  id: '/inbox/submissions',
+  path: '/inbox/submissions',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentVideosRoute = BackendContentVideosRouteImport.update({
+  id: '/content/videos',
+  path: '/content/videos',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentVentureRoute = BackendContentVentureRouteImport.update({
+  id: '/content/venture',
+  path: '/content/venture',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentTrustContentRoute =
+  BackendContentTrustContentRouteImport.update({
+    id: '/content/trust-content',
+    path: '/content/trust-content',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
+const BackendContentStoriesRoute = BackendContentStoriesRouteImport.update({
+  id: '/content/stories',
+  path: '/content/stories',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentQuranWikiRoute = BackendContentQuranWikiRouteImport.update({
+  id: '/content/quran-wiki',
+  path: '/content/quran-wiki',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentQuranEditionsRoute =
+  BackendContentQuranEditionsRouteImport.update({
+    id: '/content/quran-editions',
+    path: '/content/quran-editions',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
+const BackendContentHeroRoute = BackendContentHeroRouteImport.update({
+  id: '/content/hero',
+  path: '/content/hero',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentBooksRoute = BackendContentBooksRouteImport.update({
+  id: '/content/books',
+  path: '/content/books',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendContentArticlesRoute = BackendContentArticlesRouteImport.update({
+  id: '/content/articles',
+  path: '/content/articles',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendCommerceProductsRoute = BackendCommerceProductsRouteImport.update({
+  id: '/commerce/products',
+  path: '/commerce/products',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendCommerceDonationsRoute =
+  BackendCommerceDonationsRouteImport.update({
+    id: '/commerce/donations',
+    path: '/commerce/donations',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
 const AccountOrdersReferenceRoute = AccountOrdersReferenceRouteImport.update({
   id: '/account/orders/$reference',
   path: '/account/orders/$reference',
@@ -326,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/distribute': typeof DistributeRoute
   '/order-free-qurans': typeof OrderFreeQuransRoute
+  '/backend/settings': typeof BackendSettingsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
@@ -343,11 +489,9 @@ export interface FileRoutesByFullPath {
   '/backend/quran-editions': typeof BackendQuranEditionsRoute
   '/backend/quran-wiki': typeof BackendQuranWikiRoute
   '/backend/reset-password': typeof BackendResetPasswordRoute
-  '/backend/settings': typeof BackendSettingsRoute
   '/backend/signup': typeof BackendSignupRoute
   '/backend/site': typeof BackendSiteRoute
   '/backend/stories': typeof BackendStoriesRoute
-  '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
   '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
@@ -366,10 +510,34 @@ export interface FileRoutesByFullPath {
   '/stories/': typeof StoriesIndexRoute
   '/videos/': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
+  '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/products': typeof BackendCommerceProductsRoute
+  '/backend/content/articles': typeof BackendContentArticlesRoute
+  '/backend/content/books': typeof BackendContentBooksRoute
+  '/backend/content/hero': typeof BackendContentHeroRoute
+  '/backend/content/quran-editions': typeof BackendContentQuranEditionsRoute
+  '/backend/content/quran-wiki': typeof BackendContentQuranWikiRoute
+  '/backend/content/stories': typeof BackendContentStoriesRoute
+  '/backend/content/trust-content': typeof BackendContentTrustContentRoute
+  '/backend/content/venture': typeof BackendContentVentureRoute
+  '/backend/content/videos': typeof BackendContentVideosRoute
+  '/backend/inbox/submissions': typeof BackendInboxSubmissionsRoute
+  '/backend/settings/apps': typeof BackendSettingsAppsRoute
+  '/backend/settings/branding': typeof BackendSettingsBrandingRoute
+  '/backend/settings/footer': typeof BackendSettingsFooterRoute
+  '/backend/settings/navigation': typeof BackendSettingsNavigationRoute
+  '/backend/settings/payments': typeof BackendSettingsPaymentsRoute
+  '/backend/settings/social': typeof BackendSettingsSocialRoute
+  '/backend/settings/users': typeof BackendSettingsUsersRoute
+  '/backend/submissions/contact': typeof BackendSubmissionsContactRoute
+  '/backend/submissions/distributor': typeof BackendSubmissionsDistributorRoute
+  '/backend/submissions/free-quran': typeof BackendSubmissionsFreeQuranRoute
   '/donate/checkout/cancel': typeof DonateCheckoutCancelRoute
   '/donate/checkout/paypal-return': typeof DonateCheckoutPaypalReturnRoute
   '/donate/checkout/success': typeof DonateCheckoutSuccessRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
+  '/backend/settings/': typeof BackendSettingsIndexRoute
+  '/backend/submissions/': typeof BackendSubmissionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -395,11 +563,9 @@ export interface FileRoutesByTo {
   '/backend/quran-editions': typeof BackendQuranEditionsRoute
   '/backend/quran-wiki': typeof BackendQuranWikiRoute
   '/backend/reset-password': typeof BackendResetPasswordRoute
-  '/backend/settings': typeof BackendSettingsRoute
   '/backend/signup': typeof BackendSignupRoute
   '/backend/site': typeof BackendSiteRoute
   '/backend/stories': typeof BackendStoriesRoute
-  '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
   '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
@@ -418,10 +584,34 @@ export interface FileRoutesByTo {
   '/stories': typeof StoriesIndexRoute
   '/videos': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
+  '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/products': typeof BackendCommerceProductsRoute
+  '/backend/content/articles': typeof BackendContentArticlesRoute
+  '/backend/content/books': typeof BackendContentBooksRoute
+  '/backend/content/hero': typeof BackendContentHeroRoute
+  '/backend/content/quran-editions': typeof BackendContentQuranEditionsRoute
+  '/backend/content/quran-wiki': typeof BackendContentQuranWikiRoute
+  '/backend/content/stories': typeof BackendContentStoriesRoute
+  '/backend/content/trust-content': typeof BackendContentTrustContentRoute
+  '/backend/content/venture': typeof BackendContentVentureRoute
+  '/backend/content/videos': typeof BackendContentVideosRoute
+  '/backend/inbox/submissions': typeof BackendInboxSubmissionsRoute
+  '/backend/settings/apps': typeof BackendSettingsAppsRoute
+  '/backend/settings/branding': typeof BackendSettingsBrandingRoute
+  '/backend/settings/footer': typeof BackendSettingsFooterRoute
+  '/backend/settings/navigation': typeof BackendSettingsNavigationRoute
+  '/backend/settings/payments': typeof BackendSettingsPaymentsRoute
+  '/backend/settings/social': typeof BackendSettingsSocialRoute
+  '/backend/settings/users': typeof BackendSettingsUsersRoute
+  '/backend/submissions/contact': typeof BackendSubmissionsContactRoute
+  '/backend/submissions/distributor': typeof BackendSubmissionsDistributorRoute
+  '/backend/submissions/free-quran': typeof BackendSubmissionsFreeQuranRoute
   '/donate/checkout/cancel': typeof DonateCheckoutCancelRoute
   '/donate/checkout/paypal-return': typeof DonateCheckoutPaypalReturnRoute
   '/donate/checkout/success': typeof DonateCheckoutSuccessRoute
   '/account/orders': typeof AccountOrdersIndexRoute
+  '/backend/settings': typeof BackendSettingsIndexRoute
+  '/backend/submissions': typeof BackendSubmissionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -432,6 +622,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/distribute': typeof DistributeRoute
   '/order-free-qurans': typeof OrderFreeQuransRoute
+  '/backend/settings': typeof BackendSettingsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
@@ -449,11 +640,9 @@ export interface FileRoutesById {
   '/backend/quran-editions': typeof BackendQuranEditionsRoute
   '/backend/quran-wiki': typeof BackendQuranWikiRoute
   '/backend/reset-password': typeof BackendResetPasswordRoute
-  '/backend/settings': typeof BackendSettingsRoute
   '/backend/signup': typeof BackendSignupRoute
   '/backend/site': typeof BackendSiteRoute
   '/backend/stories': typeof BackendStoriesRoute
-  '/backend/submissions': typeof BackendSubmissionsRoute
   '/backend/trust-content': typeof BackendTrustContentRoute
   '/backend/users': typeof BackendUsersRoute
   '/backend/venture': typeof BackendVentureRoute
@@ -472,10 +661,34 @@ export interface FileRoutesById {
   '/stories/': typeof StoriesIndexRoute
   '/videos/': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
+  '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/products': typeof BackendCommerceProductsRoute
+  '/backend/content/articles': typeof BackendContentArticlesRoute
+  '/backend/content/books': typeof BackendContentBooksRoute
+  '/backend/content/hero': typeof BackendContentHeroRoute
+  '/backend/content/quran-editions': typeof BackendContentQuranEditionsRoute
+  '/backend/content/quran-wiki': typeof BackendContentQuranWikiRoute
+  '/backend/content/stories': typeof BackendContentStoriesRoute
+  '/backend/content/trust-content': typeof BackendContentTrustContentRoute
+  '/backend/content/venture': typeof BackendContentVentureRoute
+  '/backend/content/videos': typeof BackendContentVideosRoute
+  '/backend/inbox/submissions': typeof BackendInboxSubmissionsRoute
+  '/backend/settings/apps': typeof BackendSettingsAppsRoute
+  '/backend/settings/branding': typeof BackendSettingsBrandingRoute
+  '/backend/settings/footer': typeof BackendSettingsFooterRoute
+  '/backend/settings/navigation': typeof BackendSettingsNavigationRoute
+  '/backend/settings/payments': typeof BackendSettingsPaymentsRoute
+  '/backend/settings/social': typeof BackendSettingsSocialRoute
+  '/backend/settings/users': typeof BackendSettingsUsersRoute
+  '/backend/submissions/contact': typeof BackendSubmissionsContactRoute
+  '/backend/submissions/distributor': typeof BackendSubmissionsDistributorRoute
+  '/backend/submissions/free-quran': typeof BackendSubmissionsFreeQuranRoute
   '/donate/checkout/cancel': typeof DonateCheckoutCancelRoute
   '/donate/checkout/paypal-return': typeof DonateCheckoutPaypalReturnRoute
   '/donate/checkout/success': typeof DonateCheckoutSuccessRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
+  '/backend/settings/': typeof BackendSettingsIndexRoute
+  '/backend/submissions/': typeof BackendSubmissionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -487,6 +700,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/distribute'
     | '/order-free-qurans'
+    | '/backend/settings'
     | '/account/forgot-password'
     | '/account/login'
     | '/account/register'
@@ -504,11 +718,9 @@ export interface FileRouteTypes {
     | '/backend/quran-editions'
     | '/backend/quran-wiki'
     | '/backend/reset-password'
-    | '/backend/settings'
     | '/backend/signup'
     | '/backend/site'
     | '/backend/stories'
-    | '/backend/submissions'
     | '/backend/trust-content'
     | '/backend/users'
     | '/backend/venture'
@@ -527,10 +739,34 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/videos/'
     | '/account/orders/$reference'
+    | '/backend/commerce/donations'
+    | '/backend/commerce/products'
+    | '/backend/content/articles'
+    | '/backend/content/books'
+    | '/backend/content/hero'
+    | '/backend/content/quran-editions'
+    | '/backend/content/quran-wiki'
+    | '/backend/content/stories'
+    | '/backend/content/trust-content'
+    | '/backend/content/venture'
+    | '/backend/content/videos'
+    | '/backend/inbox/submissions'
+    | '/backend/settings/apps'
+    | '/backend/settings/branding'
+    | '/backend/settings/footer'
+    | '/backend/settings/navigation'
+    | '/backend/settings/payments'
+    | '/backend/settings/social'
+    | '/backend/settings/users'
+    | '/backend/submissions/contact'
+    | '/backend/submissions/distributor'
+    | '/backend/submissions/free-quran'
     | '/donate/checkout/cancel'
     | '/donate/checkout/paypal-return'
     | '/donate/checkout/success'
     | '/account/orders/'
+    | '/backend/settings/'
+    | '/backend/submissions/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -556,11 +792,9 @@ export interface FileRouteTypes {
     | '/backend/quran-editions'
     | '/backend/quran-wiki'
     | '/backend/reset-password'
-    | '/backend/settings'
     | '/backend/signup'
     | '/backend/site'
     | '/backend/stories'
-    | '/backend/submissions'
     | '/backend/trust-content'
     | '/backend/users'
     | '/backend/venture'
@@ -579,10 +813,34 @@ export interface FileRouteTypes {
     | '/stories'
     | '/videos'
     | '/account/orders/$reference'
+    | '/backend/commerce/donations'
+    | '/backend/commerce/products'
+    | '/backend/content/articles'
+    | '/backend/content/books'
+    | '/backend/content/hero'
+    | '/backend/content/quran-editions'
+    | '/backend/content/quran-wiki'
+    | '/backend/content/stories'
+    | '/backend/content/trust-content'
+    | '/backend/content/venture'
+    | '/backend/content/videos'
+    | '/backend/inbox/submissions'
+    | '/backend/settings/apps'
+    | '/backend/settings/branding'
+    | '/backend/settings/footer'
+    | '/backend/settings/navigation'
+    | '/backend/settings/payments'
+    | '/backend/settings/social'
+    | '/backend/settings/users'
+    | '/backend/submissions/contact'
+    | '/backend/submissions/distributor'
+    | '/backend/submissions/free-quran'
     | '/donate/checkout/cancel'
     | '/donate/checkout/paypal-return'
     | '/donate/checkout/success'
     | '/account/orders'
+    | '/backend/settings'
+    | '/backend/submissions'
   id:
     | '__root__'
     | '/'
@@ -592,6 +850,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/distribute'
     | '/order-free-qurans'
+    | '/backend/settings'
     | '/account/forgot-password'
     | '/account/login'
     | '/account/register'
@@ -609,11 +868,9 @@ export interface FileRouteTypes {
     | '/backend/quran-editions'
     | '/backend/quran-wiki'
     | '/backend/reset-password'
-    | '/backend/settings'
     | '/backend/signup'
     | '/backend/site'
     | '/backend/stories'
-    | '/backend/submissions'
     | '/backend/trust-content'
     | '/backend/users'
     | '/backend/venture'
@@ -632,10 +889,34 @@ export interface FileRouteTypes {
     | '/stories/'
     | '/videos/'
     | '/account/orders/$reference'
+    | '/backend/commerce/donations'
+    | '/backend/commerce/products'
+    | '/backend/content/articles'
+    | '/backend/content/books'
+    | '/backend/content/hero'
+    | '/backend/content/quran-editions'
+    | '/backend/content/quran-wiki'
+    | '/backend/content/stories'
+    | '/backend/content/trust-content'
+    | '/backend/content/venture'
+    | '/backend/content/videos'
+    | '/backend/inbox/submissions'
+    | '/backend/settings/apps'
+    | '/backend/settings/branding'
+    | '/backend/settings/footer'
+    | '/backend/settings/navigation'
+    | '/backend/settings/payments'
+    | '/backend/settings/social'
+    | '/backend/settings/users'
+    | '/backend/submissions/contact'
+    | '/backend/submissions/distributor'
+    | '/backend/submissions/free-quran'
     | '/donate/checkout/cancel'
     | '/donate/checkout/paypal-return'
     | '/donate/checkout/success'
     | '/account/orders/'
+    | '/backend/settings/'
+    | '/backend/submissions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -839,13 +1120,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackendTrustContentRouteImport
       parentRoute: typeof BackendRouteRoute
     }
-    '/backend/submissions': {
-      id: '/backend/submissions'
-      path: '/submissions'
-      fullPath: '/backend/submissions'
-      preLoaderRoute: typeof BackendSubmissionsRouteImport
-      parentRoute: typeof BackendRouteRoute
-    }
     '/backend/stories': {
       id: '/backend/stories'
       path: '/stories'
@@ -865,13 +1139,6 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/backend/signup'
       preLoaderRoute: typeof BackendSignupRouteImport
-      parentRoute: typeof BackendRouteRoute
-    }
-    '/backend/settings': {
-      id: '/backend/settings'
-      path: '/settings'
-      fullPath: '/backend/settings'
-      preLoaderRoute: typeof BackendSettingsRouteImport
       parentRoute: typeof BackendRouteRoute
     }
     '/backend/reset-password': {
@@ -993,6 +1260,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/backend/settings': {
+      id: '/backend/settings'
+      path: '/settings'
+      fullPath: '/backend/settings'
+      preLoaderRoute: typeof BackendSettingsRouteRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/submissions/': {
+      id: '/backend/submissions/'
+      path: '/submissions'
+      fullPath: '/backend/submissions/'
+      preLoaderRoute: typeof BackendSubmissionsIndexRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/settings/': {
+      id: '/backend/settings/'
+      path: '/'
+      fullPath: '/backend/settings/'
+      preLoaderRoute: typeof BackendSettingsIndexRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
     '/account/orders/': {
       id: '/account/orders/'
       path: '/account/orders'
@@ -1021,6 +1309,160 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateCheckoutCancelRouteImport
       parentRoute: typeof DonateCheckoutRoute
     }
+    '/backend/submissions/free-quran': {
+      id: '/backend/submissions/free-quran'
+      path: '/submissions/free-quran'
+      fullPath: '/backend/submissions/free-quran'
+      preLoaderRoute: typeof BackendSubmissionsFreeQuranRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/submissions/distributor': {
+      id: '/backend/submissions/distributor'
+      path: '/submissions/distributor'
+      fullPath: '/backend/submissions/distributor'
+      preLoaderRoute: typeof BackendSubmissionsDistributorRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/submissions/contact': {
+      id: '/backend/submissions/contact'
+      path: '/submissions/contact'
+      fullPath: '/backend/submissions/contact'
+      preLoaderRoute: typeof BackendSubmissionsContactRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/settings/users': {
+      id: '/backend/settings/users'
+      path: '/users'
+      fullPath: '/backend/settings/users'
+      preLoaderRoute: typeof BackendSettingsUsersRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/social': {
+      id: '/backend/settings/social'
+      path: '/social'
+      fullPath: '/backend/settings/social'
+      preLoaderRoute: typeof BackendSettingsSocialRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/payments': {
+      id: '/backend/settings/payments'
+      path: '/payments'
+      fullPath: '/backend/settings/payments'
+      preLoaderRoute: typeof BackendSettingsPaymentsRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/navigation': {
+      id: '/backend/settings/navigation'
+      path: '/navigation'
+      fullPath: '/backend/settings/navigation'
+      preLoaderRoute: typeof BackendSettingsNavigationRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/footer': {
+      id: '/backend/settings/footer'
+      path: '/footer'
+      fullPath: '/backend/settings/footer'
+      preLoaderRoute: typeof BackendSettingsFooterRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/branding': {
+      id: '/backend/settings/branding'
+      path: '/branding'
+      fullPath: '/backend/settings/branding'
+      preLoaderRoute: typeof BackendSettingsBrandingRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/settings/apps': {
+      id: '/backend/settings/apps'
+      path: '/apps'
+      fullPath: '/backend/settings/apps'
+      preLoaderRoute: typeof BackendSettingsAppsRouteImport
+      parentRoute: typeof BackendSettingsRouteRoute
+    }
+    '/backend/inbox/submissions': {
+      id: '/backend/inbox/submissions'
+      path: '/inbox/submissions'
+      fullPath: '/backend/inbox/submissions'
+      preLoaderRoute: typeof BackendInboxSubmissionsRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/videos': {
+      id: '/backend/content/videos'
+      path: '/content/videos'
+      fullPath: '/backend/content/videos'
+      preLoaderRoute: typeof BackendContentVideosRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/venture': {
+      id: '/backend/content/venture'
+      path: '/content/venture'
+      fullPath: '/backend/content/venture'
+      preLoaderRoute: typeof BackendContentVentureRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/trust-content': {
+      id: '/backend/content/trust-content'
+      path: '/content/trust-content'
+      fullPath: '/backend/content/trust-content'
+      preLoaderRoute: typeof BackendContentTrustContentRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/stories': {
+      id: '/backend/content/stories'
+      path: '/content/stories'
+      fullPath: '/backend/content/stories'
+      preLoaderRoute: typeof BackendContentStoriesRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/quran-wiki': {
+      id: '/backend/content/quran-wiki'
+      path: '/content/quran-wiki'
+      fullPath: '/backend/content/quran-wiki'
+      preLoaderRoute: typeof BackendContentQuranWikiRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/quran-editions': {
+      id: '/backend/content/quran-editions'
+      path: '/content/quran-editions'
+      fullPath: '/backend/content/quran-editions'
+      preLoaderRoute: typeof BackendContentQuranEditionsRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/hero': {
+      id: '/backend/content/hero'
+      path: '/content/hero'
+      fullPath: '/backend/content/hero'
+      preLoaderRoute: typeof BackendContentHeroRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/books': {
+      id: '/backend/content/books'
+      path: '/content/books'
+      fullPath: '/backend/content/books'
+      preLoaderRoute: typeof BackendContentBooksRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/content/articles': {
+      id: '/backend/content/articles'
+      path: '/content/articles'
+      fullPath: '/backend/content/articles'
+      preLoaderRoute: typeof BackendContentArticlesRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/commerce/products': {
+      id: '/backend/commerce/products'
+      path: '/commerce/products'
+      fullPath: '/backend/commerce/products'
+      preLoaderRoute: typeof BackendCommerceProductsRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/commerce/donations': {
+      id: '/backend/commerce/donations'
+      path: '/commerce/donations'
+      fullPath: '/backend/commerce/donations'
+      preLoaderRoute: typeof BackendCommerceDonationsRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
     '/account/orders/$reference': {
       id: '/account/orders/$reference'
       path: '/account/orders/$reference'
@@ -1031,7 +1473,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BackendSettingsRouteRouteChildren {
+  BackendSettingsAppsRoute: typeof BackendSettingsAppsRoute
+  BackendSettingsBrandingRoute: typeof BackendSettingsBrandingRoute
+  BackendSettingsFooterRoute: typeof BackendSettingsFooterRoute
+  BackendSettingsNavigationRoute: typeof BackendSettingsNavigationRoute
+  BackendSettingsPaymentsRoute: typeof BackendSettingsPaymentsRoute
+  BackendSettingsSocialRoute: typeof BackendSettingsSocialRoute
+  BackendSettingsUsersRoute: typeof BackendSettingsUsersRoute
+  BackendSettingsIndexRoute: typeof BackendSettingsIndexRoute
+}
+
+const BackendSettingsRouteRouteChildren: BackendSettingsRouteRouteChildren = {
+  BackendSettingsAppsRoute: BackendSettingsAppsRoute,
+  BackendSettingsBrandingRoute: BackendSettingsBrandingRoute,
+  BackendSettingsFooterRoute: BackendSettingsFooterRoute,
+  BackendSettingsNavigationRoute: BackendSettingsNavigationRoute,
+  BackendSettingsPaymentsRoute: BackendSettingsPaymentsRoute,
+  BackendSettingsSocialRoute: BackendSettingsSocialRoute,
+  BackendSettingsUsersRoute: BackendSettingsUsersRoute,
+  BackendSettingsIndexRoute: BackendSettingsIndexRoute,
+}
+
+const BackendSettingsRouteRouteWithChildren =
+  BackendSettingsRouteRoute._addFileChildren(BackendSettingsRouteRouteChildren)
+
 interface BackendRouteRouteChildren {
+  BackendSettingsRouteRoute: typeof BackendSettingsRouteRouteWithChildren
   BackendArticlesRoute: typeof BackendArticlesRoute
   BackendBooksRoute: typeof BackendBooksRoute
   BackendDonationsRoute: typeof BackendDonationsRoute
@@ -1042,19 +1510,34 @@ interface BackendRouteRouteChildren {
   BackendQuranEditionsRoute: typeof BackendQuranEditionsRoute
   BackendQuranWikiRoute: typeof BackendQuranWikiRoute
   BackendResetPasswordRoute: typeof BackendResetPasswordRoute
-  BackendSettingsRoute: typeof BackendSettingsRoute
   BackendSignupRoute: typeof BackendSignupRoute
   BackendSiteRoute: typeof BackendSiteRoute
   BackendStoriesRoute: typeof BackendStoriesRoute
-  BackendSubmissionsRoute: typeof BackendSubmissionsRoute
   BackendTrustContentRoute: typeof BackendTrustContentRoute
   BackendUsersRoute: typeof BackendUsersRoute
   BackendVentureRoute: typeof BackendVentureRoute
   BackendVideosRoute: typeof BackendVideosRoute
   BackendIndexRoute: typeof BackendIndexRoute
+  BackendCommerceDonationsRoute: typeof BackendCommerceDonationsRoute
+  BackendCommerceProductsRoute: typeof BackendCommerceProductsRoute
+  BackendContentArticlesRoute: typeof BackendContentArticlesRoute
+  BackendContentBooksRoute: typeof BackendContentBooksRoute
+  BackendContentHeroRoute: typeof BackendContentHeroRoute
+  BackendContentQuranEditionsRoute: typeof BackendContentQuranEditionsRoute
+  BackendContentQuranWikiRoute: typeof BackendContentQuranWikiRoute
+  BackendContentStoriesRoute: typeof BackendContentStoriesRoute
+  BackendContentTrustContentRoute: typeof BackendContentTrustContentRoute
+  BackendContentVentureRoute: typeof BackendContentVentureRoute
+  BackendContentVideosRoute: typeof BackendContentVideosRoute
+  BackendInboxSubmissionsRoute: typeof BackendInboxSubmissionsRoute
+  BackendSubmissionsContactRoute: typeof BackendSubmissionsContactRoute
+  BackendSubmissionsDistributorRoute: typeof BackendSubmissionsDistributorRoute
+  BackendSubmissionsFreeQuranRoute: typeof BackendSubmissionsFreeQuranRoute
+  BackendSubmissionsIndexRoute: typeof BackendSubmissionsIndexRoute
 }
 
 const BackendRouteRouteChildren: BackendRouteRouteChildren = {
+  BackendSettingsRouteRoute: BackendSettingsRouteRouteWithChildren,
   BackendArticlesRoute: BackendArticlesRoute,
   BackendBooksRoute: BackendBooksRoute,
   BackendDonationsRoute: BackendDonationsRoute,
@@ -1065,16 +1548,30 @@ const BackendRouteRouteChildren: BackendRouteRouteChildren = {
   BackendQuranEditionsRoute: BackendQuranEditionsRoute,
   BackendQuranWikiRoute: BackendQuranWikiRoute,
   BackendResetPasswordRoute: BackendResetPasswordRoute,
-  BackendSettingsRoute: BackendSettingsRoute,
   BackendSignupRoute: BackendSignupRoute,
   BackendSiteRoute: BackendSiteRoute,
   BackendStoriesRoute: BackendStoriesRoute,
-  BackendSubmissionsRoute: BackendSubmissionsRoute,
   BackendTrustContentRoute: BackendTrustContentRoute,
   BackendUsersRoute: BackendUsersRoute,
   BackendVentureRoute: BackendVentureRoute,
   BackendVideosRoute: BackendVideosRoute,
   BackendIndexRoute: BackendIndexRoute,
+  BackendCommerceDonationsRoute: BackendCommerceDonationsRoute,
+  BackendCommerceProductsRoute: BackendCommerceProductsRoute,
+  BackendContentArticlesRoute: BackendContentArticlesRoute,
+  BackendContentBooksRoute: BackendContentBooksRoute,
+  BackendContentHeroRoute: BackendContentHeroRoute,
+  BackendContentQuranEditionsRoute: BackendContentQuranEditionsRoute,
+  BackendContentQuranWikiRoute: BackendContentQuranWikiRoute,
+  BackendContentStoriesRoute: BackendContentStoriesRoute,
+  BackendContentTrustContentRoute: BackendContentTrustContentRoute,
+  BackendContentVentureRoute: BackendContentVentureRoute,
+  BackendContentVideosRoute: BackendContentVideosRoute,
+  BackendInboxSubmissionsRoute: BackendInboxSubmissionsRoute,
+  BackendSubmissionsContactRoute: BackendSubmissionsContactRoute,
+  BackendSubmissionsDistributorRoute: BackendSubmissionsDistributorRoute,
+  BackendSubmissionsFreeQuranRoute: BackendSubmissionsFreeQuranRoute,
+  BackendSubmissionsIndexRoute: BackendSubmissionsIndexRoute,
 }
 
 const BackendRouteRouteWithChildren = BackendRouteRoute._addFileChildren(

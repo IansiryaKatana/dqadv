@@ -16,27 +16,16 @@ import {
 } from '#/lib/site/branding'
 import { useCms } from '#/contexts/CmsContext'
 import { useAdminPageHeader } from './AdminPageContext'
-import { cn } from '#/lib/utils'
 import { ImageUploadField } from './components/ImageUploadField'
 import { MediaUploadField } from './components/MediaUploadField'
 import { AdminColorField } from './components/AdminColorField'
 import { AdminPaymentsSettings } from './AdminPaymentsSettings'
+import type { SettingsSiteTab } from './settingsTabs'
 
 type NavRow = Database['public']['Tables']['dq_navigation_links']['Row']
 type FooterRow = Database['public']['Tables']['dq_footer_settings']['Row']
 
 type SocialLink = { label: string; href: string }
-
-const SETTINGS_TABS = [
-  { id: 'branding', label: 'Branding' },
-  { id: 'footer', label: 'Footer' },
-  { id: 'social', label: 'Social' },
-  { id: 'apps', label: 'Apps' },
-  { id: 'navigation', label: 'Navigation' },
-  { id: 'payments', label: 'Payments & Email' },
-] as const
-
-type SettingsTab = (typeof SETTINGS_TABS)[number]['id']
 
 function parseSocialLinks(links: unknown): SocialLink[] {
   if (!Array.isArray(links)) return []
@@ -53,7 +42,7 @@ function FieldLabel({ children }: { children: ReactNode }) {
   return <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#737373]">{children}</label>
 }
 
-export function AdminSite() {
+export function AdminSite({ tab }: { tab: SettingsSiteTab }) {
   const { refetch } = useCms()
   const [nav, setNav] = useState<NavRow[]>([])
   const [footer, setFooter] = useState<FooterRow | null>(null)
@@ -74,7 +63,6 @@ export function AdminSite() {
   const [fontFileUrl, setFontFileUrl] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<SettingsTab>('branding')
 
   async function refresh() {
     const sb = getSupabase()
@@ -217,29 +205,10 @@ export function AdminSite() {
   }
 
   return (
-    <div>
-      {err ? <p className="mb-4 text-sm text-red-400">{err}</p> : null}
+    <div className="space-y-4 p-4 md:p-6">
+      {err ? <p className="text-sm text-red-400">{err}</p> : null}
 
-      <div className="admin-panel overflow-hidden">
-        <div className="border-b border-[#e5e5e5] px-4 pt-3">
-          <div className="admin-tabs mb-0 border-b-0" role="tablist" aria-label="Settings sections">
-            {SETTINGS_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab.id}
-                className={cn('admin-tab', activeTab === tab.id && 'admin-tab-active')}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4 p-4 md:p-6">
-          {activeTab === 'branding' ? (
+          {tab === 'branding' ? (
             <>
               <p className="admin-muted text-sm">
                 Upload logos, set brand colors and font, plus a favicon. Leave logo fields empty to use the built-in defaults.
@@ -398,7 +367,7 @@ export function AdminSite() {
             </>
           ) : null}
 
-          {activeTab === 'footer' ? (
+          {tab === 'footer' ? (
             footer ? (
               <>
                 <p className="admin-muted text-sm">Contact details and legal copy shown in the site footer.</p>
@@ -445,7 +414,7 @@ export function AdminSite() {
             )
           ) : null}
 
-          {activeTab === 'social' ? (
+          {tab === 'social' ? (
             footer ? (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -501,7 +470,7 @@ export function AdminSite() {
             )
           ) : null}
 
-          {activeTab === 'apps' ? (
+          {tab === 'apps' ? (
             <>
               <p className="admin-muted text-sm">Used in the site header download buttons.</p>
               <div>
@@ -527,7 +496,7 @@ export function AdminSite() {
             </>
           ) : null}
 
-          {activeTab === 'navigation' ? (
+          {tab === 'navigation' ? (
             <>
               <p className="admin-muted text-sm">
                 Header and footer menu links are managed in the database navigation table. Contact support to add or
@@ -537,9 +506,7 @@ export function AdminSite() {
             </>
           ) : null}
 
-          {activeTab === 'payments' ? <AdminPaymentsSettings /> : null}
-        </div>
-      </div>
+          {tab === 'payments' ? <AdminPaymentsSettings /> : null}
     </div>
   )
 }

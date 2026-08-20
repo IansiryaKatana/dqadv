@@ -1,8 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Pliant:wght@100;200;300;400&display=swap");
 @import "tailwindcss";
 
-/* shadcn semantic tokens — mapped to Donate Quran brand */
+/* Brand tokens — overridable at runtime from admin Settings → Branding */
 :root {
+  --dq-gold: #f4b000;
+  --dq-on-gold: #050505;
+  --dq-black: #050505;
+  --dq-soft-black: #111111;
+  --dq-cream: #f8f3ea;
+  --dq-muted: #6f6f6f;
+  --dq-border: #e8e2d6;
+  --dq-font-family: "Pliant", ui-sans-serif, system-ui, sans-serif;
+
   --radius: 0.625rem;
   --background: #ffffff;
   --foreground: #171717;
@@ -10,18 +19,18 @@
   --card-foreground: #171717;
   --popover: #ffffff;
   --popover-foreground: #171717;
-  --primary: #f4b000;
-  --primary-foreground: #050505;
+  --primary: var(--dq-gold);
+  --primary-foreground: var(--dq-on-gold);
   --secondary: #f7f7f5;
   --secondary-foreground: #171717;
   --muted: #f7f7f5;
   --muted-foreground: #737373;
-  --accent: #f8f3ea;
+  --accent: var(--dq-cream);
   --accent-foreground: #171717;
   --destructive: #dc2626;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #f4b000;
+  --ring: var(--dq-gold);
 }
 
 @theme inline {
@@ -51,15 +60,16 @@
 }
 
 @theme {
-  --color-dq-black: #050505;
-  --color-dq-soft-black: #111111;
-  --color-dq-gold: #f4b000;
-  --color-dq-cream: #f8f3ea;
-  --color-dq-muted: #6f6f6f;
-  --color-dq-border: #e8e2d6;
+  --color-dq-black: var(--dq-black);
+  --color-dq-soft-black: var(--dq-soft-black);
+  --color-dq-gold: var(--dq-gold);
+  --color-dq-on-gold: var(--dq-on-gold);
+  --color-dq-cream: var(--dq-cream);
+  --color-dq-muted: var(--dq-muted);
+  --color-dq-border: var(--dq-border);
   --color-paypal-blue: #0070ba;
-  --font-sans: "Pliant", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Pliant", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--dq-font-family);
+  --font-display: var(--dq-font-family);
   --font-weight-thin: 100;
   --font-weight-extralight: 200;
   --font-weight-light: 300;
@@ -187,7 +197,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #f4b000;
+  outline: 2px solid var(--dq-gold);
   outline-offset: -2px;
 }
 
@@ -198,7 +208,7 @@ select:focus-visible,
 [role='combobox']:focus-visible {
   outline: none;
   outline-offset: 0;
-  border-color: #f4b000;
+  border-color: var(--dq-gold);
 }
 
 /* Menu / listbox items: highlight only, no ring (overflow clips outer outlines). */

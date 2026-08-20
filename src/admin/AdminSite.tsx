@@ -1,11 +1,25 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Database } from '#/integrations/supabase/database.types'
 import { getSupabase } from '#/integrations/supabase/client'
-import { DEFAULT_FAVICON, DEFAULT_LOGO_DARK, DEFAULT_LOGO_LIGHT } from '#/lib/site/branding'
+import {
+  DEFAULT_BRAND_COLORS,
+  DEFAULT_FAVICON,
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_LOGO_DARK,
+  DEFAULT_LOGO_LIGHT,
+  ON_GOLD_PRESETS,
+  applyBrandTheme,
+  cssFontFamilyStack,
+  hasReadableContrast,
+  resolveBrandTheme,
+  resolveHexColor,
+} from '#/lib/site/branding'
 import { useCms } from '#/contexts/CmsContext'
 import { useAdminPageHeader } from './AdminPageContext'
 import { cn } from '#/lib/utils'
 import { ImageUploadField } from './components/ImageUploadField'
+import { MediaUploadField } from './components/MediaUploadField'
+import { AdminColorField } from './components/AdminColorField'
 import { AdminPaymentsSettings } from './AdminPaymentsSettings'
 
 type NavRow = Database['public']['Tables']['dq_navigation_links']['Row']
@@ -49,6 +63,15 @@ export function AdminSite() {
   const [logoLightUrl, setLogoLightUrl] = useState('')
   const [logoDarkUrl, setLogoDarkUrl] = useState('')
   const [faviconUrl, setFaviconUrl] = useState('')
+  const [primaryColor, setPrimaryColor] = useState<string>(DEFAULT_BRAND_COLORS.gold)
+  const [onGold, setOnGold] = useState<string>(DEFAULT_BRAND_COLORS.onGold)
+  const [colorBlack, setColorBlack] = useState<string>(DEFAULT_BRAND_COLORS.black)
+  const [colorSoftBlack, setColorSoftBlack] = useState<string>(DEFAULT_BRAND_COLORS.softBlack)
+  const [colorCream, setColorCream] = useState<string>(DEFAULT_BRAND_COLORS.cream)
+  const [colorMuted, setColorMuted] = useState<string>(DEFAULT_BRAND_COLORS.muted)
+  const [colorBorder, setColorBorder] = useState<string>(DEFAULT_BRAND_COLORS.border)
+  const [fontFamily, setFontFamily] = useState<string>(DEFAULT_FONT_FAMILY)
+  const [fontFileUrl, setFontFileUrl] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<SettingsTab>('branding')
@@ -73,6 +96,16 @@ export function AdminSite() {
     setLogoLightUrl(settings.logo_light_url ?? '')
     setLogoDarkUrl(settings.logo_dark_url ?? '')
     setFaviconUrl(settings.favicon_url ?? '')
+    const theme = resolveBrandTheme(settings)
+    setPrimaryColor(theme.gold)
+    setOnGold(theme.onGold)
+    setColorBlack(theme.black)
+    setColorSoftBlack(theme.softBlack)
+    setColorCream(theme.cream)
+    setColorMuted(theme.muted)
+    setColorBorder(theme.border)
+    setFontFamily(theme.fontFamily)
+    setFontFileUrl(theme.fontFileUrl)
   }
 
   useEffect(() => {
@@ -92,6 +125,15 @@ export function AdminSite() {
         { key: 'logo_light_url', value: logoLightUrl.trim() },
         { key: 'logo_dark_url', value: logoDarkUrl.trim() },
         { key: 'favicon_url', value: faviconUrl.trim() },
+        { key: 'primary_color', value: resolveHexColor(primaryColor, DEFAULT_BRAND_COLORS.gold) },
+        { key: 'primary_foreground', value: resolveHexColor(onGold, DEFAULT_BRAND_COLORS.onGold) },
+        { key: 'color_black', value: resolveHexColor(colorBlack, DEFAULT_BRAND_COLORS.black) },
+        { key: 'color_soft_black', value: resolveHexColor(colorSoftBlack, DEFAULT_BRAND_COLORS.softBlack) },
+        { key: 'color_cream', value: resolveHexColor(colorCream, DEFAULT_BRAND_COLORS.cream) },
+        { key: 'color_muted', value: resolveHexColor(colorMuted, DEFAULT_BRAND_COLORS.muted) },
+        { key: 'color_border', value: resolveHexColor(colorBorder, DEFAULT_BRAND_COLORS.border) },
+        { key: 'font_family', value: fontFamily.trim() || DEFAULT_FONT_FAMILY },
+        { key: 'font_file_url', value: fontFileUrl.trim() },
       ],
       { onConflict: 'key' },
     )
@@ -109,7 +151,38 @@ export function AdminSite() {
       return
     }
     await refetch()
-  }, [footer, socialLinks, appStoreUrl, playStoreUrl, logoLightUrl, logoDarkUrl, faviconUrl, refetch])
+    applyBrandTheme(
+      resolveBrandTheme({
+        primary_color: primaryColor,
+        primary_foreground: onGold,
+        color_black: colorBlack,
+        color_soft_black: colorSoftBlack,
+        color_cream: colorCream,
+        color_muted: colorMuted,
+        color_border: colorBorder,
+        font_family: fontFamily,
+        font_file_url: fontFileUrl,
+      }),
+    )
+  }, [
+    footer,
+    socialLinks,
+    appStoreUrl,
+    playStoreUrl,
+    logoLightUrl,
+    logoDarkUrl,
+    faviconUrl,
+    primaryColor,
+    onGold,
+    colorBlack,
+    colorSoftBlack,
+    colorCream,
+    colorMuted,
+    colorBorder,
+    fontFamily,
+    fontFileUrl,
+    refetch,
+  ])
 
   const headerActions = useMemo(
     () =>
@@ -119,7 +192,7 @@ export function AdminSite() {
 
   useAdminPageHeader({
     title: 'Settings',
-    description: 'Branding, payments, email, footer contact, social links, and app download URLs.',
+    description: 'Branding (logos, colors, font), payments, email, footer contact, social links, and app download URLs.',
     actions: headerActions,
   })
 
@@ -169,7 +242,7 @@ export function AdminSite() {
           {activeTab === 'branding' ? (
             <>
               <p className="admin-muted text-sm">
-                Upload a logo for light and dark backgrounds, plus a favicon. Leave empty to use the built-in defaults.
+                Upload logos, set brand colors and font, plus a favicon. Leave logo fields empty to use the built-in defaults.
               </p>
               <div className="grid grid-cols-1 gap-4">
                 <ImageUploadField
@@ -195,6 +268,133 @@ export function AdminSite() {
               <p className="admin-muted text-xs">
                 Defaults: {DEFAULT_LOGO_LIGHT}, {DEFAULT_LOGO_DARK}, {DEFAULT_FAVICON}
               </p>
+
+              <div className="border-t border-[#e5e5e5] pt-4">
+                <h2 className="text-sm font-semibold text-dq-black">Brand colors</h2>
+                <p className="admin-muted mt-1 text-sm">
+                  These drive the live site tokens (gold buttons, cream surfaces, borders) and admin chrome.
+                </p>
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <AdminColorField
+                    label="Gold / primary"
+                    value={primaryColor}
+                    fallback={DEFAULT_BRAND_COLORS.gold}
+                    onChange={setPrimaryColor}
+                  />
+                  <div className="space-y-2">
+                    <AdminColorField
+                      label="Text on gold (CTA)"
+                      value={onGold}
+                      fallback={DEFAULT_BRAND_COLORS.onGold}
+                      onChange={setOnGold}
+                    />
+                    <p className="admin-muted text-xs">Used on Donate / gold buttons, badges, and play icons.</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="admin-btn-secondary"
+                        onClick={() => setOnGold(ON_GOLD_PRESETS.black)}
+                      >
+                        Black
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-btn-secondary"
+                        onClick={() => setOnGold(ON_GOLD_PRESETS.white)}
+                      >
+                        White
+                      </button>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-[#e5e5e5] bg-white p-4 sm:col-span-2 lg:col-span-1">
+                    <p className="admin-muted mb-3 text-xs uppercase tracking-wide">CTA preview</p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span
+                        className="type-label inline-flex h-11 items-center rounded-full px-6"
+                        style={{ backgroundColor: primaryColor, color: onGold }}
+                      >
+                        Donate now
+                      </span>
+                      <span
+                        className="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tabular-nums"
+                        style={{ backgroundColor: primaryColor, color: onGold }}
+                      >
+                        3
+                      </span>
+                    </div>
+                    {!hasReadableContrast(primaryColor, onGold) ? (
+                      <p className="mt-3 text-xs text-amber-700">
+                        Low contrast — consider white or a lighter text color so the CTA stays readable.
+                      </p>
+                    ) : null}
+                  </div>
+                  <AdminColorField
+                    label="Black"
+                    value={colorBlack}
+                    fallback={DEFAULT_BRAND_COLORS.black}
+                    onChange={setColorBlack}
+                  />
+                  <AdminColorField
+                    label="Soft black"
+                    value={colorSoftBlack}
+                    fallback={DEFAULT_BRAND_COLORS.softBlack}
+                    onChange={setColorSoftBlack}
+                  />
+                  <AdminColorField
+                    label="Cream"
+                    value={colorCream}
+                    fallback={DEFAULT_BRAND_COLORS.cream}
+                    onChange={setColorCream}
+                  />
+                  <AdminColorField
+                    label="Muted"
+                    value={colorMuted}
+                    fallback={DEFAULT_BRAND_COLORS.muted}
+                    onChange={setColorMuted}
+                  />
+                  <AdminColorField
+                    label="Border"
+                    value={colorBorder}
+                    fallback={DEFAULT_BRAND_COLORS.border}
+                    onChange={setColorBorder}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-[#e5e5e5] pt-4">
+                <h2 className="text-sm font-semibold text-dq-black">Brand font</h2>
+                <p className="admin-muted mt-1 text-sm">
+                  Enter a Google Font family, or upload a custom file to override Google Fonts.
+                </p>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <FieldLabel>Font family</FieldLabel>
+                    <input
+                      className="admin-input"
+                      value={fontFamily}
+                      onChange={(e) => setFontFamily(e.target.value)}
+                      placeholder={DEFAULT_FONT_FAMILY}
+                    />
+                  </div>
+                  <MediaUploadField
+                    label="Custom font file (optional)"
+                    value={fontFileUrl}
+                    onChange={setFontFileUrl}
+                    folder="branding/fonts"
+                    accept="font/woff2,font/woff,font/ttf,font/otf,.woff2,.woff,.ttf,.otf"
+                    hint="Leave empty to load the family from Google Fonts. Upload a .woff2, .woff, .ttf, or .otf file to use a custom face."
+                  />
+                  <div className="rounded-xl border border-[#e5e5e5] bg-white p-4">
+                    <p className="admin-muted mb-2 text-xs uppercase tracking-wide">Preview</p>
+                    <p
+                      className="text-2xl font-light tracking-tight text-dq-black"
+                      style={{ fontFamily: cssFontFamilyStack(fontFamily || DEFAULT_FONT_FAMILY) }}
+                    >
+                      Donate Quran — Faith. Knowledge. Impact.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </>
           ) : null}
 

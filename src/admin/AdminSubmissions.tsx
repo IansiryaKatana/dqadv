@@ -190,12 +190,20 @@ export function AdminSubmissions() {
 
   const composePreviewHtml = useMemo(() => {
     if (!selected || !replyBody.trim()) return null
-    return formReplyHtml({
-      recipientName: selected.name?.trim() || 'there',
-      body: replyBody.trim(),
-      originalMessage: selected.message,
-      formType: selected.form_type,
-    })
+    return formReplyHtml(
+      {
+        recipientName: selected.name?.trim() || 'there',
+        body: replyBody.trim(),
+        originalMessage: selected.message,
+        formType: selected.form_type,
+      },
+      {
+        gold:
+          typeof document === 'undefined'
+            ? undefined
+            : getComputedStyle(document.documentElement).getPropertyValue('--dq-gold').trim() || undefined,
+      },
+    )
   }, [selected, replyBody])
 
   async function handleReply() {

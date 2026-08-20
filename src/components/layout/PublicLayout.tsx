@@ -15,7 +15,7 @@ export function PublicLayout({ data, children }: PublicLayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <BrandingHead faviconUrl={siteSettings.favicon_url} />
+      <BrandingHead faviconUrl={siteSettings.favicon_url} siteSettings={siteSettings} />
       <Header
         links={data.navigation}
         appStoreUrl={siteSettings.app_store_url}

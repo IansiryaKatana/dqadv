@@ -68,7 +68,7 @@ export function AdminSelect({
               >
                 <span className="absolute left-2 flex size-4 items-center justify-center">
                   <SelectPrimitive.ItemIndicator>
-                    <Check className="size-3.5 text-[#f4b000]" />
+                    <Check className="size-3.5 text-dq-gold" />
                   </SelectPrimitive.ItemIndicator>
                 </span>
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>

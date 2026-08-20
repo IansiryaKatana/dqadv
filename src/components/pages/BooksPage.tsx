@@ -65,7 +65,7 @@ function CategoryNav({
             onClick={() => onSelect(cat.name)}
             className={cn(
               'type-label flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors',
-              active ? 'bg-dq-gold text-dq-black' : 'text-dq-black hover:bg-dq-cream',
+              active ? 'bg-dq-gold text-dq-on-gold' : 'text-dq-black hover:bg-dq-cream',
             )}
           >
             <span className={cn(!active && 'normal-case tracking-normal')}>{cat.name}</span>

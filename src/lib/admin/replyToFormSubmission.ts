@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { verifySubmissionsAccess } from '#/lib/admin/verifyAdminAccess'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { getResendClient } from '#/lib/email/resendClient'
+import { loadEmailBrandGold } from '#/lib/email/brandColors'
 import { formReplyHtml } from '#/lib/email/templates'
 
 type ReplyInput = {
@@ -51,7 +52,7 @@ export const replyToFormSubmission = createServerFn({ method: 'POST' })
       body,
       originalMessage: submission.message,
       formType: submission.form_type,
-    })
+    }, { gold: await loadEmailBrandGold() })
 
     const { data: sent, error: sendError } = await client.emails.send({
       from,

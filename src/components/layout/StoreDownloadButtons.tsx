@@ -68,7 +68,7 @@ export function StoreDownloadButtons({
         target="_blank"
         rel="noreferrer"
         className={cn(
-          'inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-dq-gold bg-dq-gold px-4 text-dq-black transition-colors hover:border-dq-black hover:bg-dq-black hover:text-white',
+          'inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-dq-gold bg-dq-gold px-4 text-dq-on-gold transition-colors hover:border-dq-black hover:bg-dq-black hover:text-white',
           className,
         )}
         aria-label="Get it on Google Play"

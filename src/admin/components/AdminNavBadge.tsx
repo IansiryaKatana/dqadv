@@ -11,7 +11,7 @@ export function AdminNavBadge({ count, className }: AdminNavBadgeProps) {
   return (
     <span
       className={cn(
-        'ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-dq-gold px-1.5 text-[10px] font-semibold tabular-nums text-dq-black',
+        'ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-dq-gold px-1.5 text-[10px] font-semibold tabular-nums text-dq-on-gold',
         className,
       )}
       aria-label={`${count} new`}

@@ -1,10 +1,15 @@
 import type { GiftCartItem } from '#/lib/commerce/types'
+import { DEFAULT_BRAND_COLORS, resolveHexColor } from '#/lib/site/branding'
 import {
   DISTRIBUTOR_FIELD_LABELS,
   DISTRIBUTOR_SECTIONS,
   FREE_QURAN_FIELD_LABELS,
   FREE_QURAN_SECTIONS,
 } from '#/lib/forms/submissionFields'
+
+export type EmailBrand = {
+  gold?: string
+}
 
 type DonationEmailData = {
   reference: string
@@ -26,10 +31,13 @@ type DonationEmailData = {
   } | null
 }
 
-const GOLD = '#c9a227'
 const CREAM = '#f7f3ea'
 const INK = '#111111'
 const MUTED = '#6b6558'
+
+function brandGold(gold?: string) {
+  return resolveHexColor(gold, DEFAULT_BRAND_COLORS.gold)
+}
 
 function escapeHtml(value: string) {
   return value
@@ -71,8 +79,9 @@ function kvRows(rows: { label: string; value: string; href?: string }[]) {
   </table>`
 }
 
-function section(title: string, inner: string) {
+function section(title: string, inner: string, gold?: string) {
   if (!inner) return ''
+  const GOLD = brandGold(gold)
   return `<div style="margin:0 0 22px;">
     <p style="margin:0 0 10px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:${GOLD};">${escapeHtml(title)}</p>
     ${inner}
@@ -85,7 +94,9 @@ function brandedEmail(data: {
   intro?: string
   body: string
   footer?: string
+  gold?: string
 }) {
+  const GOLD = brandGold(data.gold)
   const intro = data.intro
     ? `<p style="margin:0 0 24px;color:${MUTED};font-size:16px;line-height:1.6;">${data.intro}</p>`
     : ''
@@ -159,15 +170,17 @@ export function formTypeTitle(formType: string) {
   return 'New contact message'
 }
 
-export function donationReceiptHtml(data: DonationEmailData) {
+export function donationReceiptHtml(data: DonationEmailData, brand?: EmailBrand) {
+  const gold = brand?.gold
   const dedication = data.dedication?.trim()
-    ? section('Dedication', `<p style="margin:0;color:${INK};font-size:16px;line-height:1.6;font-style:italic;">${escapeHtml(data.dedication.trim())}</p>`)
+    ? section('Dedication', `<p style="margin:0;color:${INK};font-size:16px;line-height:1.6;font-style:italic;">${escapeHtml(data.dedication.trim())}</p>`, gold)
     : ''
 
   const body = `
     ${section(
       'Gift reference',
       `<p style="margin:0;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:${INK};">${escapeHtml(data.reference)}</p>`,
+      gold,
     )}
     ${dedication}
     ${section(
@@ -179,6 +192,7 @@ export function donationReceiptHtml(data: DonationEmailData) {
           <td style="padding:14px 0 0;text-align:right;font-weight:600;color:${INK};">${formatMoney(data.total, data.currency)}</td>
         </tr>
       </table>`,
+      gold,
     )}
   `
 
@@ -188,10 +202,12 @@ export function donationReceiptHtml(data: DonationEmailData) {
     intro: `JazakAllah khair, ${escapeHtml(data.donorName)}. Thank you for your generous donation.`,
     body,
     footer: 'Keep this receipt for your records. If you have questions, reply to this email or contact us through the website.',
+    gold,
   })
 }
 
-export function adminNewDonationHtml(data: DonationEmailData) {
+export function adminNewDonationHtml(data: DonationEmailData, brand?: EmailBrand) {
+  const gold = brand?.gold
   const shipping = formatShipping(data.shippingAddress)
   const body = `
     ${section(
@@ -201,6 +217,7 @@ export function adminNewDonationHtml(data: DonationEmailData) {
         { label: 'Total', value: formatMoney(data.total, data.currency) },
         { label: 'Payment', value: data.paymentProvider ? data.paymentProvider : '' },
       ]),
+      gold,
     )}
     ${section(
       'Donor',
@@ -209,6 +226,7 @@ export function adminNewDonationHtml(data: DonationEmailData) {
         { label: 'Email', value: data.donorEmail ?? '', href: data.donorEmail ? `mailto:${data.donorEmail}` : undefined },
         { label: 'Phone', value: data.donorPhone ?? '' },
       ]),
+      gold,
     )}
     ${section(
       'Items',
@@ -219,9 +237,10 @@ export function adminNewDonationHtml(data: DonationEmailData) {
           <td style="padding:14px 0 0;text-align:right;font-weight:600;color:${INK};">${formatMoney(data.total, data.currency)}</td>
         </tr>
       </table>`,
+      gold,
     )}
-    ${data.dedication?.trim() ? section('Dedication', `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;font-style:italic;">${escapeHtml(data.dedication.trim())}</p>`) : ''}
-    ${shipping ? section('Delivery address', `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(shipping)}</p>`) : ''}
+    ${data.dedication?.trim() ? section('Dedication', `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;font-style:italic;">${escapeHtml(data.dedication.trim())}</p>`, gold) : ''}
+    ${shipping ? section('Delivery address', `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(shipping)}</p>`, gold) : ''}
   `
 
   return brandedEmail({
@@ -230,6 +249,7 @@ export function adminNewDonationHtml(data: DonationEmailData) {
     intro: `${escapeHtml(data.donorName)} completed a gift of ${escapeHtml(formatMoney(data.total, data.currency))}.`,
     body,
     footer: 'Review and fulfil this gift in Admin → Donations.',
+    gold,
   })
 }
 
@@ -238,6 +258,7 @@ function sectionFromPayload(
   keys: string[],
   labels: Record<string, string>,
   payload: Record<string, unknown>,
+  gold?: string,
 ) {
   return section(
     title,
@@ -248,27 +269,32 @@ function sectionFromPayload(
         href: key === 'email' && payloadText(payload, key) ? `mailto:${payloadText(payload, key)}` : undefined,
       })),
     ),
+    gold,
   )
 }
 
-export function adminNewSubmissionHtml(data: {
-  formType: string
-  name: string
-  email: string
-  phone?: string | null
-  message?: string | null
-  payload?: Record<string, unknown>
-}) {
+export function adminNewSubmissionHtml(
+  data: {
+    formType: string
+    name: string
+    email: string
+    phone?: string | null
+    message?: string | null
+    payload?: Record<string, unknown>
+  },
+  brand?: EmailBrand,
+) {
+  const gold = brand?.gold
   const payload = data.payload ?? {}
   let details = ''
 
   if (data.formType === 'free_quran') {
     details = FREE_QURAN_SECTIONS.map((block) =>
-      sectionFromPayload(block.title, block.keys, FREE_QURAN_FIELD_LABELS, payload),
+      sectionFromPayload(block.title, block.keys, FREE_QURAN_FIELD_LABELS, payload, gold),
     ).join('')
   } else if (data.formType === 'distributor') {
     details = DISTRIBUTOR_SECTIONS.map((block) =>
-      sectionFromPayload(block.title, block.keys, DISTRIBUTOR_FIELD_LABELS, payload),
+      sectionFromPayload(block.title, block.keys, DISTRIBUTOR_FIELD_LABELS, payload, gold),
     ).join('')
   } else {
     details = `
@@ -279,11 +305,13 @@ export function adminNewSubmissionHtml(data: {
           { label: 'Email', value: data.email, href: `mailto:${data.email}` },
           { label: 'Phone', value: data.phone ?? '' },
         ]),
+        gold,
       )}
       ${data.message?.trim()
         ? section(
             'Message',
             `<p style="margin:0;color:${INK};font-size:16px;line-height:1.65;white-space:pre-wrap;">${escapeHtml(data.message.trim())}</p>`,
+            gold,
           )
         : ''}
     `
@@ -295,15 +323,20 @@ export function adminNewSubmissionHtml(data: {
     intro: `${escapeHtml(data.name)} submitted a ${escapeHtml(formTypeLabel(data.formType))}. Reply directly to this email to reach them.`,
     body: details,
     footer: 'Review and reply in Admin → Submissions.',
+    gold,
   })
 }
 
-export function formReplyHtml(data: {
-  recipientName: string
-  body: string
-  originalMessage?: string | null
-  formType: string
-}) {
+export function formReplyHtml(
+  data: {
+    recipientName: string
+    body: string
+    originalMessage?: string | null
+    formType: string
+  },
+  brand?: EmailBrand,
+) {
+  const gold = brand?.gold
   const paragraphs = escapeHtml(data.body)
     .split(/\n{2,}/)
     .map((block) => `<p style="margin:0 0 16px;color:#333;line-height:1.6;">${block.replaceAll('\n', '<br/>')}</p>`)
@@ -313,6 +346,7 @@ export function formReplyHtml(data: {
     ? section(
         'Your message',
         `<p style="margin:0;color:${MUTED};line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.originalMessage)}</p>`,
+        gold,
       )
     : ''
 
@@ -322,10 +356,12 @@ export function formReplyHtml(data: {
     intro: `Assalamu alaikum, ${escapeHtml(data.recipientName)},`,
     body: `${paragraphs}${original}`,
     footer: 'You can reply directly to this email.',
+    gold,
   })
 }
 
-export function testEmailHtml() {
+export function testEmailHtml(brand?: EmailBrand) {
+  const gold = brand?.gold
   return brandedEmail({
     eyebrow: 'Email test',
     title: 'Your email integration is working',
@@ -333,6 +369,8 @@ export function testEmailHtml() {
     body: section(
       'Next step',
       `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;">Keep the admin notification address set so new gifts and form submissions reach the office.</p>`,
+      gold,
     ),
+    gold,
   })
 }

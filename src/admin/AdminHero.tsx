@@ -5,6 +5,7 @@ import { useCms } from '#/contexts/CmsContext'
 import { useAdminPageHeader } from './AdminPageContext'
 import { AdminModal } from './components/AdminModal'
 import { ImageUploadField } from './components/ImageUploadField'
+import { AdminColorField } from './components/AdminColorField'
 import { adminTable, adminTableWrap, adminTd, adminTh } from './adminClassNames'
 
 type Row = Database['public']['Tables']['dq_hero_content']['Row']
@@ -152,23 +153,14 @@ export function AdminHero() {
             value={inside.image_url ?? ''}
             onChange={(v) => setInside({ ...inside, image_url: v })}
           />
-          <label className="block max-w-xs space-y-2">
-            <span className="admin-label">Background color</span>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                className="h-10 w-14 cursor-pointer rounded border border-[#e5e5e5] bg-white p-1"
-                value={inside.background_color || '#FAF7F1'}
-                onChange={(e) => setInside({ ...inside, background_color: e.target.value })}
-              />
-              <input
-                className="admin-input flex-1"
-                value={inside.background_color ?? ''}
-                placeholder="#FAF7F1"
-                onChange={(e) => setInside({ ...inside, background_color: e.target.value })}
-              />
-            </div>
-          </label>
+          <div className="max-w-xs">
+            <AdminColorField
+              label="Background color"
+              value={inside.background_color ?? ''}
+              fallback="#FAF7F1"
+              onChange={(value) => setInside({ ...inside, background_color: value })}
+            />
+          </div>
           {insideErr ? <p className="text-sm text-red-400">{insideErr}</p> : null}
           <button type="button" className="admin-btn-primary" disabled={insideBusy} onClick={() => void saveInsideBackground()}>
             {insideBusy ? 'Saving…' : 'Save What\'s Inside background'}

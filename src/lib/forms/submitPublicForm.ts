@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { getResendClient } from '#/lib/email/resendClient'
+import { loadEmailBrandGold } from '#/lib/email/brandColors'
 import { adminNewSubmissionHtml, formTypeTitle } from '#/lib/email/templates'
 
 export type PublicFormType = 'contact' | 'free_quran' | 'distributor'
@@ -53,7 +54,7 @@ async function notifyAdminNewSubmission(input: {
     ? `${config.emailFromName} <${config.emailFromAddress}>`
     : config.emailFromAddress
   const subject = `${formTypeTitle(input.formType)} — ${input.name}`
-  const html = adminNewSubmissionHtml(input)
+  const html = adminNewSubmissionHtml(input, { gold: await loadEmailBrandGold() })
   const admin = getSupabaseAdmin()
 
   try {

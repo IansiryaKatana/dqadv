@@ -8,7 +8,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        gold: 'bg-dq-gold text-dq-black hover:-translate-y-0.5 hover:shadow-md',
+        gold: 'bg-dq-gold text-dq-on-gold hover:-translate-y-0.5 hover:shadow-md',
         black: 'bg-dq-black text-white hover:-translate-y-0.5 hover:bg-dq-soft-black hover:shadow-md',
         ghost: 'bg-transparent text-dq-black hover:bg-dq-cream',
         link: 'type-body rounded-none bg-transparent p-0 normal-case tracking-normal text-dq-gold hover:underline',

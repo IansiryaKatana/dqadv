@@ -2,6 +2,8 @@ import { Link, Navigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { AdminInboxProvider } from '#/admin/AdminInboxContext'
+import { isSafeAdminReturnPath, stashAdminReturnPath } from '#/lib/admin/adminReturnPath'
+import { AdminBrandingHead } from './AdminBrandingHead'
 import { AdminShell } from './AdminShell'
 
 export function AdminLayout() {
@@ -9,6 +11,18 @@ export function AdminLayout() {
     <AdminInboxProvider>
       <AdminLayoutInner />
     </AdminInboxProvider>
+  )
+}
+
+function RedirectToAdminLogin({ pathname }: { pathname: string }) {
+  stashAdminReturnPath(pathname)
+
+  return (
+    <Navigate
+      to="/backend/login"
+      search={{ redirect: isSafeAdminReturnPath(pathname) ? pathname : undefined }}
+      replace
+    />
   )
 }
 
@@ -21,25 +35,31 @@ function AdminLayoutInner() {
     pathname === '/backend/forgot-password' ||
     pathname === '/backend/reset-password'
   const [mounted, setMounted] = useState(false)
+  const [shellReady, setShellReady] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (isPublicAdminRoute) {
-    return <Outlet />
-  }
+  useEffect(() => {
+    if (session && adminProfile?.is_active) {
+      setShellReady(true)
+      return
+    }
+    if (!loading && !session) setShellReady(false)
+  }, [session, adminProfile?.is_active, loading])
 
-  if (!mounted) {
-    return (
+  let body
+  if (isPublicAdminRoute) {
+    body = <Outlet />
+  } else if (!mounted) {
+    body = (
       <div className="flex min-h-screen items-center justify-center bg-dq-black text-white">
         Loading…
       </div>
     )
-  }
-
-  if (!configured) {
-    return (
+  } else if (!configured) {
+    body = (
       <div className="flex min-h-screen items-center justify-center bg-dq-black p-6 text-center text-white">
         <div>
           <h1 className="text-2xl font-bold">Supabase not configured</h1>
@@ -47,18 +67,23 @@ function AdminLayoutInner() {
         </div>
       </div>
     )
-  }
-
-  if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-dq-black text-white">Loading session…</div>
-  }
-
-  if (!session) {
-    return <Navigate to="/backend/login" search={{ redirect: pathname }} replace />
-  }
-
-  if (!adminProfile?.is_active) {
-    return (
+  } else if (shellReady && session && adminProfile?.is_active) {
+    body = (
+      <div className="relative h-screen">
+        <AdminShell />
+        {loading ? (
+          <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-dq-black/50 text-white">
+            Loading session…
+          </div>
+        ) : null}
+      </div>
+    )
+  } else if (loading) {
+    body = <div className="flex min-h-screen items-center justify-center bg-dq-black text-white">Loading session…</div>
+  } else if (!session) {
+    body = <RedirectToAdminLogin pathname={pathname} />
+  } else if (!adminProfile?.is_active) {
+    body = (
       <div className="flex min-h-screen items-center justify-center bg-dq-black p-6 text-center text-white">
         <div className="max-w-md space-y-4">
           <h1 className="text-2xl font-bold">Admin access required</h1>
@@ -90,7 +115,14 @@ function AdminLayoutInner() {
         </div>
       </div>
     )
+  } else {
+    body = <AdminShell />
   }
 
-  return <AdminShell />
+  return (
+    <>
+      <AdminBrandingHead />
+      {body}
+    </>
+  )
 }

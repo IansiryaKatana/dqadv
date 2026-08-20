@@ -21,7 +21,7 @@ export function GiftCartButton({ className }: GiftCartButtonProps) {
     >
       <ShoppingBag className="h-4 w-4" />
       {itemCount > 0 ? (
-        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-dq-gold px-1 text-[10px] font-light text-dq-black">
+        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-dq-gold px-1 text-[10px] font-light text-dq-on-gold">
           {itemCount > 99 ? '99+' : itemCount}
         </span>
       ) : null}

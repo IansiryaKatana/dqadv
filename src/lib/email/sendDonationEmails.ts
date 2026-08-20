@@ -1,6 +1,7 @@
 import type { GiftCartItem } from '#/lib/commerce/types'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { getResendClient } from './resendClient'
+import { loadEmailBrandGold } from './brandColors'
 import { adminNewDonationHtml, donationReceiptHtml, testEmailHtml } from './templates'
 
 type DonationRow = {
@@ -80,6 +81,7 @@ export async function sendDonationEmails(donation: DonationRow) {
   if (!from || !config.emailFromAddress) return
 
   const items = parseItems(donation.cart_snapshot)
+  const brand = { gold: await loadEmailBrandGold() }
   const payload = {
     reference: donation.reference,
     donorName: donation.donor_name,
@@ -100,7 +102,7 @@ export async function sendDonationEmails(donation: DonationRow) {
       from,
       to: donation.donor_email,
       subject: `Your gift is complete — ${donation.reference}`,
-      html: donationReceiptHtml(payload),
+      html: donationReceiptHtml(payload, brand),
     })
     await logEmail(
       donation.id,
@@ -129,7 +131,7 @@ export async function sendDonationEmails(donation: DonationRow) {
         to: config.emailAdminNotify,
         replyTo: donation.donor_email,
         subject: `New gift — ${donation.reference}`,
-        html: adminNewDonationHtml(payload),
+        html: adminNewDonationHtml(payload, brand),
       })
       await logEmail(
         donation.id,
@@ -184,7 +186,7 @@ export async function sendTestEmail(to: string) {
     from,
     to,
     subject: 'Donate Quran — test email',
-    html: testEmailHtml(),
+    html: testEmailHtml({ gold: await loadEmailBrandGold() }),
   })
 
   if (error) throw new Error(error.message)

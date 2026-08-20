@@ -1,12 +1,20 @@
 import { useEffect } from 'react'
-import { resolveFavicon } from '#/lib/site/branding'
+import {
+  applyBrandTheme,
+  resolveBrandTheme,
+  resolveFavicon,
+  type BrandTheme,
+} from '#/lib/site/branding'
 
 type BrandingHeadProps = {
   faviconUrl?: string
+  siteSettings?: Record<string, string>
 }
 
-export function BrandingHead({ faviconUrl }: BrandingHeadProps) {
-  const href = resolveFavicon(faviconUrl)
+export function BrandingHead({ faviconUrl, siteSettings }: BrandingHeadProps) {
+  const href = resolveFavicon(faviconUrl ?? siteSettings?.favicon_url)
+  const theme = resolveBrandTheme(siteSettings)
+  const themeKey = brandThemeKey(theme)
 
   useEffect(() => {
     let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']")
@@ -27,5 +35,23 @@ export function BrandingHead({ faviconUrl }: BrandingHeadProps) {
     }
   }, [href])
 
+  useEffect(() => {
+    applyBrandTheme(resolveBrandTheme(siteSettings))
+  }, [themeKey, siteSettings])
+
   return null
+}
+
+function brandThemeKey(theme: BrandTheme) {
+  return [
+    theme.gold,
+    theme.onGold,
+    theme.black,
+    theme.softBlack,
+    theme.cream,
+    theme.muted,
+    theme.border,
+    theme.fontFamily,
+    theme.fontFileUrl,
+  ].join('|')
 }

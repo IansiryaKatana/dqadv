@@ -14,7 +14,7 @@ export function Logo({ className, variant = 'light', lightSrc, darkSrc }: LogoPr
 
   return (
     <Link to="/" className={cn('inline-flex shrink-0', className)} aria-label="Donate Qur'an home">
-      <img src={src} alt="Donate Quran" className="h-9 w-auto md:h-10" width={80} height={40} />
+      <img src={src} alt="Donate Quran" className="h-9 w-auto max-w-full object-contain object-left md:h-10" width={80} height={40} />
     </Link>
   )
 }

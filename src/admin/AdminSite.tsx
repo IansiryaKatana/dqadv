@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Database } from '#/integrations/supabase/database.types'
 import { getSupabase } from '#/integrations/supabase/client'
 import {
@@ -8,9 +8,9 @@ import {
   DEFAULT_LOGO_DARK,
   DEFAULT_LOGO_LIGHT,
   ON_GOLD_PRESETS,
-  applyBrandTheme,
   cssFontFamilyStack,
   hasReadableContrast,
+  publishBrandSettings,
   resolveBrandTheme,
   resolveHexColor,
 } from '#/lib/site/branding'
@@ -63,15 +63,18 @@ export function AdminSite({ tab }: { tab: SettingsSiteTab }) {
   const [fontFileUrl, setFontFileUrl] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const loadId = useRef(0)
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     const sb = getSupabase()
     if (!sb) return
+    const id = ++loadId.current
     const [navRes, footerRes, settingsRes] = await Promise.all([
       sb.from('dq_navigation_links').select('*').order('sort_order'),
       sb.from('dq_footer_settings').select('*').limit(1).maybeSingle(),
       sb.from('dq_site_settings').select('*'),
     ])
+    if (id !== loadId.current) return
     if (navRes.error) setErr(navRes.error.message)
     setNav(navRes.data ?? [])
     if (footerRes.data) {
@@ -94,35 +97,38 @@ export function AdminSite({ tab }: { tab: SettingsSiteTab }) {
     setColorBorder(theme.border)
     setFontFamily(theme.fontFamily)
     setFontFileUrl(theme.fontFileUrl)
-  }
+  }, [])
 
   useEffect(() => {
     void refresh()
-  }, [])
+  }, [refresh])
 
   const saveAll = useCallback(async () => {
     const sb = getSupabase()
     if (!sb) return
     setSaving(true)
     setErr(null)
+    loadId.current += 1
+
+    const savedSettings = {
+      app_store_url: appStoreUrl.trim(),
+      play_store_url: playStoreUrl.trim(),
+      logo_light_url: logoLightUrl.trim(),
+      logo_dark_url: logoDarkUrl.trim(),
+      favicon_url: faviconUrl.trim(),
+      primary_color: resolveHexColor(primaryColor, DEFAULT_BRAND_COLORS.gold),
+      primary_foreground: resolveHexColor(onGold, DEFAULT_BRAND_COLORS.onGold),
+      color_black: resolveHexColor(colorBlack, DEFAULT_BRAND_COLORS.black),
+      color_soft_black: resolveHexColor(colorSoftBlack, DEFAULT_BRAND_COLORS.softBlack),
+      color_cream: resolveHexColor(colorCream, DEFAULT_BRAND_COLORS.cream),
+      color_muted: resolveHexColor(colorMuted, DEFAULT_BRAND_COLORS.muted),
+      color_border: resolveHexColor(colorBorder, DEFAULT_BRAND_COLORS.border),
+      font_family: fontFamily.trim() || DEFAULT_FONT_FAMILY,
+      font_file_url: fontFileUrl.trim(),
+    }
 
     const settingsRes = await sb.from('dq_site_settings').upsert(
-      [
-        { key: 'app_store_url', value: appStoreUrl.trim() },
-        { key: 'play_store_url', value: playStoreUrl.trim() },
-        { key: 'logo_light_url', value: logoLightUrl.trim() },
-        { key: 'logo_dark_url', value: logoDarkUrl.trim() },
-        { key: 'favicon_url', value: faviconUrl.trim() },
-        { key: 'primary_color', value: resolveHexColor(primaryColor, DEFAULT_BRAND_COLORS.gold) },
-        { key: 'primary_foreground', value: resolveHexColor(onGold, DEFAULT_BRAND_COLORS.onGold) },
-        { key: 'color_black', value: resolveHexColor(colorBlack, DEFAULT_BRAND_COLORS.black) },
-        { key: 'color_soft_black', value: resolveHexColor(colorSoftBlack, DEFAULT_BRAND_COLORS.softBlack) },
-        { key: 'color_cream', value: resolveHexColor(colorCream, DEFAULT_BRAND_COLORS.cream) },
-        { key: 'color_muted', value: resolveHexColor(colorMuted, DEFAULT_BRAND_COLORS.muted) },
-        { key: 'color_border', value: resolveHexColor(colorBorder, DEFAULT_BRAND_COLORS.border) },
-        { key: 'font_family', value: fontFamily.trim() || DEFAULT_FONT_FAMILY },
-        { key: 'font_file_url', value: fontFileUrl.trim() },
-      ],
+      Object.entries(savedSettings).map(([key, value]) => ({ key, value })),
       { onConflict: 'key' },
     )
 
@@ -139,19 +145,7 @@ export function AdminSite({ tab }: { tab: SettingsSiteTab }) {
       return
     }
     await refetch()
-    applyBrandTheme(
-      resolveBrandTheme({
-        primary_color: primaryColor,
-        primary_foreground: onGold,
-        color_black: colorBlack,
-        color_soft_black: colorSoftBlack,
-        color_cream: colorCream,
-        color_muted: colorMuted,
-        color_border: colorBorder,
-        font_family: fontFamily,
-        font_file_url: fontFileUrl,
-      }),
-    )
+    publishBrandSettings(savedSettings)
   }, [
     footer,
     socialLinks,

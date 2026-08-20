@@ -125,6 +125,14 @@ export function applyBrandTheme(theme: BrandTheme) {
   document.head.appendChild(link)
 }
 
+export const BRAND_SETTINGS_EVENT = 'dq-brand-settings'
+
+export function publishBrandSettings(settings: Record<string, string>) {
+  applyBrandTheme(resolveBrandTheme(settings))
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(BRAND_SETTINGS_EVENT, { detail: settings }))
+}
+
 export function contrastRatio(background: string, foreground: string) {
   const bg = relativeLuminance(resolveHexColor(background, DEFAULT_BRAND_COLORS.gold))
   const fg = relativeLuminance(resolveHexColor(foreground, DEFAULT_BRAND_COLORS.onGold))

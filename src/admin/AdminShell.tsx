@@ -5,9 +5,11 @@ import { useAdminAuth } from '#/contexts/AdminAuthContext'
 import { isOfficeAdmin, isOfficeAdminAllowedPath } from '#/lib/admin/adminUserApi'
 import type { AdminInbox } from '#/lib/admin/adminInboxApi'
 import { useAdminInbox } from '#/admin/AdminInboxContext'
+import { Logo } from '#/components/layout/Logo'
 import { AdminPageProvider, useAdminPage } from './AdminPageContext'
 import { AdminNavBadge } from './components/AdminNavBadge'
 import { adminNavLink, adminNavLinkActive } from './adminClassNames'
+import { useAdminBrandSettings } from './useAdminBrandSettings'
 import { cn } from '#/lib/utils'
 import '#/admin/admin-theme.css'
 
@@ -158,6 +160,7 @@ function AdminShellInner() {
   const officeOnly = isOfficeAdmin(adminProfile)
   const navSections = officeOnly ? officeAdminNavSections : cmsNavSections
   const officeNeedsRedirect = officeOnly && !isOfficeAdminAllowedPath(pathname)
+  const brandSettings = useAdminBrandSettings()
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() =>
     initialOpenSections(navSections, pathname),
   )
@@ -194,10 +197,11 @@ function AdminShellInner() {
         )}
       >
         <div className="flex shrink-0 items-center justify-between gap-2 pb-4">
-          <Link to="/" className="flex min-w-0 items-center gap-2.5 text-xl font-extrabold">
-            <img src="/favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-sm object-contain" width={28} height={28} />
-            <span className="truncate text-white">Donate Quran</span>
-          </Link>
+          <Logo
+            variant="dark"
+            darkSrc={brandSettings.logo_dark_url}
+            className="min-w-0 max-w-[11.5rem]"
+          />
           <button type="button" className="md:hidden" onClick={() => setOpen(false)} aria-label="Close sidebar">
             <X className="h-5 w-5" />
           </button>

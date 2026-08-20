@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
 export type AdminPageAction = {
   label: string
@@ -45,16 +45,24 @@ export function useAdminPageHeader({ title, description, actions }: AdminPageMet
   const ctx = useContext(AdminPageContext)
   const setPage = ctx?.setPage
   const resolvedActions = Array.isArray(actions) ? actions : EMPTY_ACTIONS
-  const actionsKey = resolvedActions.map((action) => action.label).join('|')
+  const actionsRef = useRef(resolvedActions)
+  actionsRef.current = resolvedActions
+  const actionsKey = resolvedActions.map((action) => `${action.label}:${action.variant ?? ''}`).join('|')
 
   useLayoutEffect(() => {
     if (!setPage) return
     setPage({
       title,
       description,
-      actions: resolvedActions,
+      actions: actionsRef.current.map((action, index) => ({
+        label: action.label,
+        variant: action.variant,
+        onClick: () => {
+          actionsRef.current[index]?.onClick()
+        },
+      })),
     })
     return () => setPage(null)
-    // actionsKey avoids re-running when `actions` is a new [] reference with the same labels
   }, [title, description, actionsKey, setPage])
 }
+

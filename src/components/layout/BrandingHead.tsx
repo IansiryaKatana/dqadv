@@ -17,21 +17,25 @@ export function BrandingHead({ faviconUrl, siteSettings }: BrandingHeadProps) {
   const themeKey = brandThemeKey(theme)
 
   useEffect(() => {
-    let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']")
-    if (!link) {
-      link = document.createElement('link')
+    const type = href.endsWith('.svg')
+      ? 'image/svg+xml'
+      : href.endsWith('.ico')
+        ? 'image/x-icon'
+        : 'image/png'
+
+    const links = document.querySelectorAll<HTMLLinkElement>("link[rel~='icon']")
+    if (links.length === 0) {
+      const link = document.createElement('link')
       link.rel = 'icon'
       document.head.appendChild(link)
+      link.href = href
+      link.type = type
+      return
     }
 
-    link.href = href
-
-    if (href.endsWith('.svg')) {
-      link.type = 'image/svg+xml'
-    } else if (href.endsWith('.ico')) {
-      link.type = 'image/x-icon'
-    } else {
-      link.type = 'image/png'
+    for (const link of links) {
+      link.href = href
+      link.type = type
     }
   }, [href])
 

@@ -22,7 +22,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '48x48' },
+      { rel: 'icon', type: 'image/png', href: '/favicon.png', sizes: '1080x1080' },
+      { rel: 'icon', type: 'image/png', href: '/logo192.png', sizes: '192x192' },
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
+      { rel: 'manifest', href: '/manifest.json' },
     ],
   }),
   component: RootComponent,

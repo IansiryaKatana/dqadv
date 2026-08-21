@@ -16,6 +16,7 @@ import { formatPrice } from '#/lib/utils'
 import type { TrustBlock } from '#/lib/cms/types'
 import { BankPaymentSection } from '#/components/sections/trust/BankPaymentSection'
 import { PostageFootnote } from '#/components/commerce/PostageFootnote'
+import { CountrySelect } from '#/components/forms/CountrySelect'
 
 type CheckoutPageProps = {
   bankBlock?: TrustBlock
@@ -293,11 +294,10 @@ export function CheckoutPage({ bankBlock, postageNote }: CheckoutPageProps) {
                       onChange={(e) => setPostalCode(e.target.value)}
                       required={needsShipping}
                     />
-                    <input
-                      className={inputClass}
+                    <CountrySelect
                       placeholder="Country *"
                       value={country}
-                      onChange={(e) => setCountry(e.target.value)}
+                      onValueChange={setCountry}
                       required={needsShipping}
                     />
                   </div>

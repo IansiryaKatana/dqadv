@@ -4,6 +4,7 @@ import { submitPublicForm } from '#/lib/forms/submitPublicForm'
 import { Button } from '#/components/ui/button'
 import { formControlClass } from '#/components/ui/form-controls'
 import { FormSelect } from '#/components/ui/select'
+import { CountrySelect } from '#/components/forms/CountrySelect'
 import { cn } from '#/lib/utils'
 
 const STEPS = ['You', 'Location', 'Channel', 'About you'] as const
@@ -272,13 +273,12 @@ export function DistributeForm() {
             />
           </Field>
           <Field label="Country" id="country">
-            <input
+            <CountrySelect
               id="country"
               required
-              placeholder="Country"
-              className={formControlClass}
+              placeholder="Select country"
               value={form.country}
-              onChange={(e) => update('country', e.target.value)}
+              onValueChange={(value) => update('country', value)}
             />
           </Field>
           <Field label="State / Province" id="stateProvince">
@@ -362,13 +362,12 @@ export function DistributeForm() {
           </Field>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <Field label="Which country will you be distributing in?" id="distributingCountry">
-              <input
+              <CountrySelect
                 id="distributingCountry"
                 required
-                placeholder="Country"
-                className={formControlClass}
+                placeholder="Select country"
                 value={form.distributingCountry}
-                onChange={(e) => update('distributingCountry', e.target.value)}
+                onValueChange={(value) => update('distributingCountry', value)}
               />
             </Field>
             <Field label="Which area of the country?" id="distributingArea">

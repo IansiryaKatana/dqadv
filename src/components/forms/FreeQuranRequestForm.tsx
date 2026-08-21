@@ -5,6 +5,7 @@ import { submitPublicForm } from '#/lib/forms/submitPublicForm'
 import { Button } from '#/components/ui/button'
 import { formControlClass } from '#/components/ui/form-controls'
 import { FormSelect } from '#/components/ui/select'
+import { CountrySelect } from '#/components/forms/CountrySelect'
 
 export type FreeQuranRequestPayload = {
   productId: string
@@ -253,11 +254,11 @@ export function FreeQuranRequestForm({
             />
           </Field>
           <Field label="Country" id="freeCountry">
-            <input
+            <CountrySelect
               id="freeCountry"
-              className={formControlClass}
               value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              onValueChange={setCountry}
+              placeholder="Select country"
               required
             />
           </Field>

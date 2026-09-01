@@ -70,7 +70,12 @@ export function Footer({ footer, links, logoLightUrl, logoDarkUrl }: FooterProps
       <div className="border-t border-white/10">
         <Container className="flex flex-col gap-2 py-6 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
           <p>{footer.copyright}</p>
-          {footer.developerCredit ? <p>{footer.developerCredit}</p> : null}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/privacy-policy" className="hover:text-dq-gold">
+              Privacy Policy
+            </Link>
+            {footer.developerCredit ? <p>{footer.developerCredit}</p> : null}
+          </div>
         </Container>
       </div>
     </footer>

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as OrderFreeQuransRouteImport } from './routes/order-free-qurans'
 import { Route as DistributeRouteImport } from './routes/distribute'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -84,6 +85,11 @@ import { Route as BackendCommerceProductsRouteImport } from './routes/backend/co
 import { Route as BackendCommerceDonationsRouteImport } from './routes/backend/commerce/donations'
 import { Route as AccountOrdersReferenceRouteImport } from './routes/account/orders/$reference'
 
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrderFreeQuransRoute = OrderFreeQuransRouteImport.update({
   id: '/order-free-qurans',
   path: '/order-free-qurans',
@@ -471,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/distribute': typeof DistributeRoute
   '/order-free-qurans': typeof OrderFreeQuransRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/backend/settings': typeof BackendSettingsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
@@ -546,6 +553,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/distribute': typeof DistributeRoute
   '/order-free-qurans': typeof OrderFreeQuransRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
   '/account/register': typeof AccountRegisterRoute
@@ -622,6 +630,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/distribute': typeof DistributeRoute
   '/order-free-qurans': typeof OrderFreeQuransRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/backend/settings': typeof BackendSettingsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
@@ -700,6 +709,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/distribute'
     | '/order-free-qurans'
+    | '/privacy-policy'
     | '/backend/settings'
     | '/account/forgot-password'
     | '/account/login'
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/distribute'
     | '/order-free-qurans'
+    | '/privacy-policy'
     | '/account/forgot-password'
     | '/account/login'
     | '/account/register'
@@ -850,6 +861,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/distribute'
     | '/order-free-qurans'
+    | '/privacy-policy'
     | '/backend/settings'
     | '/account/forgot-password'
     | '/account/login'
@@ -927,6 +939,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DistributeRoute: typeof DistributeRoute
   OrderFreeQuransRoute: typeof OrderFreeQuransRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   AccountForgotPasswordRoute: typeof AccountForgotPasswordRoute
   AccountLoginRoute: typeof AccountLoginRoute
   AccountRegisterRoute: typeof AccountRegisterRoute
@@ -952,6 +965,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/order-free-qurans': {
       id: '/order-free-qurans'
       path: '/order-free-qurans'
@@ -1602,6 +1622,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DistributeRoute: DistributeRoute,
   OrderFreeQuransRoute: OrderFreeQuransRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   AccountForgotPasswordRoute: AccountForgotPasswordRoute,
   AccountLoginRoute: AccountLoginRoute,
   AccountRegisterRoute: AccountRegisterRoute,

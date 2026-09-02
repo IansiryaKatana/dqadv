@@ -22,13 +22,17 @@ export function AdminHero() {
   const [draft, setDraft] = useState<Partial<Row> | null>(null)
   const [saveErr, setSaveErr] = useState<string | null>(null)
   const [insideBusy, setInsideBusy] = useState(false)
+  const [orderImageUrl, setOrderImageUrl] = useState('')
+  const [orderImageBusy, setOrderImageBusy] = useState(false)
+  const [orderImageErr, setOrderImageErr] = useState<string | null>(null)
 
   async function refresh() {
     const sb = getSupabase()
     if (!sb) return
-    const [heroRes, insideRes] = await Promise.all([
+    const [heroRes, insideRes, orderImageRes] = await Promise.all([
       sb.from('dq_hero_content').select('*').order('updated_at', { ascending: false }),
       sb.from('dq_whats_inside').select('*').eq('is_active', true).limit(1).maybeSingle(),
+      sb.from('dq_site_settings').select('value').eq('key', 'home_quran_order_image_url').maybeSingle(),
     ])
     if (heroRes.error) {
       setErr(heroRes.error.message)
@@ -37,6 +41,7 @@ export function AdminHero() {
     setErr(null)
     setRows(heroRes.data ?? [])
     setInside(insideRes.data)
+    setOrderImageUrl(orderImageRes.data?.value ?? '')
   }
 
   useEffect(() => {
@@ -100,6 +105,24 @@ export function AdminHero() {
     await refetch()
   }
 
+  async function saveOrderImage() {
+    const sb = getSupabase()
+    if (!sb) return
+    setOrderImageBusy(true)
+    setOrderImageErr(null)
+    const { error } = await sb.from('dq_site_settings').upsert(
+      { key: 'home_quran_order_image_url', value: orderImageUrl.trim() },
+      { onConflict: 'key' },
+    )
+    setOrderImageBusy(false)
+    if (error) {
+      setOrderImageErr(error.message)
+      return
+    }
+    await refresh()
+    await refetch()
+  }
+
   const headerActions = useMemo(
     () => [{ label: 'Add hero', onClick: () => setDraft({ is_active: true }) }],
     [],
@@ -107,7 +130,7 @@ export function AdminHero() {
 
   useAdminPageHeader({
     title: 'Hero',
-    description: 'Homepage hero and What\'s Inside section background.',
+    description: 'Homepage hero, What\'s Inside background, and Order a Qur\'an section image.',
     actions: headerActions,
   })
 
@@ -171,6 +194,25 @@ export function AdminHero() {
       ) : (
         <p className="admin-muted mt-6 text-sm">No active What&apos;s Inside row found in the database.</p>
       )}
+
+      <div className="admin-panel mt-6 space-y-4 p-4">
+        <div>
+          <h2 className="font-semibold">Order a Qur&apos;an — homepage image</h2>
+          <p className="admin-muted mt-1 text-sm">
+            Full-bleed left column after Give now. Leave empty to use the default product image.
+          </p>
+        </div>
+        <ImageUploadField
+          label="Section image"
+          folder="homepage/quran-order"
+          value={orderImageUrl}
+          onChange={setOrderImageUrl}
+        />
+        {orderImageErr ? <p className="text-sm text-red-400">{orderImageErr}</p> : null}
+        <button type="button" className="admin-btn-primary" disabled={orderImageBusy} onClick={() => void saveOrderImage()}>
+          {orderImageBusy ? 'Saving…' : 'Save homepage order image'}
+        </button>
+      </div>
 
       <AdminModal
         open={!!draft}

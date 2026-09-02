@@ -212,6 +212,7 @@
     "play_store_url": "https://play.google.com/store/apps/details?id=com.donatequran",
     "logo_light_url": "/images/logo-light.png",
     "logo_dark_url": "/images/logo-dark.png",
-    "favicon_url": "/favicon.png"
+    "favicon_url": "/favicon.png",
+    "home_quran_order_image_url": "/images/quran-product.jpg"
   }
 }

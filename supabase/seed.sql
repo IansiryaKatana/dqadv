@@ -26,6 +26,7 @@ INSERT INTO dq_site_settings (key, value) VALUES
   ('logo_light_url', '/images/logo-light.png'),
   ('logo_dark_url', '/images/logo-dark.png'),
   ('favicon_url', '/favicon.png'),
+  ('home_quran_order_image_url', '/images/quran-product.jpg'),
   ('tagline', 'Faith. Knowledge. Impact.'),
   ('meta_description', 'Donate Qur''an — placing sacred knowledge in hands worldwide through donation, distribution, and education.')
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();

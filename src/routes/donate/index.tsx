@@ -2,31 +2,27 @@ import { createFileRoute } from '@tanstack/react-router'
 import { PublicLayout } from '#/components/layout/PublicLayout'
 import { DonatePage } from '#/components/pages/DonatePage'
 import { loadCmsSnapshot } from '#/lib/cms/loadCmsSnapshot'
-import { loadAllDonationProducts } from '#/lib/cms/loadDonationProduct'
+import { loadDonatePresets } from '#/lib/commerce/catalog'
 
 export const Route = createFileRoute('/donate/')({
   loader: async () => {
-    const [cms, products] = await Promise.all([loadCmsSnapshot(), loadAllDonationProducts()])
-    return {
-      cms,
-      trust: cms.trust,
-      products: products.filter((p) => p.kind === 'product'),
-    }
+    const [cms, presets] = await Promise.all([loadCmsSnapshot(), loadDonatePresets()])
+    return { cms, trust: cms.trust, presets }
   },
   head: () => ({
     meta: [
       { title: 'Give — Donate Quran' },
-      { name: 'description', content: "Choose your gift and sponsor Qur'an distribution worldwide." },
+      { name: 'description', content: 'Give a one-time or monthly gift to fund Qur’an printing and distribution.' },
     ],
   }),
   component: DonateRoute,
 })
 
 function DonateRoute() {
-  const { cms, trust, products } = Route.useLoaderData()
+  const { cms, trust, presets } = Route.useLoaderData()
   return (
     <PublicLayout data={cms}>
-      <DonatePage products={products} trust={trust} />
+      <DonatePage presets={presets} trust={trust} />
     </PublicLayout>
   )
 }

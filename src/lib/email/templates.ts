@@ -1,4 +1,5 @@
 import type { GiftCartItem } from '#/lib/commerce/types'
+import type { CommerceSnapshot } from '#/lib/commerce/checkoutShared'
 import { DEFAULT_BRAND_COLORS, resolveHexColor } from '#/lib/site/branding'
 import {
   DISTRIBUTOR_FIELD_LABELS,
@@ -18,8 +19,13 @@ type DonationEmailData = {
   donorPhone?: string | null
   total: number
   currency: string
+  itemsSubtotal?: number
+  postageTotal?: number
+  orderKind?: 'donation' | 'quran_order'
+  frequency?: 'one_time' | 'monthly'
   dedication?: string | null
   items: GiftCartItem[]
+  snapshot?: CommerceSnapshot | null
   paymentProvider?: string | null
   shippingAddress?: {
     line1: string
@@ -150,6 +156,27 @@ function itemRows(items: GiftCartItem[]) {
     .join('')
 }
 
+function breakdownRows(data: DonationEmailData) {
+  if (data.snapshot?.type === 'quran_order') {
+    return `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;color:${INK};">${escapeHtml(data.snapshot.label)} — print contribution</td>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;text-align:right;color:${INK};">${formatMoney(data.snapshot.cost, data.currency)}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;color:${INK};">Postage &amp; packaging</td>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;text-align:right;color:${INK};">${formatMoney(data.snapshot.postage, data.currency)}</td>
+      </tr>`
+  }
+  if (data.snapshot?.type === 'donation') {
+    const label = data.snapshot.frequency === 'monthly' ? 'Monthly gift' : 'Gift'
+    return `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;color:${INK};">${label}</td>
+        <td style="padding:8px 0;border-bottom:1px solid #eeebe3;text-align:right;color:${INK};">${formatMoney(data.snapshot.amount, data.currency)}</td>
+      </tr>`
+  }
+  return itemRows(data.items)
+}
+
 function formatShipping(address: DonationEmailData['shippingAddress']) {
   if (!address) return ''
   return [address.line1, address.line2, `${address.city}, ${address.state} ${address.postalCode}`, address.country]
@@ -172,21 +199,24 @@ export function formTypeTitle(formType: string) {
 
 export function donationReceiptHtml(data: DonationEmailData, brand?: EmailBrand) {
   const gold = brand?.gold
+  const isOrder = data.orderKind === 'quran_order' || data.snapshot?.type === 'quran_order'
+  const isMonthly =
+    data.frequency === 'monthly' || (data.snapshot?.type === 'donation' && data.snapshot.frequency === 'monthly')
   const dedication = data.dedication?.trim()
     ? section('Dedication', `<p style="margin:0;color:${INK};font-size:16px;line-height:1.6;font-style:italic;">${escapeHtml(data.dedication.trim())}</p>`, gold)
     : ''
 
   const body = `
     ${section(
-      'Gift reference',
+      isOrder ? 'Order reference' : 'Gift reference',
       `<p style="margin:0;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:${INK};">${escapeHtml(data.reference)}</p>`,
       gold,
     )}
     ${dedication}
     ${section(
-      'Your gift',
+      isOrder ? 'Your order' : 'Your gift',
       `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        ${itemRows(data.items)}
+        ${breakdownRows(data)}
         <tr>
           <td style="padding:14px 0 0;font-weight:600;color:${INK};">Total</td>
           <td style="padding:14px 0 0;text-align:right;font-weight:600;color:${INK};">${formatMoney(data.total, data.currency)}</td>
@@ -197,11 +227,15 @@ export function donationReceiptHtml(data: DonationEmailData, brand?: EmailBrand)
   `
 
   return brandedEmail({
-    eyebrow: 'Gift receipt',
-    title: 'Your gift is complete',
-    intro: `JazakAllah khair, ${escapeHtml(data.donorName)}. Thank you for your generous donation.`,
+    eyebrow: isOrder ? 'Order receipt' : isMonthly ? 'Monthly gift' : 'Gift receipt',
+    title: isOrder ? 'Your order is confirmed' : isMonthly ? 'Your monthly gift is set up' : 'Your gift is complete',
+    intro: isOrder
+      ? `JazakAllah khair, ${escapeHtml(data.donorName)}. We will pack your Qur’ans and email you when they ship.`
+      : `JazakAllah khair, ${escapeHtml(data.donorName)}. Thank you for your generous donation.`,
     body,
-    footer: 'Keep this receipt for your records. If you have questions, reply to this email or contact us through the website.',
+    footer: isMonthly
+      ? 'This gift repeats each month until you cancel it from your account page or by contacting us.'
+      : 'Keep this receipt for your records. If you have questions, reply to this email or contact us through the website.',
     gold,
   })
 }
@@ -209,18 +243,20 @@ export function donationReceiptHtml(data: DonationEmailData, brand?: EmailBrand)
 export function adminNewDonationHtml(data: DonationEmailData, brand?: EmailBrand) {
   const gold = brand?.gold
   const shipping = formatShipping(data.shippingAddress)
+  const isOrder = data.orderKind === 'quran_order' || data.snapshot?.type === 'quran_order'
   const body = `
     ${section(
-      'Gift',
+      isOrder ? 'Order' : 'Gift',
       kvRows([
         { label: 'Reference', value: data.reference },
+        { label: 'Kind', value: isOrder ? 'Qur’an order' : data.frequency === 'monthly' ? 'Monthly gift' : 'Donation' },
         { label: 'Total', value: formatMoney(data.total, data.currency) },
         { label: 'Payment', value: data.paymentProvider ? data.paymentProvider : '' },
       ]),
       gold,
     )}
     ${section(
-      'Donor',
+      isOrder ? 'Customer' : 'Donor',
       kvRows([
         { label: 'Name', value: data.donorName },
         { label: 'Email', value: data.donorEmail ?? '', href: data.donorEmail ? `mailto:${data.donorEmail}` : undefined },
@@ -229,9 +265,9 @@ export function adminNewDonationHtml(data: DonationEmailData, brand?: EmailBrand
       gold,
     )}
     ${section(
-      'Items',
+      isOrder ? 'Packing' : 'Items',
       `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        ${itemRows(data.items)}
+        ${breakdownRows(data)}
         <tr>
           <td style="padding:14px 0 0;font-weight:600;color:${INK};">Total</td>
           <td style="padding:14px 0 0;text-align:right;font-weight:600;color:${INK};">${formatMoney(data.total, data.currency)}</td>
@@ -245,11 +281,54 @@ export function adminNewDonationHtml(data: DonationEmailData, brand?: EmailBrand
 
   return brandedEmail({
     eyebrow: 'Admin notification',
-    title: 'New gift received',
-    intro: `${escapeHtml(data.donorName)} completed a gift of ${escapeHtml(formatMoney(data.total, data.currency))}.`,
+    title: isOrder ? 'New Qur’an order' : 'New gift received',
+    intro: `${escapeHtml(data.donorName)} completed a ${isOrder ? 'Qur’an order' : 'gift'} of ${escapeHtml(formatMoney(data.total, data.currency))}.`,
     body,
-    footer: 'Review and fulfil this gift in Admin → Donations.',
+    footer: isOrder
+      ? 'Pack and ship this order in Admin → Orders.'
+      : 'Review this gift in Admin → Gifts.',
     gold,
+  })
+}
+
+export function orderShippedHtml(data: DonationEmailData, brand?: EmailBrand) {
+  const gold = brand?.gold
+  const shipping = formatShipping(data.shippingAddress)
+  return brandedEmail({
+    eyebrow: 'Order update',
+    title: 'Your Qur’ans are on the way',
+    intro: `Assalamu alaikum ${escapeHtml(data.donorName)}, your order ${escapeHtml(data.reference)} has been dispatched.`,
+    body: `
+      ${section(
+        'Order',
+        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          ${breakdownRows(data)}
+          <tr>
+            <td style="padding:14px 0 0;font-weight:600;color:${INK};">Total paid</td>
+            <td style="padding:14px 0 0;text-align:right;font-weight:600;color:${INK};">${formatMoney(data.total, data.currency)}</td>
+          </tr>
+        </table>`,
+        gold,
+      )}
+      ${shipping ? section('Posted to', `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(shipping)}</p>`, gold) : ''}
+    `,
+    footer: 'If you have questions about delivery, reply to this email.',
+    gold,
+  })
+}
+
+export function subscriptionCancelledHtml(data: { donorName: string }, brand?: EmailBrand) {
+  return brandedEmail({
+    eyebrow: 'Monthly gift',
+    title: 'Your monthly gift has been cancelled',
+    intro: `Assalamu alaikum ${escapeHtml(data.donorName)}, your recurring donation will not be charged again.`,
+    body: section(
+      'Thank you',
+      `<p style="margin:0;color:${INK};font-size:15px;line-height:1.6;">JazakAllah khair for your support. You can start a new gift any time on our Give page.</p>`,
+      brand?.gold,
+    ),
+    footer: 'If you did not request this change, contact us and we will help.',
+    gold: brand?.gold,
   })
 }
 

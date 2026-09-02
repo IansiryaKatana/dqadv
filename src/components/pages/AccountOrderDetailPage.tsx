@@ -75,20 +75,38 @@ export function AccountOrderDetailPage({ reference }: { reference: string }) {
           {donation.dedication ? (
             <p className="mb-4 text-sm italic text-dq-muted">{donation.dedication}</p>
           ) : null}
-          <ul className="space-y-3">
-            {donation.items.map((item) => (
-              <li key={item.productId} className="flex justify-between gap-4 text-sm">
-                <span className="text-dq-black">
-                  {item.title} × {item.quantity}
-                </span>
-                <span className="text-dq-muted">
-                  {item.unitAmount != null
-                    ? formatPrice(item.unitAmount * item.quantity, item.currency)
-                    : 'Suggested gift'}
-                </span>
+          {donation.snapshot?.type === 'quran_order' ? (
+            <ul className="space-y-3 text-sm">
+              <li className="flex justify-between">
+                <span>{donation.snapshot.label}</span>
+                <span>{formatPrice(donation.snapshot.cost, donation.currency)}</span>
               </li>
-            ))}
-          </ul>
+              <li className="flex justify-between">
+                <span>Postage & packaging</span>
+                <span>{formatPrice(donation.snapshot.postage, donation.currency)}</span>
+              </li>
+            </ul>
+          ) : donation.snapshot?.type === 'donation' ? (
+            <p className="text-sm text-dq-black">
+              {donation.snapshot.frequency === 'monthly' ? 'Monthly gift' : 'Gift'} —{' '}
+              {formatPrice(donation.snapshot.amount, donation.currency)}
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {donation.items.map((item) => (
+                <li key={item.productId} className="flex justify-between gap-4 text-sm">
+                  <span className="text-dq-black">
+                    {item.title} × {item.quantity}
+                  </span>
+                  <span className="text-dq-muted">
+                    {item.unitAmount != null
+                      ? formatPrice(item.unitAmount * item.quantity, item.currency)
+                      : 'Suggested gift'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </Container>
     </section>

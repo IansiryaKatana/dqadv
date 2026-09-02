@@ -31,7 +31,7 @@ type AdminNavSection = {
 
 const submissionsItems: AdminNavItem[] = [
   { to: '/backend/submissions/contact', label: 'Contact' },
-  { to: '/backend/submissions/free-quran', label: "Free Qur'an" },
+  { to: '/backend/submissions/free-quran', label: "Legacy free requests" },
   { to: '/backend/submissions/distributor', label: 'Distributor' },
 ]
 
@@ -54,8 +54,10 @@ const cmsNavSections: AdminNavSection[] = [
   {
     label: 'Commerce',
     items: [
-      { to: '/backend/commerce/products', label: 'Products' },
-      { to: '/backend/commerce/donations', label: 'Donations', inbox: 'donations' },
+      { to: '/backend/commerce/give-presets', label: 'Give presets' },
+      { to: '/backend/commerce/postage', label: 'Postage tiers' },
+      { to: '/backend/commerce/donations', label: 'Gifts & orders', inbox: 'donations' },
+      { to: '/backend/commerce/products', label: 'Legacy products' },
     ],
   },
   {
@@ -72,7 +74,7 @@ const cmsNavSections: AdminNavSection[] = [
 const officeAdminNavSections: AdminNavSection[] = [
   {
     label: 'Commerce',
-    items: [{ to: '/backend/commerce/donations', label: 'Donations', inbox: 'donations' }],
+    items: [{ to: '/backend/commerce/donations', label: 'Gifts & orders', inbox: 'donations' }],
   },
   {
     label: 'Submissions',

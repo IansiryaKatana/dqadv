@@ -97,7 +97,7 @@ export function HeroSection({ hero, className }: { hero: HeroContent; className?
               asChild
               variant="gold"
               size="lg"
-              className="h-10 shrink-0 px-3.5 text-[0.625rem] tracking-[0.1em] text-white hover:text-white md:h-12 md:px-8 md:text-sm md:tracking-[0.18em]"
+              className="h-10 shrink-0 px-3.5 text-[0.625rem] tracking-[0.1em] md:h-12 md:px-8 md:text-sm md:tracking-[0.18em]"
             >
               <Link to={hero.secondaryCtaUrl} className="whitespace-nowrap">
                 {hero.secondaryCtaLabel}

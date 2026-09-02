@@ -7,6 +7,6 @@ export const adminTh =
 /** Data rows — light surface, no radius / outline */
 export const adminTd = 'border-b border-[#ebebeb] bg-white px-3 py-2.5 align-middle text-dq-black'
 /** Filter bar — no panel outline */
-export const adminFilters = 'mb-4 grid gap-3 md:grid-cols-2'
+export const adminFilters = 'mb-4 grid gap-3 md:grid-cols-3'
 /** Table wrapper — no card chrome */
 export const adminTableWrap = 'overflow-x-auto'

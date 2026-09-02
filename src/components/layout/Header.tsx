@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'motion/react'
 import type { NavLink } from '#/lib/cms/types'
 import { Logo } from './Logo'
 import { HeaderActions } from './HeaderActions'
-import { GiftCartButton } from '#/components/commerce/GiftCartButton'
 import { AccountButton } from '#/components/layout/AccountButton'
 import { cn } from '#/lib/utils'
 
@@ -83,7 +82,6 @@ export function Header({
           </div>
 
           <div className="col-start-3 flex shrink-0 items-center justify-self-end gap-2">
-            <GiftCartButton />
             <AccountButton className="hidden sm:inline-flex" />
             <HeaderActions
               appStoreUrl={appStoreUrl}

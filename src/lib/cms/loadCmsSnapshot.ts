@@ -172,7 +172,7 @@ async function fetchCmsSnapshot(): Promise<CmsSnapshot> {
             introHtml: insideRes.data.intro_html,
             bullets: Array.isArray(insideRes.data.bullets) ? (insideRes.data.bullets as string[]) : [],
             imageUrl: insideRes.data.image_url,
-            backgroundColor: insideRes.data.background_color ?? null,
+            backgroundColor: insideRes.data.background_color,
           }
         : fallback.whatsInside,
       ventureSection: ventureSectionRes.data

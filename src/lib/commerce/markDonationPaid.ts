@@ -1,5 +1,4 @@
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
-import { sendDonationEmails } from '#/lib/email/sendDonationEmails'
 
 export type MarkDonationPaidInput = {
   reference: string
@@ -29,10 +28,10 @@ export async function markDonationPaid(input: MarkDonationPaidInput) {
     .update({
       payment_status: 'paid',
       payment_provider: input.paymentProvider,
-      payment_intent_id: input.externalId ?? null,
-      stripe_session_id: input.stripeSessionId ?? null,
-      paypal_order_id: input.paypalOrderId ?? null,
       updated_at: new Date().toISOString(),
+      ...(input.externalId ? { payment_intent_id: input.externalId } : {}),
+      ...(input.stripeSessionId ? { stripe_session_id: input.stripeSessionId } : {}),
+      ...(input.paypalOrderId ? { paypal_order_id: input.paypalOrderId } : {}),
     })
     .eq('reference', input.reference)
     .select('*')
@@ -42,6 +41,7 @@ export async function markDonationPaid(input: MarkDonationPaidInput) {
 
   if (!existing.email_receipt_sent_at) {
     try {
+      const { sendDonationEmails } = await import('#/lib/email/sendDonationEmails')
       await sendDonationEmails(data)
     } catch {
       // Email failure should not fail webhook

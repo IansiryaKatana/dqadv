@@ -4,13 +4,16 @@ import type { WhatsInsideContent } from '#/lib/cms/types'
 import { Button } from '#/components/ui/button'
 import { Container } from '#/components/ui/container'
 import { SectionHeading } from '#/components/ui/section-heading'
+import { resolveCustomSurfaceColor } from '#/lib/site/branding'
 import { cn } from '#/lib/utils'
 
 export function WhatsInsideSection({ content, className }: { content: WhatsInsideContent; className?: string }) {
+  const backgroundColor = resolveCustomSurfaceColor(content.backgroundColor)
+
   return (
     <section
-      className={cn('relative flex h-dvh overflow-hidden', className)}
-      style={content.backgroundColor ? { backgroundColor: content.backgroundColor } : undefined}
+      className={cn('relative flex h-dvh overflow-hidden bg-dq-cream', className)}
+      style={backgroundColor ? { backgroundColor } : undefined}
     >
       {content.imageUrl ? (
         <img
@@ -46,7 +49,7 @@ export function WhatsInsideSection({ content, className }: { content: WhatsInsid
               asChild
               variant="gold"
               size="lg"
-              className="h-10 px-3.5 text-[0.625rem] tracking-[0.1em] text-white hover:text-white md:h-12 md:px-8 md:text-sm md:tracking-[0.18em]"
+              className="h-10 px-3.5 text-[0.625rem] tracking-[0.1em] md:h-12 md:px-8 md:text-sm md:tracking-[0.18em]"
             >
               <Link to="/about" className="whitespace-nowrap">
                 OUR STORY

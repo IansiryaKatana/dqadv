@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import type { GiftCartItem } from './types'
+import { parseCommerceSnapshot, type CommerceSnapshot } from './checkoutShared'
 
 export type DonationPublic = {
   reference: string
@@ -12,6 +13,11 @@ export type DonationPublic = {
   paymentProvider: string | null
   dedication: string | null
   items: GiftCartItem[]
+  snapshot: CommerceSnapshot | null
+  orderKind: 'donation' | 'quran_order'
+  frequency: 'one_time' | 'monthly'
+  itemsSubtotal: number
+  postageTotal: number
   createdAt: string
 }
 
@@ -24,7 +30,7 @@ export const getDonationByReference = createServerFn({ method: 'POST' })
     const { data: row } = await admin
       .from('dq_donations')
       .select(
-        'reference, donor_name, donor_email, total, currency, payment_status, payment_provider, dedication, cart_snapshot, created_at',
+        'reference, donor_name, donor_email, total, currency, payment_status, payment_provider, dedication, cart_snapshot, created_at, order_kind, frequency, items_subtotal, postage_total',
       )
       .eq('reference', data.reference)
       .maybeSingle()
@@ -41,6 +47,11 @@ export const getDonationByReference = createServerFn({ method: 'POST' })
       paymentProvider: row.payment_provider,
       dedication: row.dedication,
       items: (Array.isArray(row.cart_snapshot) ? row.cart_snapshot : []) as GiftCartItem[],
+      snapshot: parseCommerceSnapshot(row.cart_snapshot),
+      orderKind: row.order_kind === 'quran_order' ? 'quran_order' : 'donation',
+      frequency: row.frequency === 'monthly' ? 'monthly' : 'one_time',
+      itemsSubtotal: Number(row.items_subtotal ?? 0),
+      postageTotal: Number(row.postage_total ?? 0),
       createdAt: row.created_at,
     } satisfies DonationPublic
   })
@@ -62,12 +73,16 @@ export const getDonorDonations = createServerFn({ method: 'POST' })
     const [byUser, byEmail] = await Promise.all([
       admin
         .from('dq_donations')
-        .select('reference, donor_name, total, currency, payment_status, payment_provider, created_at')
+        .select(
+          'reference, donor_name, total, currency, payment_status, payment_provider, created_at, order_kind, frequency',
+        )
         .eq('donor_user_id', userData.user.id)
         .order('created_at', { ascending: false }),
       admin
         .from('dq_donations')
-        .select('reference, donor_name, total, currency, payment_status, payment_provider, created_at')
+        .select(
+          'reference, donor_name, total, currency, payment_status, payment_provider, created_at, order_kind, frequency',
+        )
         .is('donor_user_id', null)
         .eq('donor_email', email)
         .order('created_at', { ascending: false }),
@@ -84,5 +99,7 @@ export const getDonorDonations = createServerFn({ method: 'POST' })
       paymentStatus: row.payment_status,
       paymentProvider: row.payment_provider,
       createdAt: row.created_at,
+      orderKind: row.order_kind === 'quran_order' ? 'quran_order' : 'donation',
+      frequency: row.frequency === 'monthly' ? 'monthly' : 'one_time',
     }))
   })

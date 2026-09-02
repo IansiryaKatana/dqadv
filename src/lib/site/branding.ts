@@ -31,6 +31,9 @@ export type BrandTheme = {
   fontFileUrl: string
 }
 
+/** Previous What's Inside default; treat as unset so the live cream token is used. */
+export const LEGACY_WHATS_INSIDE_BACKGROUND = '#faf7f1'
+
 const HEX_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 const FONT_STYLE_ID = 'dq-brand-font-face'
 const FONT_LINK_ID = 'dq-brand-google-font'
@@ -61,6 +64,14 @@ export function toColorInputValue(value: string, fallback: string) {
   return resolveHexColor(value, fallback)
 }
 
+export function resolveCustomSurfaceColor(value?: string | null) {
+  const trimmed = value?.trim()
+  if (!trimmed || !HEX_RE.test(trimmed)) return null
+  const hex = normalizeHex(trimmed)
+  if (hex === LEGACY_WHATS_INSIDE_BACKGROUND) return null
+  return hex
+}
+
 export function resolveFontFamily(value?: string | null) {
   const family = value?.trim()
   return family || DEFAULT_FONT_FAMILY
@@ -89,6 +100,19 @@ export function googleFontsStylesheetUrl(family: string) {
 export function cssFontFamilyStack(family: string) {
   const safe = sanitizeFontFamily(family)
   return `"${safe}", ui-sans-serif, system-ui, sans-serif`
+}
+
+export function brandThemeCssVars(theme: BrandTheme) {
+  return [
+    `--dq-gold:${theme.gold}`,
+    `--dq-on-gold:${theme.onGold}`,
+    `--dq-black:${theme.black}`,
+    `--dq-soft-black:${theme.softBlack}`,
+    `--dq-cream:${theme.cream}`,
+    `--dq-muted:${theme.muted}`,
+    `--dq-border:${theme.border}`,
+    `--dq-font-family:${cssFontFamilyStack(theme.fontFamily)}`,
+  ].join(';')
 }
 
 export function applyBrandTheme(theme: BrandTheme) {

@@ -10,6 +10,7 @@ export const ADMIN_FULFILLMENT_OPTIONS: AdminSelectOption[] = [
   { value: 'processing', label: 'Processing' },
   { value: 'shipped', label: 'Shipped' },
   { value: 'delivered', label: 'Delivered' },
+  { value: 'not_required', label: 'Not required' },
 ]
 
 export const ADMIN_PAYMENT_STATUS_OPTIONS: AdminSelectOption[] = [

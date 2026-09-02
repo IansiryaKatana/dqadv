@@ -20,7 +20,7 @@
     "imageUrl": "/images/hero-quran.jpg",
     "primaryCtaLabel": "DONATE NOW",
     "primaryCtaUrl": "/donate",
-    "secondaryCtaLabel": "ORDER FREE COPY",
+      "secondaryCtaLabel": "ORDER A COPY",
     "secondaryCtaUrl": "/order-free-qurans"
   },
   "whatsInside": {
@@ -36,7 +36,7 @@
       "QR code linking to audio recitation resources"
     ],
     "imageUrl": "/images/quran-product.jpg",
-    "backgroundColor": "#FAF7F1"
+    "backgroundColor": null
   },
   "ventureSection": {
     "id": "venture-1",

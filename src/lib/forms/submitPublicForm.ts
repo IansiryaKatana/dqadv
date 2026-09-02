@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
-import { getResendClient } from '#/lib/email/resendClient'
 import { loadEmailBrandGold } from '#/lib/email/brandColors'
 import { adminNewSubmissionHtml, formTypeTitle } from '#/lib/email/templates'
 
@@ -46,6 +45,7 @@ async function notifyAdminNewSubmission(input: {
   message?: string | null
   payload?: Record<string, unknown>
 }) {
+  const { getResendClient } = await import('#/lib/email/resendClient')
   const resend = await getResendClient()
   if (!resend?.config.emailAdminNotify || !resend.config.emailFromAddress) return
 

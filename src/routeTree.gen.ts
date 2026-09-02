@@ -55,6 +55,7 @@ import { Route as AccountRegisterRouteImport } from './routes/account/register'
 import { Route as AccountLoginRouteImport } from './routes/account/login'
 import { Route as AccountForgotPasswordRouteImport } from './routes/account/forgot-password'
 import { Route as BackendSettingsRouteRouteImport } from './routes/backend/settings/route'
+import { Route as DonateCheckoutIndexRouteImport } from './routes/donate/checkout/index'
 import { Route as BackendSubmissionsIndexRouteImport } from './routes/backend/submissions/index'
 import { Route as BackendSettingsIndexRouteImport } from './routes/backend/settings/index'
 import { Route as AccountOrdersIndexRouteImport } from './routes/account/orders/index'
@@ -82,6 +83,8 @@ import { Route as BackendContentHeroRouteImport } from './routes/backend/content
 import { Route as BackendContentBooksRouteImport } from './routes/backend/content/books'
 import { Route as BackendContentArticlesRouteImport } from './routes/backend/content/articles'
 import { Route as BackendCommerceProductsRouteImport } from './routes/backend/commerce/products'
+import { Route as BackendCommercePostageRouteImport } from './routes/backend/commerce/postage'
+import { Route as BackendCommerceGivePresetsRouteImport } from './routes/backend/commerce/give-presets'
 import { Route as BackendCommerceDonationsRouteImport } from './routes/backend/commerce/donations'
 import { Route as AccountOrdersReferenceRouteImport } from './routes/account/orders/$reference'
 
@@ -315,6 +318,11 @@ const BackendSettingsRouteRoute = BackendSettingsRouteRouteImport.update({
   path: '/settings',
   getParentRoute: () => BackendRouteRoute,
 } as any)
+const DonateCheckoutIndexRoute = DonateCheckoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DonateCheckoutRoute,
+} as any)
 const BackendSubmissionsIndexRoute = BackendSubmissionsIndexRouteImport.update({
   id: '/submissions/',
   path: '/submissions/',
@@ -457,6 +465,17 @@ const BackendCommerceProductsRoute = BackendCommerceProductsRouteImport.update({
   path: '/commerce/products',
   getParentRoute: () => BackendRouteRoute,
 } as any)
+const BackendCommercePostageRoute = BackendCommercePostageRouteImport.update({
+  id: '/commerce/postage',
+  path: '/commerce/postage',
+  getParentRoute: () => BackendRouteRoute,
+} as any)
+const BackendCommerceGivePresetsRoute =
+  BackendCommerceGivePresetsRouteImport.update({
+    id: '/commerce/give-presets',
+    path: '/commerce/give-presets',
+    getParentRoute: () => BackendRouteRoute,
+  } as any)
 const BackendCommerceDonationsRoute =
   BackendCommerceDonationsRouteImport.update({
     id: '/commerce/donations',
@@ -518,6 +537,8 @@ export interface FileRoutesByFullPath {
   '/videos/': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
   '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/give-presets': typeof BackendCommerceGivePresetsRoute
+  '/backend/commerce/postage': typeof BackendCommercePostageRoute
   '/backend/commerce/products': typeof BackendCommerceProductsRoute
   '/backend/content/articles': typeof BackendContentArticlesRoute
   '/backend/content/books': typeof BackendContentBooksRoute
@@ -545,6 +566,7 @@ export interface FileRoutesByFullPath {
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/backend/settings/': typeof BackendSettingsIndexRoute
   '/backend/submissions/': typeof BackendSubmissionsIndexRoute
+  '/donate/checkout/': typeof DonateCheckoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -581,7 +603,6 @@ export interface FileRoutesByTo {
   '/books/$slug': typeof BooksSlugRoute
   '/donate/$slug': typeof DonateSlugRoute
   '/donate/cart': typeof DonateCartRoute
-  '/donate/checkout': typeof DonateCheckoutRouteWithChildren
   '/quran/$slug': typeof QuranSlugRoute
   '/videos/$slug': typeof VideosSlugRoute
   '/articles': typeof ArticlesIndexRoute
@@ -593,6 +614,8 @@ export interface FileRoutesByTo {
   '/videos': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
   '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/give-presets': typeof BackendCommerceGivePresetsRoute
+  '/backend/commerce/postage': typeof BackendCommercePostageRoute
   '/backend/commerce/products': typeof BackendCommerceProductsRoute
   '/backend/content/articles': typeof BackendContentArticlesRoute
   '/backend/content/books': typeof BackendContentBooksRoute
@@ -620,6 +643,7 @@ export interface FileRoutesByTo {
   '/account/orders': typeof AccountOrdersIndexRoute
   '/backend/settings': typeof BackendSettingsIndexRoute
   '/backend/submissions': typeof BackendSubmissionsIndexRoute
+  '/donate/checkout': typeof DonateCheckoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -671,6 +695,8 @@ export interface FileRoutesById {
   '/videos/': typeof VideosIndexRoute
   '/account/orders/$reference': typeof AccountOrdersReferenceRoute
   '/backend/commerce/donations': typeof BackendCommerceDonationsRoute
+  '/backend/commerce/give-presets': typeof BackendCommerceGivePresetsRoute
+  '/backend/commerce/postage': typeof BackendCommercePostageRoute
   '/backend/commerce/products': typeof BackendCommerceProductsRoute
   '/backend/content/articles': typeof BackendContentArticlesRoute
   '/backend/content/books': typeof BackendContentBooksRoute
@@ -698,6 +724,7 @@ export interface FileRoutesById {
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/backend/settings/': typeof BackendSettingsIndexRoute
   '/backend/submissions/': typeof BackendSubmissionsIndexRoute
+  '/donate/checkout/': typeof DonateCheckoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -750,6 +777,8 @@ export interface FileRouteTypes {
     | '/videos/'
     | '/account/orders/$reference'
     | '/backend/commerce/donations'
+    | '/backend/commerce/give-presets'
+    | '/backend/commerce/postage'
     | '/backend/commerce/products'
     | '/backend/content/articles'
     | '/backend/content/books'
@@ -777,6 +806,7 @@ export interface FileRouteTypes {
     | '/account/orders/'
     | '/backend/settings/'
     | '/backend/submissions/'
+    | '/donate/checkout/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -813,7 +843,6 @@ export interface FileRouteTypes {
     | '/books/$slug'
     | '/donate/$slug'
     | '/donate/cart'
-    | '/donate/checkout'
     | '/quran/$slug'
     | '/videos/$slug'
     | '/articles'
@@ -825,6 +854,8 @@ export interface FileRouteTypes {
     | '/videos'
     | '/account/orders/$reference'
     | '/backend/commerce/donations'
+    | '/backend/commerce/give-presets'
+    | '/backend/commerce/postage'
     | '/backend/commerce/products'
     | '/backend/content/articles'
     | '/backend/content/books'
@@ -852,6 +883,7 @@ export interface FileRouteTypes {
     | '/account/orders'
     | '/backend/settings'
     | '/backend/submissions'
+    | '/donate/checkout'
   id:
     | '__root__'
     | '/'
@@ -902,6 +934,8 @@ export interface FileRouteTypes {
     | '/videos/'
     | '/account/orders/$reference'
     | '/backend/commerce/donations'
+    | '/backend/commerce/give-presets'
+    | '/backend/commerce/postage'
     | '/backend/commerce/products'
     | '/backend/content/articles'
     | '/backend/content/books'
@@ -929,6 +963,7 @@ export interface FileRouteTypes {
     | '/account/orders/'
     | '/backend/settings/'
     | '/backend/submissions/'
+    | '/donate/checkout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1287,6 +1322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackendSettingsRouteRouteImport
       parentRoute: typeof BackendRouteRoute
     }
+    '/donate/checkout/': {
+      id: '/donate/checkout/'
+      path: '/'
+      fullPath: '/donate/checkout/'
+      preLoaderRoute: typeof DonateCheckoutIndexRouteImport
+      parentRoute: typeof DonateCheckoutRoute
+    }
     '/backend/submissions/': {
       id: '/backend/submissions/'
       path: '/submissions'
@@ -1476,6 +1518,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackendCommerceProductsRouteImport
       parentRoute: typeof BackendRouteRoute
     }
+    '/backend/commerce/postage': {
+      id: '/backend/commerce/postage'
+      path: '/commerce/postage'
+      fullPath: '/backend/commerce/postage'
+      preLoaderRoute: typeof BackendCommercePostageRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
+    '/backend/commerce/give-presets': {
+      id: '/backend/commerce/give-presets'
+      path: '/commerce/give-presets'
+      fullPath: '/backend/commerce/give-presets'
+      preLoaderRoute: typeof BackendCommerceGivePresetsRouteImport
+      parentRoute: typeof BackendRouteRoute
+    }
     '/backend/commerce/donations': {
       id: '/backend/commerce/donations'
       path: '/commerce/donations'
@@ -1539,6 +1595,8 @@ interface BackendRouteRouteChildren {
   BackendVideosRoute: typeof BackendVideosRoute
   BackendIndexRoute: typeof BackendIndexRoute
   BackendCommerceDonationsRoute: typeof BackendCommerceDonationsRoute
+  BackendCommerceGivePresetsRoute: typeof BackendCommerceGivePresetsRoute
+  BackendCommercePostageRoute: typeof BackendCommercePostageRoute
   BackendCommerceProductsRoute: typeof BackendCommerceProductsRoute
   BackendContentArticlesRoute: typeof BackendContentArticlesRoute
   BackendContentBooksRoute: typeof BackendContentBooksRoute
@@ -1577,6 +1635,8 @@ const BackendRouteRouteChildren: BackendRouteRouteChildren = {
   BackendVideosRoute: BackendVideosRoute,
   BackendIndexRoute: BackendIndexRoute,
   BackendCommerceDonationsRoute: BackendCommerceDonationsRoute,
+  BackendCommerceGivePresetsRoute: BackendCommerceGivePresetsRoute,
+  BackendCommercePostageRoute: BackendCommercePostageRoute,
   BackendCommerceProductsRoute: BackendCommerceProductsRoute,
   BackendContentArticlesRoute: BackendContentArticlesRoute,
   BackendContentBooksRoute: BackendContentBooksRoute,
@@ -1602,12 +1662,14 @@ interface DonateCheckoutRouteChildren {
   DonateCheckoutCancelRoute: typeof DonateCheckoutCancelRoute
   DonateCheckoutPaypalReturnRoute: typeof DonateCheckoutPaypalReturnRoute
   DonateCheckoutSuccessRoute: typeof DonateCheckoutSuccessRoute
+  DonateCheckoutIndexRoute: typeof DonateCheckoutIndexRoute
 }
 
 const DonateCheckoutRouteChildren: DonateCheckoutRouteChildren = {
   DonateCheckoutCancelRoute: DonateCheckoutCancelRoute,
   DonateCheckoutPaypalReturnRoute: DonateCheckoutPaypalReturnRoute,
   DonateCheckoutSuccessRoute: DonateCheckoutSuccessRoute,
+  DonateCheckoutIndexRoute: DonateCheckoutIndexRoute,
 }
 
 const DonateCheckoutRouteWithChildren = DonateCheckoutRoute._addFileChildren(

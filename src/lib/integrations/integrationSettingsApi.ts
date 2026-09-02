@@ -1,25 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
-import Stripe from 'stripe'
 import { verifyAdminAccess } from '#/lib/admin/verifyAdminAccess'
-import {
-  loadIntegrationSettings,
-  saveIntegrationSettings,
-  toMaskedSettings,
-  toPublicPaymentOptions,
-} from './paymentConfig'
 import type { IntegrationSettings } from './types'
-import { sendTestEmail } from '#/lib/email/sendDonationEmails'
-import { getPayPalAccessToken } from '#/lib/commerce/paypal'
+import { getPublicPaymentOptions } from './publicPaymentOptions'
 
-export const getPublicPaymentOptions = createServerFn({ method: 'POST' }).handler(async () => {
-  const config = await loadIntegrationSettings()
-  return toPublicPaymentOptions(config)
-})
+export { getPublicPaymentOptions }
 
 export const getMaskedIntegrationSettings = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string }) => data)
   .handler(async ({ data }) => {
     await verifyAdminAccess(data.accessToken)
+    const { loadIntegrationSettings, toMaskedSettings } = await import('./paymentConfig')
     const config = await loadIntegrationSettings()
     return toMaskedSettings(config)
   })
@@ -34,6 +24,7 @@ export const saveIntegrationSettingsFn = createServerFn({ method: 'POST' })
   .validator((data: SaveInput) => data)
   .handler(async ({ data }) => {
     await verifyAdminAccess(data.accessToken)
+    const { loadIntegrationSettings, saveIntegrationSettings, toMaskedSettings } = await import('./paymentConfig')
     const existing = await loadIntegrationSettings()
     const merged = { ...existing, ...data.settings }
     if (data.keepSecrets) {
@@ -50,6 +41,8 @@ export const testStripeConnection = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string; secretKey?: string }) => data)
   .handler(async ({ data }) => {
     await verifyAdminAccess(data.accessToken)
+    const { loadIntegrationSettings } = await import('./paymentConfig')
+    const { default: Stripe } = await import('stripe')
     const config = await loadIntegrationSettings()
     const key = data.secretKey?.trim() || config.stripeSecretKey
     if (!key) throw new Error('Stripe secret key is required.')
@@ -62,6 +55,7 @@ export const testPayPalConnection = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string }) => data)
   .handler(async ({ data }) => {
     await verifyAdminAccess(data.accessToken)
+    const { getPayPalAccessToken } = await import('#/lib/commerce/paypal')
     await getPayPalAccessToken()
     return { ok: true as const }
   })
@@ -70,6 +64,7 @@ export const testResendConnection = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string; to: string }) => data)
   .handler(async ({ data }) => {
     await verifyAdminAccess(data.accessToken)
+    const { sendTestEmail } = await import('#/lib/email/sendDonationEmails')
     await sendTestEmail(data.to)
     return { ok: true as const }
   })

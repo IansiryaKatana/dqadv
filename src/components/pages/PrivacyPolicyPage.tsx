@@ -107,7 +107,7 @@ export function PrivacyPolicyPage() {
 
               <PolicySection id="guest-use" title="2. You can use the app as a guest">
                 <P>
-                  You do not need an account for core features (donate, order a free Quran, read, Qibla, learn, Ask a
+                  You do not need an account for core features (give, order a Quran, read, Qibla, learn, Ask a
                   Scholar).
                 </P>
                 <P>
@@ -127,17 +127,15 @@ export function PrivacyPolicyPage() {
                     update your profile.
                   </CollectItem>
                   <CollectItem label="Donations">
-                    purchase history (amount, one-time or monthly, status, receipt identifiers); optional “on behalf of”
-                    or donor name you type. Donations are paid through the App Store or Google Play (via RevenueCat). We
-                    never receive or store your card number, Apple Pay details, or Google Play payment details. Monthly
-                    donations are subscriptions you manage in your Apple ID or Google Play account.
+                    name, email, optional phone, optional dedication, gift amount, one-time or monthly, payment
+                    status, and receipt identifiers. Website gifts are paid with Stripe or PayPal. We do not store
+                    full card numbers. Monthly gifts can be cancelled from your account page.
                   </CollectItem>
                   <CollectItem label="Quran orders">
-                    physical address (street, city, postcode); language, quantity, and order reference; postage payment
-                    identifiers (not card numbers). Printed Qurans are free. Postage is paid with Stripe. Card details
-                    are entered in Stripe’s payment sheet. We do not store full card numbers. You may optionally allow
-                    the camera so Stripe can scan a card; images are used only to complete that payment and are not
-                    stored by us. If you are signed in, you may save a delivery address for later orders.
+                    physical address (street, city, postcode); quantity (copies or boxes); order reference; postage
+                    payment identifiers (not card numbers). The first printed Qur’an is free; you pay UK postage.
+                    Additional copies include a contribution to print cost plus postage. Card details are entered in
+                    Stripe or PayPal. We do not store full card numbers.
                   </CollectItem>
                   <CollectItem label="Ask a Scholar">
                     name, email, topic, and your question. Questions go to our team privately. They are not posted on a
@@ -176,7 +174,7 @@ export function PrivacyPolicyPage() {
               <PolicySection id="how-we-use-information" title="5. How we use information">
                 <P>
                   Create and manage your optional account; process donations and send receipts (when email is
-                  configured); fulfil free Quran orders and postage; answer Ask a Scholar questions; send the optional
+                  configured); fulfil UK Qur’an orders and postage; answer Ask a Scholar questions; send the optional
                   notifications you allow; show Qibla and prayer times when location is allowed; keep the app secure
                   and reliable (including crash diagnostics); meet accounting, charity, and legal duties.
                 </P>
@@ -190,7 +188,8 @@ export function PrivacyPolicyPage() {
               <PolicySection id="who-we-share-information-with" title="6. Who we share information with">
                 <P>
                   Only processors who help us run Donate Quran: Supabase (account and database); RevenueCat (store
-                  donation purchases); Apple / Google (in-app donation payments); Stripe (postage); Firebase Cloud
+                  donation purchases in the mobile app); Apple / Google (in-app donation payments); Stripe and PayPal
+                  (website gifts, monthly gifts, and UK postage); Firebase Cloud
                   Messaging (push); Firebase Crashlytics (crash reports); NOAA or equivalent (magnetic declination when
                   location is allowed).
                 </P>

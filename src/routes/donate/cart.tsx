@@ -1,21 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { PublicLayout } from '#/components/layout/PublicLayout'
-import { GiftCartPage } from '#/components/pages/GiftCartPage'
-import { loadCmsSnapshot } from '#/lib/cms/loadCmsSnapshot'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/donate/cart')({
-  loader: () => loadCmsSnapshot(),
-  head: () => ({
-    meta: [{ title: 'Your Gift — Donate Quran' }],
-  }),
-  component: GiftCartRoute,
+  beforeLoad: () => {
+    throw redirect({ to: '/donate' })
+  },
 })
-
-function GiftCartRoute() {
-  const data = Route.useLoaderData()
-  return (
-    <PublicLayout data={data}>
-      <GiftCartPage postageNote={data.trust.byKey.postage_packaging} />
-    </PublicLayout>
-  )
-}

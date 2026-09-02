@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import { AdminAuthProvider } from '#/contexts/AdminAuthContext'
 import { DonorAuthProvider } from '#/contexts/DonorAuthContext'
 import { CmsProvider } from '#/contexts/CmsContext'
-import { GiftCartProvider } from '#/contexts/GiftCartContext'
 import { FloatingActionBubbleHost } from '#/components/layout/FloatingActionBubbleHost'
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -13,12 +12,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <AdminAuthProvider>
       <DonorAuthProvider>
-        <GiftCartProvider>
-          <CmsProvider enabled={!isAdmin}>
-            {children}
-            {!isAdmin ? <FloatingActionBubbleHost /> : null}
-          </CmsProvider>
-        </GiftCartProvider>
+        <CmsProvider enabled={!isAdmin}>
+          {children}
+          {!isAdmin ? <FloatingActionBubbleHost /> : null}
+        </CmsProvider>
       </DonorAuthProvider>
     </AdminAuthProvider>
   )

@@ -365,6 +365,105 @@ export type Database = {
         }
         Update: Partial<Database['public']['Tables']['dq_email_log']['Row']>
       }
+      dq_donate_presets: {
+        Row: {
+          id: string
+          amount: number
+          currency: string
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['dq_donate_presets']['Row']> & {
+          amount: number
+        }
+        Update: Partial<Database['public']['Tables']['dq_donate_presets']['Row']>
+      }
+      dq_quran_postage_tiers: {
+        Row: {
+          id: string
+          band: string
+          quantity: number
+          copies: number
+          cost: number
+          postage: number
+          total: number
+          sort_order: number
+          is_active: boolean
+        }
+        Insert: Partial<Database['public']['Tables']['dq_quran_postage_tiers']['Row']> & {
+          band: string
+          quantity: number
+          copies: number
+        }
+        Update: Partial<Database['public']['Tables']['dq_quran_postage_tiers']['Row']>
+      }
+      dq_donation_subscriptions: {
+        Row: {
+          id: string
+          provider: string
+          external_id: string
+          status: string
+          amount: number
+          currency: string
+          donor_name: string
+          donor_email: string
+          donor_phone: string | null
+          donor_user_id: string | null
+          dedication: string | null
+          last_payment_id: string | null
+          created_at: string
+          updated_at: string
+          cancelled_at: string | null
+        }
+        Insert: Partial<Database['public']['Tables']['dq_donation_subscriptions']['Row']> & {
+          provider: string
+          external_id: string
+          amount: number
+          donor_name: string
+          donor_email: string
+        }
+        Update: Partial<Database['public']['Tables']['dq_donation_subscriptions']['Row']>
+      }
+      dq_donations: {
+        Row: {
+          id: string
+          reference: string
+          cart_snapshot: Json
+          donor_name: string
+          donor_email: string
+          donor_phone: string | null
+          shipping_address: Json | null
+          dedication: string | null
+          subtotal: number
+          items_subtotal: number
+          postage_total: number
+          total: number
+          currency: string
+          payment_provider: string | null
+          payment_intent_id: string | null
+          payment_status: string
+          fulfillment_status: string
+          order_kind: string
+          frequency: string
+          donor_user_id: string | null
+          stripe_session_id: string | null
+          paypal_order_id: string | null
+          admin_notes: string | null
+          email_receipt_sent_at: string | null
+          email_shipped_sent_at: string | null
+          subscription_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['dq_donations']['Row']> & {
+          reference: string
+          donor_name: string
+          donor_email: string
+        }
+        Update: Partial<Database['public']['Tables']['dq_donations']['Row']>
+      }
     }
     Views: Record<string, never>
     Functions: {

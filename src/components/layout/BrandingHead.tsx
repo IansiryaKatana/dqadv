@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   applyBrandTheme,
+  brandThemeCssVars,
   resolveBrandTheme,
   resolveFavicon,
   type BrandTheme,
@@ -40,10 +41,10 @@ export function BrandingHead({ faviconUrl, siteSettings }: BrandingHeadProps) {
   }, [href])
 
   useEffect(() => {
-    applyBrandTheme(resolveBrandTheme(siteSettings))
-  }, [themeKey, siteSettings])
+    applyBrandTheme(theme)
+  }, [theme, themeKey])
 
-  return null
+  return <style id="dq-brand-vars">{`:root{${brandThemeCssVars(theme)}}`}</style>
 }
 
 function brandThemeKey(theme: BrandTheme) {

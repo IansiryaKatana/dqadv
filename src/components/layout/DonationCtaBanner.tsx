@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 import { Container } from '#/components/ui/container'
 import { Button } from '#/components/ui/button'
 
@@ -23,7 +22,7 @@ export function DonationCtaBanner({
           <p className="type-body text-white/70">{description}</p>
         </div>
         <Button asChild variant="gold" size="lg" className="shrink-0">
-          <Link to={ctaHref}>{ctaLabel}</Link>
+          <a href={ctaHref}>{ctaLabel}</a>
         </Button>
       </Container>
     </section>

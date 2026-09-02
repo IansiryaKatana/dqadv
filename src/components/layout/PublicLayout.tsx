@@ -3,7 +3,6 @@ import type { CmsSnapshot } from '#/lib/cms/types'
 import { BrandingHead } from '#/components/layout/BrandingHead'
 import { Header } from '#/components/layout/Header'
 import { Footer } from '#/components/layout/Footer'
-import { CartDrawer } from '#/components/commerce/CartDrawer'
 
 type PublicLayoutProps = {
   data: CmsSnapshot
@@ -31,7 +30,6 @@ export function PublicLayout({ data, children }: PublicLayoutProps) {
         logoLightUrl={siteSettings.logo_light_url}
         logoDarkUrl={siteSettings.logo_dark_url}
       />
-      <CartDrawer />
     </div>
   )
 }

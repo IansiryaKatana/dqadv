@@ -1,97 +1,66 @@
-import type { GiftCartItem } from './types'
 import { getSupabaseAdmin } from '#/lib/integrations/supabaseAdmin'
 import { donationReference } from './donationReference'
+import type { CommerceSnapshot, DonorDetails, ShippingAddress } from './checkoutShared'
 
-export type CreateDonationInput = {
-  items: GiftCartItem[]
-  donorName: string
-  donorEmail: string
-  donorPhone?: string
-  dedication?: string
-  shippingAddress?: {
-    line1: string
-    line2?: string
-    city: string
-    state: string
-    postalCode: string
-    country: string
-  } | null
+export type CreateCommerceDonationInput = DonorDetails & {
+  orderKind: 'donation' | 'quran_order'
+  frequency: 'one_time' | 'monthly'
+  itemsSubtotal: number
+  postageTotal: number
+  total: number
+  currency?: string
+  snapshot: CommerceSnapshot
+  shippingAddress?: ShippingAddress | null
   paymentProvider: 'stripe' | 'paypal'
-  donorUserId?: string | null
+  fulfillmentStatus: 'pending' | 'not_required'
+  subscriptionId?: string | null
 }
 
 export type DonationRecord = {
   id: string
   reference: string
-  subtotal: number
+  total: number
   currency: string
 }
 
-export async function createDonationRecord(input: CreateDonationInput): Promise<DonationRecord> {
+export async function createCommerceDonation(input: CreateCommerceDonationInput): Promise<DonationRecord> {
   const admin = getSupabaseAdmin()
   if (!admin) throw new Error('Server database configuration is missing.')
 
-  const subtotal = input.items.reduce((sum, item) => sum + (item.unitAmount ?? 0) * item.quantity, 0)
-  const currency = (input.items[0]?.currency ?? 'GBP').toUpperCase()
+  const currency = (input.currency ?? 'GBP').toUpperCase()
   const reference = donationReference()
 
   const { data, error } = await admin
     .from('dq_donations')
     .insert({
       reference,
-      cart_snapshot: input.items,
+      cart_snapshot: input.snapshot,
       donor_name: input.donorName.trim(),
       donor_email: input.donorEmail.trim().toLowerCase(),
       donor_phone: input.donorPhone?.trim() || null,
       shipping_address: input.shippingAddress ?? null,
       dedication: input.dedication?.trim() || null,
-      subtotal,
-      total: subtotal,
+      subtotal: input.itemsSubtotal,
+      items_subtotal: input.itemsSubtotal,
+      postage_total: input.postageTotal,
+      total: input.total,
       currency,
       payment_provider: input.paymentProvider,
       payment_status: 'pending',
+      fulfillment_status: input.fulfillmentStatus,
+      order_kind: input.orderKind,
+      frequency: input.frequency,
       donor_user_id: input.donorUserId ?? null,
+      subscription_id: input.subscriptionId ?? null,
     })
-    .select('id, reference, subtotal, currency')
+    .select('id, reference, total, currency')
     .single()
 
   if (error) throw new Error(error.message)
   return {
     id: data.id,
     reference: data.reference,
-    subtotal: Number(data.subtotal),
+    total: Number(data.total),
     currency: data.currency,
-  }
-}
-
-export function validateCheckoutInput(input: {
-  items: GiftCartItem[]
-  donorName: string
-  donorEmail: string
-  shippingAddress?: CreateDonationInput['shippingAddress']
-  needsShipping: boolean
-}) {
-  if (!input.items.length) throw new Error('Your donation cart is empty.')
-  if (!input.donorName.trim() || !input.donorEmail.trim()) {
-    throw new Error('Name and email are required.')
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.donorEmail.trim())) {
-    throw new Error('Please enter a valid email address.')
-  }
-  if (input.needsShipping) {
-    if (!input.shippingAddress) {
-      throw new Error('Please complete all required delivery fields.')
-    }
-    const { line1, city, state, postalCode, country } = input.shippingAddress
-    if (!line1.trim() || !city.trim() || !state.trim() || !postalCode.trim() || !country.trim()) {
-      throw new Error('Please complete all required delivery fields.')
-    }
-  }
-  for (const item of input.items) {
-    if ((item.unitAmount ?? 0) <= 0) {
-      throw new Error(
-        `"${item.title}" is a free request item and cannot be checked out as a paid gift. Please remove it and use Order free Qur'ans instead.`,
-      )
-    }
   }
 }

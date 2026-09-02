@@ -110,7 +110,7 @@ export const upsertDonorProfile = createServerFn({ method: 'POST' })
     return { ok: true as const }
   })
 
-const FULFILLMENT_STATUSES = new Set(['pending', 'processing', 'shipped', 'delivered'])
+const FULFILLMENT_STATUSES = new Set(['pending', 'processing', 'shipped', 'delivered', 'not_required'])
 
 export const listDonationsAdmin = createServerFn({ method: 'POST' })
   .validator((data: { accessToken: string }) => data)
@@ -124,7 +124,7 @@ export const listDonationsAdmin = createServerFn({ method: 'POST' })
     const { data: rows, error } = await admin
       .from('dq_donations')
       .select(
-        'id, reference, donor_name, donor_email, donor_phone, shipping_address, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at',
+        'id, reference, donor_name, donor_email, donor_phone, shipping_address, total, currency, payment_status, payment_provider, fulfillment_status, admin_notes, dedication, cart_snapshot, created_at, order_kind, frequency, items_subtotal, postage_total, subscription_id',
       )
       .order('created_at', { ascending: false })
 
@@ -162,6 +162,12 @@ export const updateDonationFulfillment = createServerFn({ method: 'POST' })
     const admin = getSupabaseAdmin()
     if (!admin) throw new Error('Server configuration is missing.')
 
+    const { data: before } = await admin
+      .from('dq_donations')
+      .select('fulfillment_status, email_shipped_sent_at, order_kind')
+      .eq('id', data.donationId)
+      .maybeSingle()
+
     const { error } = await admin
       .from('dq_donations')
       .update({
@@ -172,6 +178,23 @@ export const updateDonationFulfillment = createServerFn({ method: 'POST' })
       .eq('id', data.donationId)
 
     if (error) throw new Error(error.message)
+
+    if (
+      data.fulfillmentStatus === 'shipped' &&
+      before?.order_kind === 'quran_order' &&
+      !before.email_shipped_sent_at
+    ) {
+      const { data: row } = await admin.from('dq_donations').select('*').eq('id', data.donationId).maybeSingle()
+      if (row) {
+        try {
+          const { sendOrderShippedEmail } = await import('#/lib/email/sendDonationEmails')
+          await sendOrderShippedEmail(row)
+        } catch {
+          // email failure should not block fulfillment
+        }
+      }
+    }
+
     return { ok: true as const }
   })
 
@@ -196,6 +219,14 @@ export const bulkUpdateDonationFulfillment = createServerFn({ method: 'POST' })
     const admin = getSupabaseAdmin()
     if (!admin) throw new Error('Server configuration is missing.')
 
+    const { data: beforeRows } =
+      data.fulfillmentStatus === 'shipped'
+        ? await admin
+            .from('dq_donations')
+            .select('id, order_kind, email_shipped_sent_at')
+            .in('id', ids)
+        : { data: [] as { id: string; order_kind: string | null; email_shipped_sent_at: string | null }[] }
+
     const { error } = await admin
       .from('dq_donations')
       .update({
@@ -205,6 +236,23 @@ export const bulkUpdateDonationFulfillment = createServerFn({ method: 'POST' })
       .in('id', ids)
 
     if (error) throw new Error(error.message)
+
+    if (data.fulfillmentStatus === 'shipped') {
+      const { sendOrderShippedEmail } = await import('#/lib/email/sendDonationEmails')
+      const toEmail = (beforeRows ?? []).filter(
+        (row) => row.order_kind === 'quran_order' && !row.email_shipped_sent_at,
+      )
+      for (const item of toEmail) {
+        const { data: row } = await admin.from('dq_donations').select('*').eq('id', item.id).maybeSingle()
+        if (!row) continue
+        try {
+          await sendOrderShippedEmail(row)
+        } catch {
+          // email failure should not block fulfillment
+        }
+      }
+    }
+
     return { ok: true as const, count: ids.length }
   })
 
@@ -224,3 +272,63 @@ export const bulkDeleteDonations = createServerFn({ method: 'POST' })
     if (error) throw new Error(error.message)
     return { ok: true as const, count: ids.length }
   })
+
+export const listDonorSubscriptions = createServerFn({ method: 'POST' })
+  .validator((data: { accessToken: string }) => data)
+  .handler(async ({ data }) => {
+    const { getSupabaseUserClient } = await import('#/lib/integrations/supabaseAdmin')
+    const userClient = getSupabaseUserClient(data.accessToken)
+    if (!userClient) return []
+    const { data: userData } = await userClient.auth.getUser()
+    if (!userData.user) return []
+
+    const admin = getSupabaseAdmin()
+    if (!admin) return []
+
+    const email = userData.user.email?.toLowerCase() ?? ''
+    const { data: rows } = await admin
+      .from('dq_donation_subscriptions')
+      .select('id, provider, status, amount, currency, created_at, cancelled_at')
+      .or(`donor_user_id.eq.${userData.user.id},donor_email.eq.${email}`)
+      .order('created_at', { ascending: false })
+
+    return rows ?? []
+  })
+
+export const cancelDonorSubscription = createServerFn({ method: 'POST' })
+  .validator((data: { accessToken: string; subscriptionId: string }) => data)
+  .handler(async ({ data }) => {
+    const { getSupabaseUserClient } = await import('#/lib/integrations/supabaseAdmin')
+    const userClient = getSupabaseUserClient(data.accessToken)
+    if (!userClient) throw new Error('Unauthorized')
+    const { data: userData } = await userClient.auth.getUser()
+    if (!userData.user) throw new Error('Unauthorized')
+
+    const admin = getSupabaseAdmin()
+    if (!admin) throw new Error('Server configuration is missing.')
+
+    const email = userData.user.email?.toLowerCase() ?? ''
+    const { data: sub } = await admin
+      .from('dq_donation_subscriptions')
+      .select('id, donor_user_id, donor_email')
+      .eq('id', data.subscriptionId)
+      .maybeSingle()
+
+    if (!sub) throw new Error('Subscription not found.')
+    const owns =
+      sub.donor_user_id === userData.user.id || String(sub.donor_email).toLowerCase() === email
+    if (!owns) throw new Error('You cannot cancel this subscription.')
+
+    const { cancelSubscriptionById } = await import('#/lib/commerce/subscriptions')
+    return cancelSubscriptionById({ subscriptionDbId: sub.id, actor: 'donor' })
+  })
+
+export const cancelSubscriptionAdmin = createServerFn({ method: 'POST' })
+  .validator((data: { accessToken: string; subscriptionId: string }) => data)
+  .handler(async ({ data }) => {
+    const { verifyDonationsAccess } = await import('#/lib/admin/verifyAdminAccess')
+    await verifyDonationsAccess(data.accessToken)
+    const { cancelSubscriptionById } = await import('#/lib/commerce/subscriptions')
+    return cancelSubscriptionById({ subscriptionDbId: data.subscriptionId, actor: 'admin' })
+  })
+

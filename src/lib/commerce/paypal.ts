@@ -165,3 +165,131 @@ export async function verifyPayPalWebhook(headers: Headers, body: string) {
   const json = (await res.json()) as { verification_status?: string }
   return json.verification_status === 'SUCCESS'
 }
+
+async function paypalJson<T>(res: Response, fallback: string): Promise<T> {
+  const text = await res.text()
+  if (!res.ok) {
+    let detail = text || fallback
+    try {
+      const json = JSON.parse(text) as {
+        message?: string
+        name?: string
+        details?: Array<{ description?: string; issue?: string }>
+      }
+      detail =
+        json.details?.[0]?.description ||
+        json.details?.[0]?.issue ||
+        json.message ||
+        json.name ||
+        detail
+    } catch {
+      // keep raw
+    }
+    throw new Error(detail)
+  }
+  return JSON.parse(text) as T
+}
+
+export async function createPayPalSubscription(params: {
+  reference: string
+  amount: number
+  currency: string
+  donorEmail: string
+  returnUrl: string
+  cancelUrl: string
+}) {
+  const { token, mode } = await getPayPalAccessToken()
+  const base = paypalBaseUrl(mode)
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  }
+
+  const product = await paypalJson<{ id: string }>(
+    await fetch(`${base}/v1/catalogs/products`, {
+      method: 'POST',
+      headers: { ...headers, 'PayPal-Request-Id': `dq-prod-${params.reference}` },
+      body: JSON.stringify({
+        name: 'Donate Quran monthly gift',
+        type: 'SERVICE',
+        category: 'CHARITY',
+      }),
+    }),
+    'Could not create PayPal billing product.',
+  )
+
+  const plan = await paypalJson<{ id: string }>(
+    await fetch(`${base}/v1/billing/plans`, {
+      method: 'POST',
+      headers: { ...headers, 'PayPal-Request-Id': `dq-plan-${params.reference}` },
+      body: JSON.stringify({
+        product_id: product.id,
+        name: `Monthly gift ${params.amount.toFixed(2)} ${params.currency}`,
+        status: 'ACTIVE',
+        billing_cycles: [
+          {
+            frequency: { interval_unit: 'MONTH', interval_count: 1 },
+            tenure_type: 'REGULAR',
+            sequence: 1,
+            total_cycles: 0,
+            pricing_scheme: {
+              fixed_price: {
+                value: params.amount.toFixed(2),
+                currency_code: params.currency.toUpperCase(),
+              },
+            },
+          },
+        ],
+        payment_preferences: {
+          auto_bill_outstanding: true,
+          payment_failure_threshold: 3,
+        },
+      }),
+    }),
+    'Could not create PayPal billing plan.',
+  )
+
+  const subscription = await paypalJson<{ id: string; links?: { rel: string; href: string }[] }>(
+    await fetch(`${base}/v1/billing/subscriptions`, {
+      method: 'POST',
+      headers: { ...headers, 'PayPal-Request-Id': `dq-sub-${params.reference}` },
+      body: JSON.stringify({
+        plan_id: plan.id,
+        custom_id: params.reference,
+        subscriber: { email_address: params.donorEmail.trim() },
+        application_context: {
+          brand_name: 'Donate Quran',
+          locale: 'en-GB',
+          shipping_preference: 'NO_SHIPPING',
+          user_action: 'SUBSCRIBE_NOW',
+          return_url: params.returnUrl,
+          cancel_url: params.cancelUrl,
+        },
+      }),
+    }),
+    'Could not create PayPal subscription.',
+  )
+
+  const approve =
+    subscription.links?.find((l) => l.rel === 'approve') ??
+    subscription.links?.find((l) => l.rel === 'payer-action')
+  if (!approve?.href) throw new Error('Could not get PayPal subscription approval URL.')
+
+  return { subscriptionId: subscription.id, approvalUrl: approve.href }
+}
+
+export async function cancelPayPalSubscription(subscriptionId: string) {
+  const { token, mode } = await getPayPalAccessToken()
+  const res = await fetch(`${paypalBaseUrl(mode)}/v1/billing/subscriptions/${subscriptionId}/cancel`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ reason: 'Cancelled by donor' }),
+  })
+  if (!res.ok && res.status !== 204) {
+    const err = await res.text()
+    throw new Error(err || 'Could not cancel PayPal subscription.')
+  }
+}

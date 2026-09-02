@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Database } from '#/integrations/supabase/database.types'
 import { getSupabase } from '#/integrations/supabase/client'
 import { useCms } from '#/contexts/CmsContext'
+import { resolveBrandTheme, resolveCustomSurfaceColor } from '#/lib/site/branding'
 import { useAdminPageHeader } from './AdminPageContext'
 import { AdminModal } from './components/AdminModal'
 import { ImageUploadField } from './components/ImageUploadField'
@@ -12,7 +13,8 @@ type Row = Database['public']['Tables']['dq_hero_content']['Row']
 type InsideRow = Database['public']['Tables']['dq_whats_inside']['Row']
 
 export function AdminHero() {
-  const { refetch } = useCms()
+  const { data, refetch } = useCms()
+  const creamFallback = resolveBrandTheme(data?.siteSettings).cream
   const [rows, setRows] = useState<Row[]>([])
   const [inside, setInside] = useState<InsideRow | null>(null)
   const [err, setErr] = useState<string | null>(null)
@@ -58,7 +60,7 @@ export function AdminHero() {
       image_url_mobile: draft.image_url_mobile?.trim() || null,
       primary_cta_label: draft.primary_cta_label ?? 'DONATE NOW',
       primary_cta_url: draft.primary_cta_url ?? '/donate',
-      secondary_cta_label: draft.secondary_cta_label ?? 'ORDER FREE COPY',
+      secondary_cta_label: draft.secondary_cta_label ?? 'ORDER A COPY',
       secondary_cta_url: draft.secondary_cta_url ?? '/order-free-qurans',
       is_active: draft.is_active ?? true,
     }
@@ -85,7 +87,7 @@ export function AdminHero() {
     const { error } = await sb.from('dq_whats_inside').upsert(
       {
         ...inside,
-        background_color: inside.background_color?.trim() || null,
+        background_color: resolveCustomSurfaceColor(inside.background_color),
       },
       { onConflict: 'id' },
     )
@@ -156,8 +158,8 @@ export function AdminHero() {
           <div className="max-w-xs">
             <AdminColorField
               label="Background color"
-              value={inside.background_color ?? ''}
-              fallback="#FAF7F1"
+              value={resolveCustomSurfaceColor(inside.background_color) ?? ''}
+              fallback={creamFallback}
               onChange={(value) => setInside({ ...inside, background_color: value })}
             />
           </div>

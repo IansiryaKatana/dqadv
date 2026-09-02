@@ -4,8 +4,12 @@ import { getSupabase, isSupabaseConfigured } from '#/integrations/supabase/clien
 import { useAdminPageHeader } from './AdminPageContext'
 
 type DashboardStats = {
-  products: number
-  quickDonations: number
+  gifts: number
+  orders: number
+  monthly: number
+  printCost: number
+  postage: number
+  copies: number
   stories: number
   blogPosts: number
   wikiArticles: number
@@ -22,7 +26,17 @@ export function AdminDashboard() {
     async function loadStats() {
       const sb = getSupabase()
       if (!sb) {
-        setStats({ products: 0, quickDonations: 0, stories: 0, blogPosts: 0, wikiArticles: 0 })
+        setStats({
+          gifts: 0,
+          orders: 0,
+          monthly: 0,
+          printCost: 0,
+          postage: 0,
+          copies: 0,
+          stories: 0,
+          blogPosts: 0,
+          wikiArticles: 0,
+        })
         setLoading(false)
         return
       }
@@ -30,22 +44,40 @@ export function AdminDashboard() {
       setLoading(true)
       setError(null)
 
-      const [productsRes, quickRes, storiesRes, articlesRes, wikiRes] = await Promise.all([
-        sb.from('dq_donation_products').select('*', { count: 'exact', head: true }).eq('kind', 'product'),
-        sb.from('dq_donation_products').select('*', { count: 'exact', head: true }).eq('kind', 'quick'),
+      const [giftsRes, ordersRes, storiesRes, articlesRes, wikiRes, subsRes, orderRowsRes] = await Promise.all([
+        sb.from('dq_donations').select('*', { count: 'exact', head: true }).eq('order_kind', 'donation').eq('payment_status', 'paid'),
+        sb.from('dq_donations').select('*', { count: 'exact', head: true }).eq('order_kind', 'quran_order').eq('payment_status', 'paid'),
         sb.from('dq_story_posters').select('*', { count: 'exact', head: true }),
         sb.from('dq_articles').select('*', { count: 'exact', head: true }),
         sb.from('dq_quran_wiki_articles').select('*', { count: 'exact', head: true }),
+        sb.from('dq_donation_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        sb
+          .from('dq_donations')
+          .select('items_subtotal, postage_total, cart_snapshot')
+          .eq('order_kind', 'quran_order')
+          .eq('payment_status', 'paid'),
       ])
 
-      const failed = [productsRes, quickRes, storiesRes, articlesRes, wikiRes].find((res) => res.error)
+      const failed = [giftsRes, ordersRes, storiesRes, articlesRes, wikiRes, subsRes, orderRowsRes].find((res) => res.error)
       if (failed?.error) {
         setError(failed.error.message)
         setStats(null)
       } else {
+        const orderRows = (orderRowsRes.data ?? []) as Array<{
+          items_subtotal?: number | null
+          postage_total?: number | null
+          cart_snapshot?: { copies?: number } | null
+        }>
         setStats({
-          products: productsRes.count ?? 0,
-          quickDonations: quickRes.count ?? 0,
+          gifts: giftsRes.count ?? 0,
+          orders: ordersRes.count ?? 0,
+          monthly: subsRes.count ?? 0,
+          printCost: orderRows.reduce((sum, row) => sum + Number(row.items_subtotal ?? 0), 0),
+          postage: orderRows.reduce((sum, row) => sum + Number(row.postage_total ?? 0), 0),
+          copies: orderRows.reduce((sum, row) => {
+            const snapshot = row.cart_snapshot as { copies?: number } | null
+            return sum + Number(snapshot && typeof snapshot === 'object' ? snapshot.copies ?? 0 : 0)
+          }, 0),
           stories: storiesRes.count ?? 0,
           blogPosts: articlesRes.count ?? 0,
           wikiArticles: wikiRes.count ?? 0,
@@ -70,8 +102,12 @@ export function AdminDashboard() {
   })
 
   const statCards = [
-    { label: 'Products', value: stats?.products },
-    { label: 'Quick donations', value: stats?.quickDonations },
+    { label: 'Paid gifts', value: stats?.gifts },
+    { label: 'Qur’an orders', value: stats?.orders },
+    { label: 'Active monthly', value: stats?.monthly },
+    { label: 'Copies posted', value: stats?.copies },
+    { label: 'Print contribution', value: stats ? `£${stats.printCost.toFixed(0)}` : undefined },
+    { label: 'Postage collected', value: stats ? `£${stats.postage.toFixed(0)}` : undefined },
     { label: 'Stories', value: stats?.stories },
     { label: 'Blog posts', value: stats?.blogPosts },
     { label: 'Wiki articles', value: stats?.wikiArticles },
@@ -96,8 +132,14 @@ export function AdminDashboard() {
           <Link to="/backend/content/hero" className="admin-btn-primary">
             Edit hero
           </Link>
-          <Link to="/backend/commerce/products" className="admin-btn-secondary">
-            Manage products
+          <Link to="/backend/commerce/donations" className="admin-btn-secondary">
+            Gifts & orders
+          </Link>
+          <Link to="/backend/commerce/give-presets" className="admin-btn-secondary">
+            Give presets
+          </Link>
+          <Link to="/backend/commerce/postage" className="admin-btn-secondary">
+            Postage tiers
           </Link>
           <Link to="/backend/content/articles" className="admin-btn-secondary">
             Manage articles
